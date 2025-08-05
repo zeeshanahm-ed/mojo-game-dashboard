@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Bulletproof';
+    src: url('../assets//fonts/Bulletproof_bb.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Product_sans';
+    src: url('../assets//fonts/Product_sans.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

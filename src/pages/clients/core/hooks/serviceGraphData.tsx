@@ -1,0 +1,17 @@
+import { useQuery } from 'react-query';
+import { serviceGraphData } from '../_requests';
+
+import { QUERIES_KEYS } from 'helpers/crud-helper/consts';
+
+const useServiceGraphData = () => {
+  const { data, error, isLoading, isError, isSuccess,refetch  } = useQuery([QUERIES_KEYS.GET_GRAPH], () => serviceGraphData(),
+  {
+    cacheTime: 1,
+    staleTime: 0,
+  }
+);
+
+  return { serviceGraphData: data?.data, error, isLoading, isError, isSuccess , refetch};
+};
+
+export default useServiceGraphData;
