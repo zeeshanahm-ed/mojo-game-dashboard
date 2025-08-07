@@ -3,11 +3,10 @@ import twc from 'tw-classnames';
 import Button from 'components/core-ui/button/button';
 //icons
 import Logout from 'assets/icons/logout-icon.svg?react';
-import LogoText from 'assets/icons/sidebar-logo-text.png';
-import Logo from 'assets/images/mojo-logo.png';
+
 // Helpers
 import * as authHelper from '../../../auth/core/auth-helpers';
-import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
+// import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
 
 
 
