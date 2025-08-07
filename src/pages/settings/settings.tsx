@@ -14,7 +14,7 @@ import MailIcon from 'assets/icons/mail.svg?react';
 import UploadIcon from 'assets/icons/upload-icon.svg?react';
 import UserIcon from 'assets/icons/user.svg?react';
 import * as authHelper from '../../auth/core/auth-helpers';
-import useUploadData from 'pages/services/core/hooks/useUploadData';
+// import useUploadData from 'pages/services/core/hooks/useUploadData';
 import { handleErrorMineImg } from 'components/global/global';
 
 function Settings() {
@@ -23,7 +23,7 @@ function Settings() {
   const { saveAuth, setCurrentUser } = useAuth();
   const { setTitle } = useHeaderProps();
   const { mutation } = userUpdate();
-  const { getSignedUrl } = useUploadData();
+  // const { getSignedUrl } = useUploadData();
   const [loading, setLoading] = useState(false);
   const { updatePassword } = useUpdatePassword();
   const { mutate: mutateVerifyToken } = useMutation((token: any) => getUserByToken(token));
@@ -43,59 +43,59 @@ function Settings() {
     setLoading(true);
     const files = event.target.files;
     const s3Keys: string[] = [];
-    if (files && files.length > 0) {
-      const file = files[0]; // Access the first file
+    // if (files && files.length > 0) {
+    //   const file = files[0]; // Access the first file
 
-      const fileName = file.name; // Get the file name
-      const fileType = file.type; // Get the file type
-      const body = {
-        name: fileName,
-        type: fileType,
-      };
+    //   const fileName = file.name; // Get the file name
+    //   const fileType = file.type; // Get the file type
+    //   const body = {
+    //     name: fileName,
+    //     type: fileType,
+    //   };
 
-      const fileArray = Array.from(files);
-      try {
-        // Use await to ensure the getSignedUrl call completes before moving to the next file
-        await new Promise<void>((resolve, reject) => {
-          getSignedUrl(body, {
-            onSuccess: async (data) => {
-              const signedUrl = data?.data?.signedUrl;
-              if (signedUrl) {
-                try {
-                  // Await the fetch to ensure each file is uploaded sequentially
-                  await fetch(signedUrl, {
-                    method: 'PUT',
-                    headers: {
-                      Accept: 'application/json',
-                      'Content-Type': file.type,
-                    },
-                    body: fileArray[0],
-                  });
+    //   const fileArray = Array.from(files);
+    //   try {
+    //     // Use await to ensure the getSignedUrl call completes before moving to the next file
+    //     await new Promise<void>((resolve, reject) => {
+    //       getSignedUrl(body, {
+    //         onSuccess: async (data) => {
+    //           const signedUrl = data?.data?.signedUrl;
+    //           if (signedUrl) {
+    //             try {
+    //               // Await the fetch to ensure each file is uploaded sequentially
+    //               await fetch(signedUrl, {
+    //                 method: 'PUT',
+    //                 headers: {
+    //                   Accept: 'application/json',
+    //                   'Content-Type': file.type,
+    //                 },
+    //                 body: fileArray[0],
+    //               });
 
-                  // Push the signed URL to the array after a successful upload
-                  s3Keys.push(signedUrl);
-                  resolve(); // Continue to the next file
-                } catch (uploadError) {
-                  console.error(`Upload failed for file ${file.name}`, uploadError);
-                  reject(uploadError); // If the upload fails, stop further execution
-                }
-              } else {
-                console.error('Signed URL not found');
-                reject('Signed URL not found');
-              }
-            },
-            onError: (error) => {
-              console.error('Failed to get signed URL', error);
-              reject(error);
-            },
-          });
-        });
-      } catch (error) {
-        console.error(`Error handling file ${file.name}`, error);
-      }
-    } else {
-      showErrorMessage('No files selected');
-    }
+    //               // Push the signed URL to the array after a successful upload
+    //               s3Keys.push(signedUrl);
+    //               resolve(); // Continue to the next file
+    //             } catch (uploadError) {
+    //               console.error(`Upload failed for file ${file.name}`, uploadError);
+    //               reject(uploadError); // If the upload fails, stop further execution
+    //             }
+    //           } else {
+    //             console.error('Signed URL not found');
+    //             reject('Signed URL not found');
+    //           }
+    //         },
+    //         onError: (error) => {
+    //           console.error('Failed to get signed URL', error);
+    //           reject(error);
+    //         },
+    //       });
+    //     });
+    //   } catch (error) {
+    //     console.error(`Error handling file ${file.name}`, error);
+    //   }
+    // } else {
+    //   showErrorMessage('No files selected');
+    // }
     // After all files are uploaded successfully, save the entry
     const baseUrls = s3Keys.map((url) => {
       // Remove the query parameters by splitting on '?' and taking the first part

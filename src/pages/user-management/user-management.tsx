@@ -1,278 +1,168 @@
-import { SetStateAction, useEffect, useState } from 'react';
-import axios from 'axios';
-//components
-import { Empty, Pagination, Popconfirm, Select, Spin, Switch } from 'antd';
-import { ISignUpForm } from 'auth';
-import Button from 'components/core-ui/button/button';
+import React, { useEffect, useState } from "react";
+import { useHeaderProps } from "components/core/use-header-props";
+import { Input, Checkbox, Button } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import ArrowIcon from "assets/icons/arrow-icon.svg?react";
+import UserDetailsModal from "./components/user-details-modal";
 
-//icons
-import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
-import AddIcon from 'assets/icons/rounded-add-icon.svg?react';
-import DeleteIcon from 'assets/icons/delete-icon.svg?react';
-import EditIcon from 'assets/icons/edit-icon-services.svg?react';
-//helpers & hooks & utilities
-import * as authHelper from '../../auth/core/auth-helpers';
-import useSignUp from 'auth/core/hooks/use-sign-up';
-import { useHeaderProps } from 'components/core/use-header-props';
-import { User, UserDataParams } from './core/_modals';
-import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
-import UserManagementAddModal from './components/user-management-add-modal';
-import useUpdateData from './core/hooks/useUpdateData';
-import useUserData from './core/hooks/useUserData';
+interface User {
+  key: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  status: "Active" | "Suspended" | "Archived";
+}
 
-const TABLE_HEAD = ['User ID', 'User', 'User Role', 'Email', 'Password', 'User Status', 'Actions'];
+const staticData: User[] = [
+  { key: "1", userId: "031556", fullName: "John Alex", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "2", userId: "031556", fullName: "Alexander Brian", email: "testing123@gmail.com", phone: "+96320584138940", status: "Suspended" },
+  { key: "3", userId: "031556", fullName: "Gustafosan Lee", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "4", userId: "031556", fullName: "Ahmad Ali", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "5", userId: "031556", fullName: "Sheikh Muhammad", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "6", userId: "017518", fullName: "Abdur Rehman", email: "testing123@gmail.com", phone: "+96320584138940", status: "Archived" },
+  { key: "7", userId: "015981", fullName: "Muhammad Bin Ali", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "8", userId: "018318", fullName: "Brian Johnson", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "9", userId: "031556", fullName: "Dawayeon Johnson", email: "testing123@yahoo.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+];
 
-const ROLES_OPTIONS = [
-  { value: 'admin', label: 'Super Admin' },
-  { value: 'operations', label: 'Team Member' },
-  { value: 'billing', label: 'Billing' },
-]
+const Table_Header = [
+  "User ID",
+  "Full Name",
+  "Email Address",
+  "Phone Number",
+  "Status",
+  "",
+];
 
-function UserManagement() {
-  const currentUser = authHelper.getUser();
-  const intitialParams: UserDataParams = {
-    limit: 10,
-    page: 1,
-    search: '',
-    role: '',
-  };
-  const [listing, setListing] = useState({ ...intitialParams });
-  const { userData, refetch, isLoading: isLoadingUserData } = useUserData(listing);
+const statusColors: Record<User["status"], string> = {
+  Active: "text-secondary",
+  Suspended: "text-dark-gray",
+  Archived: "text-dark-gray",
+};
 
-  const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [userLoadingId, setUserLoadingId] = useState('');
-  const [selectedUser, setSelectedUser] = useState<any>();
+export const UserManagement: React.FC = () => {
   const { setTitle } = useHeaderProps();
-  const { mutate } = useSignUp();
-  const { mutate: updateUser, isLoading } = useUpdateData(refetch);
-  const disabled = true;
+  const [search, setSearch] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false);
 
-  useEffect(() => {
-    setTitle('User Management');
-  }, [setTitle]);
+  useEffect(() => setTitle('User Management'), [setTitle]);
 
-  const showModal = (user: SetStateAction<undefined> | User) => {
-    setSelectedUser(user);
-    setIsAddModalOpen(true);
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus((prev) => (prev === status ? "" : status));
   };
 
-  const handleOk = (values: ISignUpForm) => {
-    mutate(values, {
-      onSuccess: () => {
-        showSuccessMessage('User added succesfully');
-        setIsAddModalOpen(false);
-        refetch();
-      },
-      onError: (error) => {
-        if (axios.isAxiosError(error)) {
-          const { response } = error;
-          const errorMessage = response?.data?.message || 'An error occurred while adding the client';
-          showErrorMessage(errorMessage);
-        } else {
-          showErrorMessage('An unexpected error occurred');
-        }
-      },
-    });
-  };
-  const deleteUser = async (uId: any) => {
-    const body = {
-      isDeleted: true,
-    };
-    try {
-      await updateUser({ id: uId, data: body });
-      showSuccessMessage('User Deleted Successfully!');
-      setIsAddModalOpen(false);
-      refetch();
-    } catch (error) {
-      showErrorMessage('Failed to delete user');
-    }
-  };
-  const toggleUserActive = (userId: string, isActive: boolean) => {
-    setUserLoadingId(userId)
-    const body = { isActive: isActive }
-    // updateUserActiveStatus(userId, isActive);
-    updateUser(
-      { id: userId, data: body },
-      {
-        onSuccess: () => {
-          refetch();
-          showSuccessMessage('User successfully updated');
-          // setIsAddModalOpen(false);
-        },
-        onError: (error) => {
-          console.error('Error while updating', error);
-          showErrorMessage('Error while updating!');
-        },
-      }
-    );
-  };
-  const handleUpdateButton = (values: any) => {
-    const body = { role: values?.role, };
-    try {
-      updateUser(
-        { id: values.id, data: body },
-        {
-          onSuccess: () => {
-            refetch();
-            showSuccessMessage('User successfully updated');
-            setIsAddModalOpen(false);
-          },
-          onError: (error) => {
-            console.error('Error while updating', error);
-            showErrorMessage('Error while updating!');
-          },
-        }
-      );
-    } catch (error) {
-      showErrorMessage('Failed to update user');
-    }
-  };
+  const filteredData = staticData.filter((user) => {
+    const matchesSearch = user.fullName.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus =
+      selectedStatus === "" || user.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  });
 
-  const handleCancel = () => {
-    setIsAddModalOpen(false);
-    setSelectedUser('');
-  };
-
-  const handleRoleChange = (value: string) => {
-    setListing({ ...listing, page: 1, role: value });
-  };
-
-  const togglePasswordVisibility = (userId: string) => {
-    setVisiblePasswords((prevState) => ({
-      ...prevState,
-      [userId]: !prevState[userId],
-    }));
-  };
-
-  const handlePageChange = (page: number) => {
-    setListing({ ...listing, page: page });
+  const handleModalToggle = () => {
+    setUserDetailsModalOpen(!userDetailsModalOpen);
   };
 
   return (
-    <section className='overflow-hidden mb-10'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <Button
-            variant='secondary'
-            className='h-11 custom-radius px-10 gap-3'
-            onClick={() => setIsAddModalOpen(true)}
+    <section className="overflow-hidden my-10">
+      {/* Search and Filters */}
+      <div className="flex flex-col gap-y-5">
+        <Input
+          placeholder="Search by name"
+          prefix={<SearchOutlined />}
+          variant={undefined}
+          className="w-full rounded-none border-b border-border-gray"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <div className="border border-border-gray p-5 rounded flex items-center gap-4 flex-wrap">
+          <Checkbox
+            checked={selectedStatus === ""}
+            onChange={() => setSelectedStatus("")}
           >
-            <AddIcon /> Add User
-          </Button>
+            All Accounts
+          </Checkbox>
+          <Checkbox
+            checked={selectedStatus === "Active"}
+            onChange={() => handleStatusChange("Active")}
+          >
+            Active
+          </Checkbox>
+          <Checkbox
+            checked={selectedStatus === "Suspended"}
+            onChange={() => handleStatusChange("Suspended")}
+          >
+            Suspended
+          </Checkbox>
         </div>
-        <Select
-          allowClear
-          placeholder='All Roles'
-          className='w-40 h-11 custom-radius'
-          onChange={handleRoleChange}
-          options={ROLES_OPTIONS}
-        />
       </div>
 
-      <div className='pt-10 w-full overflow-x-scroll'>
-        <div className='min-w-[1100px] mb-5'>
-          <div className='py-1 grid grid-cols-7 gap-3 border rounded-md border-secondary'>
-            {TABLE_HEAD.map((head, index) => (
-              <div
-                key={head}
-                className={`px-4 py-1 my-3 ${index !== TABLE_HEAD.length - 1 ? 'border-r border-r-gray-400' : ''} text-center text-light-gray font-medium text-sm`}
-              >
-                {head}
-              </div>
-            ))}
-          </div>
+      {/* Heading */}
 
-          {isLoadingUserData || isLoading ? (
-            <div className='flex justify-center items-center h-32'>
-              <Spin size="large" />
-            </div>
-          ) : (
-            <>
-              {userData?.data?.length > 0 ? (
-                userData?.data?.map((user: User) => {
-                  const isPasswordVisible = visiblePasswords[user._id];
-                  const isCurrentUser = currentUser?._id === user._id;
-                  const userRoleLabel: string = ({
-                    admin: 'Super Admin',
-                    operations: 'Team Member',
-                  } as Record<string, string>)[user.role as string] || user.role || '-';
+      {/* Custom Table */}
+      <div className="border border-gray-200  rounded-lg mt-5">
+        <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
+          Showing all Users <span className="text-border-gray text-sm ml-2">new users</span>
+        </div>
 
-                  return (
-                    <div key={user._id} className="py- grid grid-cols-7 gap-3 border-b border-border-gray text-center items-center font-medium text-sm">
-                      <div className="px-4 py-4 break-words">{user.userId || '-'}</div>
-                      <div className="px-4 py-4 break-words">{user.name}</div>
-                      <div className="px-4 py-4 break-words capitalize">{userRoleLabel}</div>
-                      <div className="px-4 py-4 break-words">{user.email || '-'}</div>
-
-                      <div className="px-4 py-4 break-words">
-                        {isPasswordVisible ? user.password : '*****'}
-                        <span className="mx-3 cursor-pointer" onClick={() => togglePasswordVisibility(user._id)}>
-                          {isPasswordVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </span>
-                      </div>
-
-                      <div className="px-4 py-4 break-words">
-                        <Switch
-                          checked={user.isActive}
-                          onChange={(checked) => toggleUserActive(user._id, checked)}
-                          checkedChildren=""
-                          unCheckedChildren=""
-                          loading={isLoading && userLoadingId === user._id}
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-4 justify-center">
-                        <Button onClick={() => showModal(user)} variant="text">
-                          <EditIcon />
-                        </Button>
-
-                        {!isCurrentUser && (
-                          <Popconfirm
-                            title="Are you sure you want to delete this user?"
-                            onConfirm={() => deleteUser(user._id)}
-                            okText="Yes"
-                            cancelText="No"
-                          >
-                            <Button onClick={(e) => e.stopPropagation()} variant="text" className="rounded-md px-4 py-3" >
-                              <DeleteIcon />
-                            </Button>
-                          </Popconfirm>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <Empty className="my-12" description="No Users Found" />
-              )}
-            </>
+        {/* Scroll Wrapper */}
+        <div className="w-full overflow-x-auto overflow-y-auto lg:max-h-[800px]">
+          <table className="min-w-[1092px] w-full">
+            <thead className="bg-light-gray text-white">
+              <tr>
+                {Table_Header.map((header, index) => (
+                  <th
+                    key={index}
+                    className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((user) => (
+                <tr key={user.key} className="border-t hover:bg-gray-50">
+                  <td className="p-5">{user.userId}</td>
+                  <td className="p-5">{user.fullName}</td>
+                  <td className="p-5">{user.email}</td>
+                  <td className="p-5">{user.phone}</td>
+                  <td className={`p-5 ${statusColors[user.status]}`}>
+                    {user.status}
+                  </td>
+                  <td className="p-5 text-xl cursor-pointer">
+                    <Button onClick={handleModalToggle} className="border-none shadow-none">
+                      <ArrowIcon />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredData.length === 0 && (
+            <div className="p-4 text-gray-500">No users found.</div>
           )}
-
         </div>
       </div>
-      {userData?.data?.length !== 0 && (
-        <Pagination
-          style={{ color: 'white' }}
-          className='flex justify-center text-white mt-5'
-          current={userData?.currentPage}
-          total={userData?.totalItems}
-          pageSize={userData?.pageSize}
-          onChange={handlePageChange}
-        />
-      )}
-      <UserManagementAddModal
-        open={isAddModalOpen}
-        onCancel={handleCancel}
-        title='Delete'
-        name='Andy Elliot'
-        selectedUser={selectedUser}
-        disabled={disabled}
-        handleOkButton={handleOk}
-        handleUpdateButton={handleUpdateButton}
-      />
+      <UserDetailsModal isOpen={userDetailsModalOpen} onClose={handleModalToggle} />
     </section>
   );
-}
+};
 
 export default UserManagement;

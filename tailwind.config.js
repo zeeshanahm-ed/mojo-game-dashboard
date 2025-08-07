@@ -48,6 +48,7 @@ export default {
         warning: 'var(--color-warning-500)',
         'border-gray': 'var(--color-border-gray)',
         'light-gray': 'var(--color-light-gray)',
+        'medium-gray': 'var(--color-medium-gray)',
         'dark-gray': 'var(--color-dark-gray)',
         'white': 'var(--color-white)',
         'black': 'var(--color-black)',

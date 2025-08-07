@@ -21,6 +21,7 @@ function App() {
               token: {
                 colorPrimary: '#0972C8',
                 fontFamily: 'Product_sans',
+
               },
               components: {
                 Input: {
@@ -29,7 +30,7 @@ function App() {
                 },
                 Button: {
                   fontSize: 16,
-                  fontWeight: 'bold',
+                  fontWeight: 'normal',
                 },
                 Table: {
                   lineWidth: 1,
@@ -38,7 +39,7 @@ function App() {
                   headerColor: '#ffffff',
                 },
                 Pagination: {
-                  itemActiveBg: '#7ca240',
+                  itemActiveBg: '#0972C8',
                 },
                 Form: {
                   labelFontSize: 19,
@@ -50,10 +51,10 @@ function App() {
                   colorPrimary: '#3292ea',
                 },
                 Radio: {
-                  colorPrimary: '#3292ea',
-                  radioSize: 22,
+                  colorPrimary: '#0972C8',
+                  radioSize: 20,
                   fontSize: 18,
-                  dotSize: 8,
+                  dotSize: 10,
                   wrapperMarginInlineEnd: 24,
                 },
                 Popconfirm: {

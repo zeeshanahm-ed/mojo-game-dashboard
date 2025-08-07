@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 import { Dropdown, Menu } from 'antd';
 
 import Button from 'components/core-ui/button/button';
 import { useHeaderProps } from 'components/core/use-header-props';
-import { handleErrorMineImg } from 'components/global/global';
 
 import Back from 'assets/icons/back-arrow.svg?react';
+import UserIcon from 'assets/icons/user-icon.svg?react';
 
 import * as authHelper from '../../../auth/core/auth-helpers';
 
@@ -50,22 +49,10 @@ function Header() {
 
           <div className='flex gap-8 items-center'>
             <div className='flex items-center gap-3'>
-              <div className='text-end'>
-                <p className='font-medium'>{currentUser?.name}</p>
-                <p className='text-sm text-light-gray capitalize'>
-                  {currentUser?.role === 'operations' ? 'Team Member' : currentUser?.role}
-                </p>
-              </div>
-
               <Dropdown overlay={menu} trigger={['click']} placement='bottomRight'>
-                <div className='bg-gray-200 font-semibold text-3xl rounded-full w-14 h-14 flex flex-centered cursor-pointer'>
+                <div className='bg-gray-200 font-semibold text-3xl rounded-full w-10 h-10 flex flex-centered cursor-pointer'>
                   {currentUser?.profilePicture ? (
-                    <img
-                      src={currentUser?.profilePicture}
-                      alt=''
-                      className='rounded-full object-cover w-full h-full'
-                      onError={handleErrorMineImg}
-                    />
+                    <UserIcon />
                   ) : (
                     <span>{currentUser?.name?.charAt(0)}</span>
                   )}

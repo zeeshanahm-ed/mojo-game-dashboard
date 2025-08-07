@@ -4,7 +4,7 @@ import Button from 'components/core-ui/button/button';
 //icons
 import Logout from 'assets/icons/logout-icon.svg?react';
 import LogoText from 'assets/icons/sidebar-logo-text.png';
-import Logo from 'assets/icons/sidebar-logo.png';
+import Logo from 'assets/images/mojo-logo.png';
 // Helpers
 import * as authHelper from '../../../auth/core/auth-helpers';
 import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
@@ -85,14 +85,16 @@ function SidebarRoutes() {
   return (
     <section className='fixed top-0 font-primary z-[999] font-medium flex flex-col h-screen border-r w-72'>
       <div className='flex flex-col h-screen'>
-        <div className='flex items-center justify-center border-b-2'>
+        <div className='flex items-center justify-center'>
           <Button
-            className='gap-0 my-6 justify-center items-end border-gray-300 rounded-none'
+            className='gap-0 my-6 justify-center items-end rounded-none'
             variant='text'
             onClick={navigateToDashboard}
           >
-            <img src={Logo} alt='logo' onError={handleErrorMineImg} />
-            <img src={LogoText} alt='logo' onError={handleErrorMineImg} />
+            <div className="flex">
+              <h1 className="text-5xl font-bold font-secondary">MOJO</h1>
+              <h2 className="text-base font-medium mt-5 ml-2">Admin Portal</h2>
+            </div>
           </Button>
         </div>
         <div className='overflow-auto h-screen'>
