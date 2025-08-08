@@ -60,7 +60,7 @@ function SidebarRoutes() {
     {
       key: 'settings-controls',
       label: 'Settings & Controls',
-      path: '/settings-controls',
+      path: '/settings',
       roles: true,
     },
     {
