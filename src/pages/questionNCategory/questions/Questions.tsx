@@ -164,7 +164,7 @@ function Questions() {
                     <span className="text-border-gray text-sm ml-2">{questionsData.length} Results</span>
                 </div>
 
-                <div className="w-full overflow-x-auto overflow-y-auto lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto h-[800px] overflow-y-auto lg:max-h-[800px]">
                     <table className="min-w-[1092px] w-full">
                         {/* Table Header */}
                         <thead className="bg-light-gray text-white">
@@ -202,7 +202,9 @@ function Questions() {
                                                     okText="Yes"
                                                     cancelText="No"
                                                 >
-                                                    <DeleteIcon className="cursor-pointer text-error-500" />
+                                                    <Button variant="text" className="border-none shadow-none">
+                                                        <DeleteIcon className="text-error-500" />
+                                                    </Button>
                                                 </Popconfirm>
                                             </div>
                                         </td>

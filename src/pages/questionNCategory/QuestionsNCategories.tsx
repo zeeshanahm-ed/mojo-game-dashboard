@@ -9,7 +9,7 @@ function QuestionsNCategories() {
     const { setTitle } = useHeaderProps();
 
     useEffect(() => {
-        setTitle('Questions & Categories');
+        setTitle('Question & Category Management');
     }, []);
 
     const tabsLabel = [
