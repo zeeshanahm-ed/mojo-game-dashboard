@@ -25,19 +25,16 @@ const staticData: User[] = [
   { key: "8", userId: "018318", fullName: "Brian Johnson", email: "testing123@gmail.com", phone: "+96320584138940", status: "Active" },
   { key: "9", userId: "031556", fullName: "Dawayeon Johnson", email: "testing123@yahoo.com", phone: "+96320584138940", status: "Active" },
   { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
-  { key: "10", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "11", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "12", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "13", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "14", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "15", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "16", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "17", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "18", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "19", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
+  { key: "20", userId: "031891", fullName: "Bilal Muhammad", email: "Bilalgamer@gmail.com", phone: "+96320584138940", status: "Active" },
 ];
 
 const Table_Header = [
@@ -84,9 +81,9 @@ export const UserManagement: React.FC = () => {
       <div className="flex flex-col gap-y-5">
         <Input
           placeholder="Search by name"
-          prefix={<SearchOutlined />}
-          variant={undefined}
-          className="w-full rounded-none border-b border-border-gray"
+          prefix={<SearchOutlined className="mr-5" />}
+          variant="underlined"
+          className="w-full"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -122,7 +119,7 @@ export const UserManagement: React.FC = () => {
         </div>
 
         {/* Scroll Wrapper */}
-        <div className="w-full overflow-x-auto overflow-y-auto lg:max-h-[800px]">
+        <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
           <table className="min-w-[1092px] w-full">
             <thead className="bg-light-gray text-white">
               <tr>
