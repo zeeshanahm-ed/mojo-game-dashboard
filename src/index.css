@@ -188,7 +188,15 @@ circle:focus {
 }
 
 .ant-select-selector {
-  border-radius: 3px !important;
+  font-size: var(--base-font-size) !important;
+}
+
+.ant-select-selection-wrap {
+  height: 100% !important;
+}
+
+.ant-select-selection-overflow {
+  overflow-y: auto !important;
 }
 
 .ant-form-item-label label {

@@ -57,6 +57,9 @@ function App() {
                   dotSize: 10,
                   wrapperMarginInlineEnd: 24,
                 },
+                Select: {
+                  borderRadius: 8,
+                },
                 Popconfirm: {
                   fontSize: 16,
                 },
