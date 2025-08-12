@@ -1,20 +1,16 @@
 import api from 'services/api/api';
-import { UserData } from './_modals';
+import { GetUserDataParems } from './_modals';
 
 
 
-const USER_URL = '/users';
-const UPDATE_PASSWORD ='/users/update-password';
+const USER_URL = '/user';
 
-export function getUserData(params: any) {
-  return api.get<UserData>(USER_URL, { params }).then((response) => response);
-}
-export function updateUser(id: string, data: any) {
-  return api.patch(`${USER_URL}/${id}`, data).then((response) => response);
-}
-export function updatePassCode( data: any) {
-  return api.patch(`${UPDATE_PASSWORD}`, data).then((response) => response);
-}
+export function getUserData(params: GetUserDataParems) {
+  return api.get<any>(`${USER_URL}/all`, { params }).then((response) => response);
+};
+export function getSingleUserData(id: string) {
+  return api.get<any>(`${USER_URL}/${id}`).then((response) => response);
+};
 
 
 
