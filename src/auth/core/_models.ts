@@ -1,34 +1,32 @@
-import { ID } from 'helpers/crud-helper/models';
-
 export interface IAuthModel {
   data: any;
   api_token: any;
 }
 
-interface IAddress {
-  _id: string;
-}
-
 export interface IUserModel {
-  _id: ID;
+  _id: string;
+  firstName: string;
+  lastName: string;
+  age: number;
+  gender: "male" | "female" | string;
+  email: string;
   phoneNumber: string;
-  weeklyPreference: string;
-  balance: number;
-  maxCreditLimit: number;
-  role: any;
-  profilePicture:any;
-  email:any;
-  token:any;
-  addresses: IAddress[];
+  imageUrl: string | null;
+  role: string;
+  status: string;
+  creditsBalance: number;
+  gamesPlayed: number;
+  isDeleted: boolean;
   createdAt: string;
-  department:string;
-  name:string;
   updatedAt: string;
-  data: any;
 }
 
 export interface ISignInForm {
-  phoneNumber: number | string;
+  email: string;
+  password: string;
+}
+export interface IVerifyOTP {
+  email: string;
   password: string;
 }
 export interface ISignUpForm {
@@ -39,16 +37,17 @@ export interface ISignUpForm {
 }
 
 export interface IForgotPasswordForm {
-  phoneNumber: number | string;
+  email: string | null;
 }
 
 export interface IVerifyOtpRequestBody {
-  phoneNumber: number | string;
+  email: string | null;
   otp: string;
 }
 
 export interface IChangePasswordForm {
   newPassword: string;
-  otp: string;
-  phoneNumber: number | string;
+  confirmPassword: string;
+  otp: string | null;
+  email: string | null;
 }

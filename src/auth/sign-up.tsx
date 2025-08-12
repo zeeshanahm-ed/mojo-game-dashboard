@@ -9,7 +9,6 @@ import Container from 'components/core-ui/container/container';
 import LockIcon from '../assets/icons/lock.svg?react';
 import MailIcon from '../assets/icons/mail.svg?react';
 import UserIcon from '../assets/icons/user.svg?react';
-import AuthOverlay from './components/auth-overlay';
 import useSignUp from './core/hooks/use-sign-up';
 
 function SignUp() {
@@ -46,7 +45,6 @@ function SignUp() {
   return (
     <Container>
       <section className='font-inter px-7 flex justify-center gap-14 2xl:gap-28 items-center w-full h-screen'>
-        <AuthOverlay />
         <div className='h-120 bg-gray-200 w-0.5' />
         <div className='w-96'>
           <h2 className='text-3xl pb-10 font-semibold text-center'>Sign Up</h2>

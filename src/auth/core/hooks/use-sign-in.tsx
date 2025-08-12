@@ -8,7 +8,7 @@ import { useAuth } from '../auth-context';
 const useSignIn = () => {
   const { saveAuth, setCurrentUser } = useAuth();
 
-  const { mutate, isError, error, isLoading, isSuccess, data } = useMutation((body: ISignInForm) => login(body));
+  const { mutate: signInMutate, isError, error, isLoading, isSuccess, data } = useMutation((body: ISignInForm) => login(body));
 
   const { mutate: mutateVerifyToken } = useMutation((token: string) => getUserByToken(token));
 
@@ -30,7 +30,7 @@ const useSignIn = () => {
     }
   }, [data, isSuccess, mutateVerifyToken, saveAuth, setCurrentUser]);
 
-  return { mutate, isError, error, isLoading, isSuccess };
+  return { signInMutate, isError, error, isLoading, isSuccess };
 };
 
 export default useSignIn;

@@ -19,8 +19,8 @@ function Header() {
   // Menu for the Dropdown
   const menu = (
     <Menu>
-      <Menu.Item key='settings' onClick={() => navigate('/settings')}>
-        Settings
+      <Menu.Item key='profile' onClick={() => navigate('/profile')}>
+        Profile
       </Menu.Item>
       <Menu.Item key='logout'>
         <NavLink to='/logout'>
@@ -51,10 +51,10 @@ function Header() {
             <div className='flex items-center gap-3'>
               <Dropdown overlay={menu} trigger={['click']} placement='bottomRight'>
                 <div className='bg-gray-200 font-semibold text-3xl rounded-full w-10 h-10 flex flex-centered cursor-pointer'>
-                  {currentUser?.profilePicture ? (
-                    <UserIcon />
-                  ) : (
-                    <span>{currentUser?.name?.charAt(0)}</span>
+                  {currentUser && (
+                    <>
+                      <UserIcon />
+                    </>
                   )}
                 </div>
               </Dropdown>

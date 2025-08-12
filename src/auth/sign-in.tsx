@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Alert, Button, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 
 // You can uncomment these icons later:
 import LockIcon from '../assets/icons/lock.svg?react';
@@ -8,14 +8,44 @@ import MailIcon from '../assets/icons/mail.svg?react';
 
 import useSignIn from './core/hooks/use-sign-in';
 import { useAuth } from './core/auth-context';
+import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
+import useVerifyToken from './core/hooks/use-verify-token';
 
 function SignIn() {
-  const { mutate, isError, error, isLoading } = useSignIn();
-  const { currentUser } = useAuth();
+  const { signInMutate, isLoading } = useSignIn();
+  const { mutateVerifyToken, isLoading: verifyTokenLoding } = useVerifyToken();
+  const { currentUser, saveAuth, setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const onFinish = async (values: any) => {
-    await mutate(values);
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    signInMutate(payload, {
+      onSuccess: async (res) => {
+        if (res) {
+          const apiToken = res.data.data.data.token;
+          if (apiToken) {
+            mutateVerifyToken(apiToken, {
+              onSuccess: (res) => {
+                showSuccessMessage('User login successfully.');
+                const authData = {
+                  api_token: apiToken,
+                  data: res?.data?.data?.data,
+                };
+                saveAuth(authData);
+                setCurrentUser(authData?.data);
+              },
+            });
+          }
+        }
+      },
+      onError: (error: any) => {
+        showErrorMessage(error?.response?.data?.message);
+        console.error('Failed to sign in user:', error);
+      },
+    });
   };
 
   useEffect(() => {
@@ -34,16 +64,6 @@ function SignIn() {
 
       {/* Form Card */}
       <div className="w-full max-w-sm">
-        {isError && (
-          <Alert
-            type="error"
-            showIcon
-            message={error instanceof Error ? error.message : 'Login failed!'}
-            closable
-            className="mb-4"
-          />
-        )}
-
         <Form
           name="sign-in"
           onFinish={onFinish}
@@ -82,7 +102,7 @@ function SignIn() {
 
 
           <Button
-            loading={isLoading}
+            loading={isLoading || verifyTokenLoding}
             type="primary"
             htmlType="submit"
             block

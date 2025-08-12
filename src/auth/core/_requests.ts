@@ -1,38 +1,43 @@
 import api from 'services/api/api';
 import authApi from 'services/api/authApi';
 
-import { IAuthModel, ISignInForm, ISignUpForm } from './_models';
+import { IAuthModel, IChangePasswordForm, IForgotPasswordForm, ISignInForm, ISignUpForm, IVerifyOtpRequestBody } from './_models';
 
-const LOGIN_URL = '/auth/login';
-const REGISTER_URL = '/auth/signup';
-const FORGOT_PASSWORD_URL='/auth/forgot-password';
-const VERIFY_OTP='/auth/verify-email';
+const SIGNIN_URL = '/auth/login';
+const SIGNUP_URL = '/auth/register';
+const FORGOT_PASSWORD_URL = '/auth/forgot-password';
+const VERIFY_OTP = '/auth/verify-otp';
 const VERIFY_TOKEN_URL = '/auth/verify-token';
 const RESET_PASS_CODE = '/auth/reset-password';
+const CHANGE_PASS_CODE = '/auth/update-password';
 
 export function login(body: ISignInForm) {
-  return api.post<IAuthModel>(LOGIN_URL, body);
+  return api.post<IAuthModel>(SIGNIN_URL, body);
 }
 
 export function signUp(body: ISignUpForm) {
-  return api.post<IAuthModel>(REGISTER_URL, body);
+  return api.post<IAuthModel>(SIGNUP_URL, body);
 }
-export function forgotPassCode(body: any) {
+
+export function forgotPassCode(body: IForgotPasswordForm) {
   return api.post<IAuthModel>(FORGOT_PASSWORD_URL, body);
 }
-export function verifyOtp(body: any) {
+
+export function verifyOtp(body: IVerifyOtpRequestBody) {
   return api.post<IAuthModel>(VERIFY_OTP, body);
 }
 
-export function resetPassword(body: any) {
+export function resetPassword(body: IChangePasswordForm) {
   return api.post<IAuthModel>(RESET_PASS_CODE, body);
 }
+
+export function changePassword(body: any) {
+  return api.patch<IAuthModel>(CHANGE_PASS_CODE, body);
+}
+
 export function getUserByToken(token: string) {
-  return authApi.post(
-    VERIFY_TOKEN_URL,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+  return authApi.get(VERIFY_TOKEN_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  }
   );
 }

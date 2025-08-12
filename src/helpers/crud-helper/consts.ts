@@ -1,7 +1,8 @@
 const QUERIES_KEYS = {
   LIST: 'list',
   GET_CLIENTS: 'clients',
-  GET_USERS: 'users',
+  GET_USERS: 'user',
+  GET_SINGLE_USER: 'singleUser',
   GET_DASHBOARD_SERVICES_COUNT: 'dashboardServicesCount',
   GET_DASHBOARD_GENERAL_SERVICES: 'dashboardGeneralServices',
   GET_SERVICE: 'service',

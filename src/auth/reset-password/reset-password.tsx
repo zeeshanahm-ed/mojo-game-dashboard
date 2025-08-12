@@ -1,5 +1,4 @@
 import { Button, Form, Input } from 'antd';
-import AuthOverlay from 'auth/components/auth-overlay';
 import Container from 'components/core-ui/container/container';
 import useBack from 'hooks/use-back';
 import LockIcon from 'assets/icons/lock.svg?react';
@@ -11,16 +10,17 @@ function ResetPassword() {
   const { handleBack } = useBack();
   const forgotEmail = localStorage.getItem('forgotEmail');
   const verifiedOtp = localStorage.getItem('verifiedOtp');
- const navigate = useNavigate();
+  const navigate = useNavigate();
   // Function to handle the reset password logic
-  const handleResetPassword =async (values:any) => {
-   const body={
-    email:forgotEmail,
-    newPassword:values?.newPassword,
-    otp: verifiedOtp
-   }
+  const handleResetPassword = async (values: any) => {
+    const body = {
+      email: forgotEmail,
+      newPassword: values?.newPassword,
+      confirmPassword: values?.confirmNewPassword,
+      otp: verifiedOtp?.replaceAll(",", "")
+    }
     try {
-     await resetPassword(body); 
+      await resetPassword(body);
       showSuccessMessage('Successfully updated!');
       navigate('/auth/sign-in');
       localStorage.removeItem('forgotEmail');
@@ -33,27 +33,28 @@ function ResetPassword() {
     // Here, you can perform the API call to reset the password with values.newPassword and values.confirmNewPassword
   };
 
+
   return (
     <Container>
-      <section className='flex pe-10 justify-center gap-10 items-center w-full h-screen relative z-10 font-inter'>
-        <AuthOverlay />
-        <div className='block h-96 bg-gray-100 w-0.5' />
-        <div className='w-96'>
-          <h1 className='text-3xl pb-10 font-semibold text-black'>Set New Password</h1>
+      <section className='flex justify-center  w-full h-screen  bg-white relative pt-52 font-urbanist'>
+        <div className='w-full flex flex-col max-w-md p-8 space-y-6'>
+          {/* Logo and title */}
+          <div className="mb-10 text-center">
+            <h1 className="text-8xl font-bold tracking-widest font-secondary">MOJO</h1>
+            <h2 className="text-2xl font-medium -mt-2">Set New Password</h2>
+          </div>
           <Form name='reset-password' autoComplete='off' onFinish={handleResetPassword}>
             <Form.Item
               name='newPassword'
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input your password!',
-                },
-                {
-                  pattern: /^(.{8,})$/,
-                  message: 'Password must be at least 8 characters long!',
-                },
-              ]}
               hasFeedback
+              rules={[{
+                required: true,
+                message: 'Please input your password!',
+              }, {
+                pattern: /^(.{8,})$/,
+                message: 'Password must be at least 8 characters long!',
+              },
+              ]}
             >
               <Input.Password
                 prefix={<LockIcon />}
