@@ -5,6 +5,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    "ngrok-skip-browser-warning": "true"
   },
 });
 
@@ -12,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
 
-    const token = authHelper.getAuth(); //localStorage.getItem('token');
+    const token = authHelper.getAuth()?.api_token; //localStorage.getItem('token');
     if (token) {
       // eslint-disable-next-line no-param-reassign
       config.headers.Authorization = `Bearer ${token}`;

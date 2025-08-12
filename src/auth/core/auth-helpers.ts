@@ -59,6 +59,7 @@ const getUser = (): IUserModel | undefined => {
     // console.error('AUTH LOCAL STORAGE PARSE ERROR', error);
   }
 };
+
 const setUser = (user: IUserModel) => {
   if (!localStorage) {
     return;

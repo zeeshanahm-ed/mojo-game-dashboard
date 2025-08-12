@@ -29,10 +29,10 @@ type AuthContextProps = {
 
 const initAuthContextPropsState = {
   auth: authHelper.getAuth(),
-  saveAuth: () => {},
+  saveAuth: () => { },
   currentUser: undefined,
-  setCurrentUser: () => {},
-  logout: () => {},
+  setCurrentUser: () => { },
+  logout: () => { },
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState);
@@ -48,8 +48,8 @@ function AuthProvider({ children }: IProps) {
   const saveAuth = useCallback((authData: IAuthModel | undefined) => {
     setAuth(authData);
     if (authData) {
-      authHelper.setAuth(authData?.api_token);
-      authHelper.setUser(authData?.data?.data?.user);
+      authHelper.setAuth(authData);
+      authHelper.setUser(authData?.data);
     }
   }, []);
 
@@ -58,6 +58,7 @@ function AuthProvider({ children }: IProps) {
     saveAuth(undefined);
     setCurrentUser(undefined);
   };
+
   const values = useMemo(
     () => ({ auth, saveAuth, currentUser, setCurrentUser, logout }),
     [auth, currentUser, logout, saveAuth]

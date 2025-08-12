@@ -27,6 +27,7 @@ function App() {
                 Input: {
                   paddingBlock: 15,
                   fontSize: 16,
+                  borderRadius: 8
                 },
                 Button: {
                   fontSize: 16,

@@ -11,6 +11,7 @@ import UserManagement from 'pages/user-management/user-management';
 import QuestionsNCategories from 'pages/questionNCategory/QuestionsNCategories';
 import RolesNPermissions from 'pages/rolesNPermissions/RolesNPermissions';
 import PromoCodeManagement from 'pages/promo-code-management/PromoCodeManagement';
+import Profile from 'pages/profile/Profile';
 
 function PrivateRoutes() {
   // const { currentUser } = useAuth();
@@ -35,6 +36,7 @@ function PrivateRoutes() {
         <Route path='question-category' element={<QuestionsNCategories />} />
         <Route path='roles-permissions' element={<RolesNPermissions />} />
         <Route path='promo-code-management' element={<PromoCodeManagement />} />
+        <Route path='profile' element={<Profile />} />
 
         {/* Catch all route */}
         <Route path='*' element={<Navigate to='/' />} />
