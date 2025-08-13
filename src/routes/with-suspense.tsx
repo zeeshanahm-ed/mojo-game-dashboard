@@ -1,3 +1,4 @@
+import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import { Suspense } from 'react';
 
 interface IProps {
@@ -5,7 +6,7 @@ interface IProps {
 }
 
 function WithSuspense({ children }: IProps) {
-  return <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>;
+  return <Suspense fallback={<FallbackLoader />}>{children}</Suspense>;
 }
 
 export default WithSuspense;

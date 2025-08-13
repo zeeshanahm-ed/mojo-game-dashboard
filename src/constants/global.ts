@@ -1,3 +1,4 @@
+import { ROLES } from "utils/Enums";
 import { PromoCodeRecord } from "utils/Interfaces";
 
 export const promoCodesData: PromoCodeRecord[] = [
@@ -77,4 +78,11 @@ export const promoCodesData: PromoCodeRecord[] = [
             endDate: "12/08/2025"
         }
     }
+];
+
+export const ROLES_OPTIONS = [
+    { label: 'Super Admin', value: ROLES.SUPER_ADMIN },
+    { label: 'Content Manager', value: ROLES.CONTENT_MANAGER },
+    { label: 'Finance Manager', value: ROLES.FINANCE_MANAGER },
+    { label: 'Read Only', value: ROLES.READ_ONLY },
 ];

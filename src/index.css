@@ -220,26 +220,7 @@ circle:focus {
   border-radius: 2px !important;
 }
 
-.react-tel-input {
-  border: 1px solid var(--color-border-gray) !important;
-  border-radius: 3px !important;
-  flex: 1 1 0% !important;
-}
-
-.react-tel-input>input {
-  width: 100% !important;
-  height: 100% !important;
-  border: none !important;
-  outline: none !important;
-  font-size: 16px !important;
-  padding-left: 8px !important;
-}
-
-.react-tel-input>input:disabled {
-  color: #00000040 !important;
-}
-
-.react-tel-input>.flag-dropdown {
+.ant-form-item-required::before {
   display: none !important;
 }
 

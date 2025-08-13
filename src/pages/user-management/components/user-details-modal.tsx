@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Divider, Empty, Modal, Popconfirm, Radio, Spin } from 'antd';
+import dayjs from 'dayjs';
 //icons
 import { IoGameControllerOutline } from "react-icons/io5";
 import UserIcon from 'assets/icons/user-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
 import { RxCounterClockwiseClock } from "react-icons/rx";
 import useGetSingleUserData from '../core/hooks/useGetSingleUserData';
+import useChangeUserStatus from '../core/hooks/useChangeUserStatus';
+import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
+import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
+import useDeleteSingleUser from 'pages/rolesNPermissions/core/hooks/useDeleteSingleUser';
 
 interface UserDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  refetchAllUserData: () => void;
   modalData?: any;
 }
 
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   isOpen,
   onClose,
-  modalData
+  modalData,
+  refetchAllUserData
 }) => {
   const { userData, isLoading } = useGetSingleUserData(modalData?._id);
   const [status, setStatus] = useState<'Active' | 'Suspended'>();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const { changeStatusMutate, isLoading: isChangingStatus } = useChangeUserStatus();
+  const { deleteSingleUser, isLoading: isDeletingUser } = useDeleteSingleUser();
 
   useEffect(() => {
     if (userData) {
@@ -34,12 +41,41 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     setStatus(newStatus);
   };
 
-  const handleDeleteUser = async () => {
-    onClose();
+
+  const handleChangeStatus = () => {
+    const payload = {
+      status: status,
+      userId: userData?._id
+    }
+    changeStatusMutate(payload, {
+      onSuccess: () => {
+        showSuccessMessage('User status changed successfully!');
+        onClose();
+        refetchAllUserData();
+      },
+      onError: () => {
+        showErrorMessage('An error occurred while changing the user status.');
+      },
+
+    });
+  };
+
+  const handleDeleteClick = () => {
+    deleteSingleUser({ userId: userData?._id }, {
+      onSuccess: () => {
+        showSuccessMessage('User deleted successfully!');
+        refetchAllUserData();
+        onClose();
+      },
+      onError: () => {
+        showErrorMessage('An error occurred while deleting the user.');
+      },
+
+    });
   };
 
   const handleSaveChanges = async () => {
-    onClose();
+    handleChangeStatus();
   };
 
   if (!isOpen) return null;
@@ -62,10 +98,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         </div>
         <div className="flex items-center gap-4">
           <span className="text-base text-medium-gray">
-            Registered: <span className='text-black'>{userData?.registeredDate}</span>
+            Registered: <span className='text-black'>{dayjs(userData?.createdAt).format('DD/MM/YYYY')}</span>
           </span>
         </div>
       </div>
+      {isChangingStatus || isDeletingUser ? <FallbackLoader isModal={true} /> : null}
+
       <Divider />
       {isLoading ?
         <div className='flex justify-center items-center h-32'>
@@ -176,17 +214,17 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
             <Popconfirm
               title="Are you sure to delete this user?"
-              onConfirm={() => handleDeleteUser()}
+              onConfirm={() => handleDeleteClick()}
               okText="Yes"
               cancelText="No"
             >
-              <Button danger className='bg-danger text-white py-5' loading={isDeleting}>Delete User</Button>
+              <Button danger className='bg-danger text-white py-5'>Delete User</Button>
             </Popconfirm>
             <Button
               type="primary"
               className='py-5'
               onClick={handleSaveChanges}
-              loading={isSaving}
+              disabled={status === userData?.status}
             >
               Save changes
             </Button>

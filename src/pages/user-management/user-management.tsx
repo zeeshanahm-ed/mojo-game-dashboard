@@ -1,5 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense, useCallback } from "react";
-import { Input, Checkbox, Button, Spin, Empty } from "antd";
+import { Input, Checkbox, Button, Spin, Empty, Tooltip } from "antd";
 const UserDetailsModal = lazy(() => import("./components/user-details-modal"));
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 //utils
@@ -29,22 +29,23 @@ const statusColors: Record<IUserModel["status"], string> = {
 export const UserManagement: React.FC = () => {
   const { setTitle } = useHeaderProps();
   const [search, setSearch] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [modalData, setModalData] = useState<IUserModel>();
   const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false);
   const [parems, setParems] = useState({
     limit: 10,
     page: 1,
-    role: "user"
+    role: "user",
+    status: "all"
   });
 
-  const { userData, isLoading } = useUserData(parems);
+  const { userData, isLoading, refetch } = useUserData(parems);
 
   useEffect(() => setTitle('User Management'), [setTitle]);
 
   const handleStatusChange = (status: string) => {
-    setSelectedStatus((prev) => (prev === status ? "" : status));
-    setParems(prev => ({ ...prev, status }))
+    setSelectedStatus(status);
+    setParems(prev => ({ ...prev, status: status }))
   };
 
   const debouncedOnChange = useCallback(
@@ -78,8 +79,8 @@ export const UserManagement: React.FC = () => {
 
         <div className="border border-border-gray p-5 rounded flex items-center gap-4 flex-wrap">
           <Checkbox
-            checked={selectedStatus === ""}
-            onChange={() => setSelectedStatus("")}
+            checked={selectedStatus === "all"}
+            onChange={() => setSelectedStatus("all")}
           >
             All Accounts
           </Checkbox>
@@ -133,7 +134,9 @@ export const UserManagement: React.FC = () => {
                   <tbody>
                     {userData?.map((user: IUserModel, index: number) => (
                       <tr key={index} className="border-t hover:bg-gray-50">
-                        <td className="p-5 truncate max-w-[100px]" title={user._id}>{user._id}</td>
+                        <Tooltip title={user?._id}>
+                          <td className="p-5  truncate max-w-[160px]">{user?._id}</td>
+                        </Tooltip>
                         <td className="p-5">{user.firstName} {user.lastName}</td>
                         <td className="p-5">{user.email}</td>
                         <td className="p-5">{user.phoneNumber}</td>
@@ -159,7 +162,13 @@ export const UserManagement: React.FC = () => {
         </div>
       </div>
       <Suspense fallback={<FallbackLoader />}>
-        {userDetailsModalOpen && <UserDetailsModal isOpen={userDetailsModalOpen} onClose={handleModalClose} modalData={modalData} />}
+        {userDetailsModalOpen &&
+          <UserDetailsModal
+            isOpen={userDetailsModalOpen}
+            onClose={handleModalClose}
+            modalData={modalData}
+            refetchAllUserData={refetch}
+          />}
       </Suspense>
     </section>
   );

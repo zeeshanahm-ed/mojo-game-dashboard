@@ -1,5 +1,5 @@
 import api from 'services/api/api';
-import { GetUserDataParems } from './_modals';
+import { ChangeStatusParams, GetUserDataParems } from './_modals';
 
 
 
@@ -11,6 +11,8 @@ export function getUserData(params: GetUserDataParems) {
 export function getSingleUserData(id: string) {
   return api.get<any>(`${USER_URL}/${id}`).then((response) => response);
 };
-
+export function changeUserStatus(body: ChangeStatusParams) {
+  return api.patch(`${USER_URL}/update-status`, body).then((response) => response?.data);
+};
 
 
