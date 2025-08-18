@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useHeaderProps } from 'components/core/use-header-props';
 import { ServicesStatusDataParams } from './core/_modals';
+import CircleChart from './components/CircleChart';
 // import useDashboardData from './core/hooks/useDashboardData';
-import { DatePicker, Typography } from 'antd';
+import { DatePicker, Divider, Typography } from 'antd';
 import DatePickerIcon from 'assets/icons/date-picker-icon.svg?react';
 import RevenueChart from './components/RevenueChart ';
 
@@ -18,21 +19,40 @@ const legendItems = [
   { label: 'Below Target', color: 'bg-red-500' }
 ];
 
-// Static data for Most Used Categories
-const categoriesData: ProgressItem[] = [
-  { label: 'Football', percentage: 80, color: '#10b981' },
-  { label: 'Wrestling', percentage: 60, color: '#8b5cf6' },
-  { label: 'Mathematics', percentage: 50, color: '#f59e0b' },
-  { label: 'Football', percentage: 30, color: '#dc2626' },
-  { label: 'Others', percentage: 10, color: '#10b981' },
+// Dummy static data
+const categoriesData = [
+  { name: "Football", count: 40 },
+  { name: "Supported Employment", count: 30 },
+  { name: "Wrestling", count: 20 },
+  { name: "Job Coaching", count: 10 },
+];
+const lifelinesData = [
+  { name: "Call a friend", count: 50 },
+  { name: "2nd Chance", count: 30 },
+  { name: "Steal a score", count: 20 },
 ];
 
-// Static data for Most Used Lifelines
-const lifelinesData: ProgressItem[] = [
-  { label: 'Call a Friend', percentage: 80, color: '#374151' },
-  { label: '2nd Chance', percentage: 60, color: '#374151' },
-  { label: 'Score Steal', percentage: 50, color: '#9ca3af' },
-];
+// Optional: color resolver
+const getColorByStatus = (name: string) => {
+  switch (name) {
+    case "Football":
+      return "#22c55e"; // green
+    case "Supported Employment":
+      return "#f97316"; // orange
+    case "Wrestling":
+      return "#a855f7"; // purple
+    case "Job Coaching":
+      return "#dc2626"; // red
+    case "Call a friend":
+      return "#5b21b6"; // deep purple
+    case "2nd Chance":
+      return "#db2777"; // pink
+    case "Steal a score":
+      return "#3b82f6"; // blue
+    default:
+      return "#9ca3af"; // gray
+  }
+};
 
 
 const Dashboard = () => {
@@ -61,8 +81,8 @@ const Dashboard = () => {
   };
 
   return (
-    <section>
-      <div className="flex items-center justify-between">
+    <section className='my-10'>
+      <div className="flex items-center justify-between ">
         <h1 className="text-2xl font-medium font-poppins">User Monitoring</h1>
         <div className="flex items-center justify-end flex-wrap gap-2">
           {/* Tab buttons */}
@@ -129,21 +149,64 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <Divider />
       <RevenueChart />
+      <Divider />
 
-      <div className="w-full flex items-start justify-between overflow-hidden">
+      <div className="w-full flex items-center justify-between overflow-hidden">
         {/* Most Used Categories */}
-        <HorizontalProgress
-          title="Most Used Categories"
-          data={categoriesData}
-        />
-        <div className="w-[2px] h-72 bg-border-gray"></div>
+        <div className="flex-1 flex lg:flex-col 2xl:flex-row justify-center gap-x-20 items-center min-w-[300px] h-auto">
+          <CircleChart
+            data={categoriesData}
+            title="Usage"
+            innerRadius={100}
+            outerRadius={150}
+            minWidth={300}
+            getColorByStatus={getColorByStatus}
+          />
+          <div className="flex flex-col gap-3">
+            {categoriesData.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                {/* Dot */}
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: getColorByStatus(item.name) }}
+                />
+                {/* Label */}
+                <span className="font-medium" style={{ color: getColorByStatus(item.name) }}>
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
 
-        {/* Most Used Lifelines */}
-        <HorizontalProgress
-          title="Most Used Lifelines"
-          data={lifelinesData}
-        />
+        </div>
+        <div className="w-[2px] h-72 bg-border-gray"></div>
+        <div className="flex-1 flex justify-center lg:flex-col 2xl:flex-row gap-x-20 items-center min-w-[300px] h-auto">
+          <CircleChart
+            data={lifelinesData}
+            title="Usage"
+            innerRadius={100}
+            outerRadius={150}
+            minWidth={300}
+            getColorByStatus={getColorByStatus}
+          />
+          <div className="flex flex-col gap-3">
+            {lifelinesData.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                {/* Dot */}
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: getColorByStatus(item.name) }}
+                />
+                {/* Label */}
+                <span className="font-medium" style={{ color: getColorByStatus(item.name) }}>
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
     </section>
@@ -152,54 +215,3 @@ const Dashboard = () => {
 
 export default Dashboard;
 
-
-
-import React from 'react';
-
-interface ProgressItem {
-  label: string;
-  percentage: number;
-  color: string;
-}
-
-interface HorizontalProgressProps {
-  title: string;
-  data: ProgressItem[];
-}
-
-const HorizontalProgress: React.FC<HorizontalProgressProps> = ({ title, data }) => {
-  return (
-    <div className="w-[45%]">
-      <h2 className="text-lg font-medium text-gray-900 mb-6 font-poppins">{title}</h2>
-
-      <div className="space-y-4">
-        {data.map((item, index) => (
-          <div key={index} className="flex items-center gap-4">
-            {/* Label */}
-            <div className="w-32 text-lg font-medium">
-              {item.label}
-            </div>
-
-            {/* Progress Bar Container */}
-            <div className="flex-1 flex items-center gap-3">
-              <div className="flex-1 bg-gray-200 rounded-full h-2 relative overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-300 ease-in-out"
-                  style={{
-                    width: `${item.percentage}%`,
-                    backgroundColor: item.color,
-                  }}
-                />
-              </div>
-
-              {/* Percentage */}
-              <div className="w-10 text-sm text-gray-700 font-medium text-right">
-                {item.percentage}%
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
