@@ -8,7 +8,7 @@ import { Button, Pagination, Popconfirm } from "antd";
 
 const tableHeaders = [
     { title: 'Question', key: 'question', className: "text-start" },
-    { title: 'Category / Subject  Assigned', key: 'categorySubjectAssigned', },
+    { title: 'Category Assigned', key: 'categorySubjectAssigned', },
     { title: 'Difficulty', key: 'difficulty', },
     { title: 'Action', key: 'action', },
 ];
