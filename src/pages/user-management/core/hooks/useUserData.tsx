@@ -4,9 +4,9 @@ import { QUERIES_KEYS } from 'helpers/crud-helper/consts';
 import { GetUserDataParems } from '../_modals';
 
 const useUserData = (params: GetUserDataParems) => {
-  const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_USERS, , params], () => getUserData(params),
+  const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_USERS, params], () => getUserData(params),
   );
-  return { userData: data?.data?.data?.data, error, isLoading, isError, isSuccess, refetch };
+  return { userData: data?.data?.data?.data, pagination: data?.data?.data?.pagination, error, isLoading, isError, isSuccess, refetch };
 };
 
 export default useUserData;

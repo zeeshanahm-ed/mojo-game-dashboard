@@ -1,5 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense, useCallback } from "react";
-import { Input, Checkbox, Button, Spin, Empty, Tooltip } from "antd";
+import { Input, Checkbox, Button, Spin, Empty, Tooltip, Pagination } from "antd";
 const UserDetailsModal = lazy(() => import("./components/user-details-modal"));
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 //utils
@@ -32,25 +32,25 @@ export const UserManagement: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [modalData, setModalData] = useState<IUserModel>();
   const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false);
-  const [parems, setParems] = useState({
+  const [params, setParams] = useState({
     limit: 10,
     page: 1,
     role: "user",
     status: "all"
   });
 
-  const { userData, isLoading, refetch } = useUserData(parems);
+  const { userData, isLoading, refetch, pagination } = useUserData(params);
 
   useEffect(() => setTitle('User Management'), [setTitle]);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);
-    setParems(prev => ({ ...prev, status: status }))
+    setParams(prev => ({ ...prev, status: status }))
   };
 
   const debouncedOnChange = useCallback(
     debounce((name: string) => {
-      setParems((prev) => ({ ...prev, name }));
+      setParams((prev) => ({ ...prev, name }));
     }, 800),
     []
   );
@@ -62,6 +62,9 @@ export const UserManagement: React.FC = () => {
 
   const handleModalClose = () => {
     setUserDetailsModalOpen(false);
+  };
+  const handlePageChange = (page: number) => {
+    setParams(prev => ({ ...prev, page }));
   };
 
   return (
@@ -155,12 +158,35 @@ export const UserManagement: React.FC = () => {
               }
             </>
           }
-
-
-
-
         </div>
       </div>
+      {/* Pagination */}
+
+      <Pagination
+        className="mt-5 justify-center text-white"
+        current={params?.page}
+        pageSize={pagination?.limit}
+        total={pagination?.total}
+        onChange={handlePageChange}
+        itemRender={(page, type, originalElement) => {
+          if (type === "page") {
+            return (
+              <button
+                disabled={page === params?.page} // disable current page
+                className={`px-3 ${page === params?.page ? "cursor-not-allowed"
+                  : ""
+                  }`}
+              >
+                {page}
+              </button>
+            );
+          }
+          return originalElement;
+        }}
+      />
+
+
+
       <Suspense fallback={<FallbackLoader />}>
         {userDetailsModalOpen &&
           <UserDetailsModal

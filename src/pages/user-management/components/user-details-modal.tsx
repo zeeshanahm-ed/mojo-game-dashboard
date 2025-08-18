@@ -6,6 +6,7 @@ import { IoGameControllerOutline } from "react-icons/io5";
 import UserIcon from 'assets/icons/user-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
 import { RxCounterClockwiseClock } from "react-icons/rx";
+//hooks & utils
 import useGetSingleUserData from '../core/hooks/useGetSingleUserData';
 import useChangeUserStatus from '../core/hooks/useChangeUserStatus';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';

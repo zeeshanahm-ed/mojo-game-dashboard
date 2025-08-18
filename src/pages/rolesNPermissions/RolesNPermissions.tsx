@@ -108,7 +108,6 @@ export const RolesNPermissions: React.FC = () => {
             onError: () => {
                 showErrorMessage('An error occurred while deleting the user.');
             },
-
         });
     };
 
