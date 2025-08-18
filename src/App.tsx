@@ -49,7 +49,7 @@ function App() {
                   fontSize: 16,
                 },
                 Checkbox: {
-                  colorPrimary: '#3292ea',
+                  colorPrimary: '#0972C8',
                 },
                 Radio: {
                   colorPrimary: '#0972C8',
