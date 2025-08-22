@@ -5,6 +5,9 @@ const CATEGORY_URL = '/category';
 export function getCategoriesData(params: any) {
     return api.get(`${CATEGORY_URL}/all`, { params }).then((response) => response.data);
 }
+export function getAllCategoriesDataForDropDown() {
+    return api.get(`${CATEGORY_URL}/dropdown`).then((response) => response.data);
+}
 export function deleteCategory(id: string) {
     return api.delete(`${CATEGORY_URL}/${id}`).then((response) => response.data);
 }

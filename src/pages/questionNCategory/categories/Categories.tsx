@@ -65,7 +65,7 @@ function Categories() {
                 <div className="flex justify-between text-xl bg-black text-white px-4 py-4 rounded-ss-xl rounded-se-xl">
                     <div>
                         Showing all Categories
-                        <span className="text-border-gray text-sm ml-4">{categoriesData?.length} Results</span>
+                        {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
                     </div>
                 </div>
 
@@ -135,21 +135,7 @@ function Categories() {
                 pageSize={pagination?.limit}
                 total={pagination?.total}
                 onChange={handlePageChange}
-                itemRender={(page, type, originalElement) => {
-                    if (type === "page") {
-                        return (
-                            <button
-                                disabled={page === params?.page} // disable current page
-                                className={`px-3 ${page === params?.page ? "cursor-not-allowed"
-                                    : ""
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        );
-                    }
-                    return originalElement;
-                }}
+                showSizeChanger={false}
             />
             <AddNEditCategoryModal
                 open={isModalOpen}
