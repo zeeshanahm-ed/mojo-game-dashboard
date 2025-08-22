@@ -8,7 +8,7 @@ const useDeleteQuestion = () => {
         error: questionError,
         isLoading: isQuestionLoading,
         isSuccess: isQuestionSuccess,
-    } = useMutation((ids: any) => deleteQuestion(ids));
+    } = useMutation((id: string) => deleteQuestion(id));
 
     return {
         deleteQuestionMutate,
