@@ -6,12 +6,25 @@ import Logout from 'assets/icons/logout-icon.svg?react';
 
 // Helpers
 import * as authHelper from '../../../auth/core/auth-helpers';
+import useGetCategoriesForDropDown from 'pages/questionNCategory/categories/core/hooks/useGetCategoriesForDropDown';
+import { useGetAllCategoriesDataForDropDown } from 'store/AllCategoriesData';
+import { useEffect } from 'react';
 // import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
 
 
 
 function SidebarRoutes() {
   const currentUser = authHelper.getUser();
+
+
+  const { allCategoriesData } = useGetCategoriesForDropDown();
+  const { setCategoriesData } = useGetAllCategoriesDataForDropDown();
+
+  useEffect(() => {
+    if (allCategoriesData) {
+      setCategoriesData(allCategoriesData);
+    }
+  }, [allCategoriesData, setCategoriesData]);
 
   // Define the routes along with the roles that can access them
   const routes = [

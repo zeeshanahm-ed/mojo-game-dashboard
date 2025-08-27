@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 
-type GameSessionStore = {
-    data: any;
+type CategoriesStore = {
+    categoriesData: any;
+    setCategoriesData: (categoriesData: any) => void;
 };
 
 
-export const useGetAllCategoriesDataForDropDown = create<GameSessionStore>((set) => ({
-    data: null,
-    setData: (data: any) => set({ data }),
+export const useGetAllCategoriesDataForDropDown = create<CategoriesStore>((set) => ({
+    categoriesData: null,
+    setCategoriesData: (categoriesData: any) => set({ categoriesData }),
 }));
