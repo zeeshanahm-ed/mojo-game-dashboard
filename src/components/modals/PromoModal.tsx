@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { PromoCodeRecord } from 'utils/Interfaces';
 import NumericStepper from 'components/core-ui/numaric-stepper/NumericStepper';
 //icons
-import DatePickerIcon from 'assets/icons/date-picker-icon.svg?react';
+import DateIcon from 'assets/icons/date-icon.svg?react';
 import { FiChevronDown } from "react-icons/fi";
 
 const { Option } = Select;
@@ -191,7 +191,7 @@ const PromoModal: React.FC<PromoModalProps> = ({
                     <div>
                         <label className="text-lg">Discount Duration</label>
                         <RangePicker
-                            prefix={<DatePickerIcon className="w-6 h-6 mr-2" />}
+                            prefix={<DateIcon className="w-6 h-6 mr-2" />}
                             className="w-full h-12"
                             suffixIcon={<FiChevronDown size={18} />}
                             format="DD MMM"

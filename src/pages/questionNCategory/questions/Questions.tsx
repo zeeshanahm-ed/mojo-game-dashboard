@@ -1,6 +1,6 @@
 //icons
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
-import EditIcon from 'assets/icons/edit-icon-services.svg?react';
+import EditIcon from 'assets/icons/edit-icon.svg?react';
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 //componets
 import { Button, Empty, Pagination, Popconfirm, Select } from "antd";

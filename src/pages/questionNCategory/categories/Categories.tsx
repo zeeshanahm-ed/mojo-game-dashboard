@@ -8,7 +8,7 @@ import useDeleteCategory from "./core/hooks/useDeleteCategory";
 //icons
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
-import EditIcon from 'assets/icons/edit-icon-services.svg?react';
+import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 

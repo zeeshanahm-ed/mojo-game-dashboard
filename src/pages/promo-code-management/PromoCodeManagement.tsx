@@ -3,7 +3,7 @@ import { useHeaderProps } from "components/core/use-header-props";
 import { Button, message, Popconfirm } from "antd";
 import { promoCodesData } from "constants/global";
 //icons
-import EditIcon from 'assets/icons/edit-icon-services.svg?react';
+import EditIcon from 'assets/icons/edit-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import PromoModal from "components/modals/PromoModal";

@@ -14,7 +14,7 @@ import { ROLES_OPTIONS } from "constants/global";
 import { FiChevronDown } from "react-icons/fi";
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
-import EditIcon from 'assets/icons/edit-icon-services.svg?react';
+import EditIcon from 'assets/icons/edit-icon.svg?react';
 import useHandelChangeRole from "./core/hooks/useChangeRole";
 import { ChangeRoleParams } from "./core/_models";
 

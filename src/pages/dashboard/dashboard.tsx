@@ -4,7 +4,7 @@ import { ServicesStatusDataParams } from './core/_modals';
 import CircleChart from './components/CircleChart';
 // import useDashboardData from './core/hooks/useDashboardData';
 import { DatePicker, Divider, Typography } from 'antd';
-import DatePickerIcon from 'assets/icons/date-picker-icon.svg?react';
+import DateIcon from 'assets/icons/date-icon.svg?react';
 import RevenueChart from './components/RevenueChart ';
 
 
@@ -98,15 +98,13 @@ const Dashboard = () => {
               >{tab}</button>
             ))}
           </div>
-          <div className="flex items-center border rounded px-2 h-11 w-[300px]">
-            <DatePickerIcon className="w-6 h-6 mr-2" />
-            <RangePicker
-              suffixIcon={null}
-              variant='borderless'
-              onChange={(date) => handleDateRangeChange(date, setStatisticsDateRanges)}
-              format="MM/DD/YYYY"
-            />
-          </div>
+          <RangePicker
+            prefix={<DateIcon className="w-6 h-6 mr-2" />}
+            suffixIcon={null}
+            className='h-11 w-[320px]'
+            onChange={(date) => handleDateRangeChange(date, setStatisticsDateRanges)}
+            format="MM/DD/YYYY"
+          />
         </div>
       </div>
 
