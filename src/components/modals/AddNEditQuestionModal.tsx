@@ -464,12 +464,14 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                 </div>
                             </div>
                             {/* MCQs */}
-                            {<div>
-                                <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add MCQ’S</h2>
-                                <button className="w-10 h-10 border-border-gray rounded-lg bg-[#F5F5F5] flex-centered" onClick={handleGoOptions}>
-                                    <LuCirclePlus size={20} />
-                                </button>
-                            </div>}
+                            {state.selectedQuestionType === "multipleChoice" &&
+                                <div>
+                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add MCQ’S</h2>
+                                    <button className="w-10 h-10 border-border-gray rounded-lg bg-[#F5F5F5] flex-centered" onClick={handleGoOptions}>
+                                        <LuCirclePlus size={20} />
+                                    </button>
+                                </div>
+                            }
                         </div>
                     </>
                     :
