@@ -9,26 +9,22 @@ module.exports = {
     'airbnb-typescript',
     'airbnb/hooks',
     'plugin:jsx-a11y/recommended',
-    'prettier',
-    'eslint-config-prettier',
-    'plugin:prettier/recommended',
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
   },
-  plugins: ['react-refresh', 'prettier'],
+  plugins: ['react-refresh'],
 
   rules: {
     "no-param-reassign": "off",
     'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     'react/react-in-jsx-scope': 'off',
     'react/jsx-props-no-spreading': 'off',
-    'prettier/prettier': ['error'],
     '@typescript-eslint/no-unused-vars': 'warn',
     'import/prefer-default-export': 'off',
-    'react-refresh/only-export-components': 'off'
+    'react-refresh/only-export-components': 'off',
   },
   settings: {
     'import/resolver': {
