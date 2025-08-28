@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Dropdown, Menu } from 'antd';
 
@@ -9,12 +9,15 @@ import Back from 'assets/icons/back-arrow.svg?react';
 import UserIcon from 'assets/icons/user-icon.svg?react';
 
 import * as authHelper from '../../../auth/core/auth-helpers';
+import LogoutModal from 'auth/logout-modal';
+import { useState } from 'react';
 
 
 function Header() {
   const { title, back, editInfo, showUpdateButton } = useHeaderProps();
   const currentUser = authHelper.getUser();
   const navigate = useNavigate();
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   // Menu for the Dropdown
   const menu = (
@@ -23,9 +26,9 @@ function Header() {
         Profile
       </Menu.Item>
       <Menu.Item key='logout'>
-        <NavLink to='/logout'>
+        <button onClick={() => setLogoutModalOpen(true)} className='flex items-center gap-2 w-full'>
           <span>Logout</span>
-        </NavLink>
+        </button>
       </Menu.Item>
     </Menu>
   );
@@ -62,6 +65,7 @@ function Header() {
           </div>
         </div>
       </div>
+      <LogoutModal open={logoutModalOpen} onClose={() => setLogoutModalOpen(false)} />
     </section>
   );
 }

@@ -8,13 +8,15 @@ import Logout from 'assets/icons/logout-icon.svg?react';
 import * as authHelper from '../../../auth/core/auth-helpers';
 import useGetCategoriesForDropDown from 'pages/questionNCategory/categories/core/hooks/useGetCategoriesForDropDown';
 import { useGetAllCategoriesDataForDropDown } from 'store/AllCategoriesData';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import LogoutModal from 'auth/logout-modal';
 // import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
 
 
 
 function SidebarRoutes() {
   const currentUser = authHelper.getUser();
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
 
   const { allCategoriesData } = useGetCategoriesForDropDown();
@@ -82,6 +84,12 @@ function SidebarRoutes() {
       path: '/roles-permissions',
       roles: true,
     },
+    {
+      key: 'subscription',
+      label: 'Subscription',
+      path: '/subscription',
+      roles: true,
+    },
   ];
 
 
@@ -135,22 +143,14 @@ function SidebarRoutes() {
             </ul>
           </div>
         </div>
-        <div className='border-t pb-4'>
-          <NavLink
-            className={({ isActive }) =>
-              twc('flex gap-4 items-center transition', isActive ? '[&>span]:visible' : '[&>span]:invisible')
-            }
-            to='/logout'
-          >
-            <div className={twc('flex-1 flex items-center justify-start gap-4 py-4 ps-4 font-medium rounded-s-md')}>
-              <span className='w-8'>
-                <Logout className='mx-auto' />
-              </span>
-              <span>Logout</span>
-            </div>
-          </NavLink>
-        </div>
+        <button onClick={() => setLogoutModalOpen(true)} className={'flex-1 flex text-lg items-center justify-start gap-4 py-4 ps-4 font-medium rounded-s-md'}>
+          <span className='w-8'>
+            <Logout className='mx-auto' />
+          </span>
+          <span>Logout</span>
+        </button>
       </div>
+      <LogoutModal open={logoutModalOpen} onClose={() => setLogoutModalOpen(false)} />
     </section>
   );
 }
