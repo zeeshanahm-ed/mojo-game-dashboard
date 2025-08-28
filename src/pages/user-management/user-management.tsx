@@ -137,9 +137,11 @@ export const UserManagement: React.FC = () => {
                   <tbody>
                     {userData?.map((user: IUserModel, index: number) => (
                       <tr key={index} className="border-t hover:bg-gray-50">
-                        <Tooltip title={user?._id}>
-                          <td className="p-5  truncate max-w-[160px]">{user?._id}</td>
-                        </Tooltip>
+                        <td className="p-5  truncate max-w-[160px]">
+                          <Tooltip title={user?._id}>
+                            {user?._id}
+                          </Tooltip>
+                        </td>
                         <td className="p-5">{user.firstName} {user.lastName}</td>
                         <td className="p-5">{user.email}</td>
                         <td className="p-5">{user.phoneNumber}</td>
@@ -168,21 +170,6 @@ export const UserManagement: React.FC = () => {
         pageSize={pagination?.limit}
         total={pagination?.total}
         onChange={handlePageChange}
-        itemRender={(page, type, originalElement) => {
-          if (type === "page") {
-            return (
-              <button
-                disabled={page === params?.page} // disable current page
-                className={`px-3 ${page === params?.page ? "cursor-not-allowed"
-                  : ""
-                  }`}
-              >
-                {page}
-              </button>
-            );
-          }
-          return originalElement;
-        }}
       />
 
 

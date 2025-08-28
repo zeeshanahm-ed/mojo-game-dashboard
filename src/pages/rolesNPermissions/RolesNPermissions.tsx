@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Empty, Popconfirm, Select, Spin, Tooltip } from "antd";
+import { Button, Empty, Pagination, Popconfirm, Select, Spin, Tooltip } from "antd";
 import MemberAddModal from "./components/MemberAddModal";
 //Enums & Interface
 import { ROLES } from "utils/Enums";
@@ -28,51 +28,6 @@ export interface UserRecord {
     role: ROLES;
 }
 
-const tableData: UserRecord[] = [
-    {
-        userId: '031556',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.SUPER_ADMIN,
-    },
-    {
-        userId: '031557',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.CONTENT_MANAGER,
-    },
-    {
-        userId: '031558',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.FINANCE_MANAGER,
-    },
-    {
-        userId: '031559',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.READ_ONLY,
-    },
-    {
-        userId: '031561',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.SUPER_ADMIN,
-    },
-    {
-        userId: '031562',
-        fullName: 'John Alex',
-        email: 'testing123@gmail.com',
-        phone: '+96320584138940',
-        role: ROLES.SUPER_ADMIN,
-    },
-];
-
 const Table_Header = [
     { key: 'userId', label: 'User ID' },
     { key: 'fullName', label: 'Full Name' },
@@ -92,7 +47,7 @@ export const RolesNPermissions: React.FC = () => {
         role: "non_user"
     });
 
-    const { userData, isLoading, refetch } = useGetAllUserData(params);
+    const { userData, pagination, isLoading, refetch } = useGetAllUserData(params);
     const { deleteSingleUser } = useDeleteSingleUser();
     const { changeRoleMutate } = useHandelChangeRole();
 
@@ -129,6 +84,10 @@ export const RolesNPermissions: React.FC = () => {
         setMemberModalEditData(type === 'edit' ? data : null);
     };
 
+    const handlePageChange = (page: number) => {
+        setParams(prev => ({ ...prev, page }));
+    };
+
     return (
         <section className="overflow-hidden my-10">
             <div className="flex justify-between items-center flex-wrap gap-6">
@@ -141,67 +100,79 @@ export const RolesNPermissions: React.FC = () => {
                     </Button>
                 </div>
             </div>
-            {/* Custom Table */}
-            <div className="text-xl bg-medium-gray text-white px-4 py-4 rounded-ss-lg rounded-se-lg mt-5">
-                User Accounts <span className="text-border-gray text-sm ml-2">{tableData.length} Results</span>
-            </div>
-            {/* Scroll Wrapper */}
-            <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
-                {isLoading ?
-                    <div className='flex justify-center items-center h-32'>
-                        <Spin size="large" />
-                    </div>
-                    :
-                    <>
-                        {userData?.length === 0 ?
-                            <Empty className="my-12" description="No Users Found" />
-                            :
-                            <table className="min-w-[1092px] w-full">
-                                <thead className="bg-light-gray text-white">
-                                    <tr>
-                                        {Table_Header.map((header, index) => (
-                                            <th
-                                                key={index}
-                                                className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
-                                            >
-                                                {header.label}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {userData?.map((user: IUserModel, index: number) => (
-                                        <tr key={index} className="border-t hover:bg-gray-50">
-                                            <Tooltip title={user?._id}>
-                                                <td className="p-5  truncate max-w-[160px]">{user?._id}</td>
-                                            </Tooltip>
-                                            <td className="p-5">{user?.firstName} {user?.lastName}</td>
-                                            <td className="p-5">{user?.email}</td>
-                                            <td className="p-5">{user?.phoneNumber}</td>
-                                            <RoleCell user={user} onChangeRole={handleChangeRole} />
-                                            <td className="p-5 text-xl space-x-2">
-                                                <Button variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none">
-                                                    <EditIcon className="text-black" />
-                                                </Button>
-                                                <Popconfirm
-                                                    title="Are you sure to delete this user?"
-                                                    onConfirm={() => handleDeleteClick(user)}
-                                                    okText="Yes"
-                                                    cancelText="No"
+            <div className="border border-gray-200 rounded-xl mt-5">
+                {/* Custom Table */}
+                <div className="text-xl bg-medium-gray text-white px-4 py-4 rounded-ss-lg rounded-se-lg ">
+                    User Accounts {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+                </div>
+                {/* Scroll Wrapper */}
+                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                    {isLoading ?
+                        <div className='flex justify-center items-center h-32'>
+                            <Spin size="large" />
+                        </div>
+                        :
+                        <>
+                            {userData?.length === 0 ?
+                                <Empty className="my-12" description="No Users Found" />
+                                :
+                                <table className="min-w-[1092px] w-full">
+                                    <thead className="bg-light-gray text-white">
+                                        <tr>
+                                            {Table_Header.map((header, index) => (
+                                                <th
+                                                    key={index}
+                                                    className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
                                                 >
-                                                    <Button className="border-none shadow-none"><DeleteIcon /></Button>
-                                                </Popconfirm>
-                                            </td>
+                                                    {header.label}
+                                                </th>
+                                            ))}
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {userData?.map((user: IUserModel, index: number) => (
+                                            <tr key={index} className="border-t hover:bg-gray-50">
+                                                <td className="p-5  truncate max-w-[160px]">
+                                                    <Tooltip title={user?._id}>
+                                                        {user?._id}
+                                                    </Tooltip>
+                                                </td>
+                                                <td className="p-5">{user?.firstName} {user?.lastName}</td>
+                                                <td className="p-5">{user?.email}</td>
+                                                <td className="p-5">{user?.phoneNumber}</td>
+                                                <RoleCell user={user} onChangeRole={handleChangeRole} />
+                                                <td className="p-5 text-xl space-x-2">
+                                                    <Button variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none">
+                                                        <EditIcon className="text-black" />
+                                                    </Button>
+                                                    <Popconfirm
+                                                        title="Are you sure to delete this user?"
+                                                        onConfirm={() => handleDeleteClick(user)}
+                                                        okText="Yes"
+                                                        cancelText="No"
+                                                    >
+                                                        <Button className="border-none shadow-none"><DeleteIcon /></Button>
+                                                    </Popconfirm>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
-                        }
-                    </>
-                }
-
+                            }
+                        </>
+                    }
+                </div>
             </div>
+
+            {/* Pagination */}
+            <Pagination
+                className="mt-5 justify-center text-white"
+                current={params?.page}
+                pageSize={pagination?.limit}
+                total={pagination?.total}
+                onChange={handlePageChange}
+            />
             <MemberAddModal
                 open={memberModal}
                 onCancel={() => setMemberModal(false)}
