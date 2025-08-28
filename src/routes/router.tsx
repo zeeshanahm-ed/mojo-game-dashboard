@@ -1,12 +1,13 @@
+import { useMemo } from 'react';
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 
-import { AuthPage, SignOut, useAuth } from 'auth';
+import { AuthPage, useAuth } from 'auth';
+import { SignOut } from 'auth/sign-out';
 
 import ErrorBoundary from 'routes/error-boundary';
 
 import { PrivateRoutes } from './private-routes';
 import WithSuspense from './with-suspense';
-import { useMemo } from 'react';
 
 function AppRoutes() {
   const { currentUser } = useAuth();
