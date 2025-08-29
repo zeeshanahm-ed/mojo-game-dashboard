@@ -142,17 +142,19 @@ export const RolesNPermissions: React.FC = () => {
                                                 <td className="p-5">{user?.phoneNumber}</td>
                                                 <RoleCell user={user} onChangeRole={handleChangeRole} />
                                                 <td className="p-5 text-xl space-x-2">
-                                                    <Button variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none">
-                                                        <EditIcon className="text-black" />
-                                                    </Button>
-                                                    <Popconfirm
-                                                        title="Are you sure to delete this user?"
-                                                        onConfirm={() => handleDeleteClick(user)}
-                                                        okText="Yes"
-                                                        cancelText="No"
-                                                    >
-                                                        <Button className="border-none shadow-none"><DeleteIcon /></Button>
-                                                    </Popconfirm>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none px-2">
+                                                            <EditIcon className="text-black" />
+                                                        </Button>
+                                                        <Popconfirm
+                                                            title="Are you sure to delete this user?"
+                                                            onConfirm={() => handleDeleteClick(user)}
+                                                            okText="Yes"
+                                                            cancelText="No"
+                                                        >
+                                                            <Button className="border-none shadow-none px-2"><DeleteIcon /></Button>
+                                                        </Popconfirm>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

@@ -127,18 +127,20 @@ export const PromoCodeManagement: React.FC = () => {
                                         <a href={promo.promoAnalyticsLink}>Track usage</a>
                                     </td>
                                     <td className="p-5">{promo.expiryDate}</td>
-                                    <td className="p-5 flex gap-2">
-                                        <Button variant="text" onClick={() => handleEditClick(promo)} className="border-none shadow-none">
-                                            <EditIcon className="text-black" />
-                                        </Button>
-                                        <Popconfirm
-                                            title="Are you sure to delete this promo code?"
-                                            onConfirm={() => handleDeleteClick(promo.id)}
-                                            okText="Yes"
-                                            cancelText="No"
-                                        >
-                                            <Button className="border-none shadow-none"><DeleteIcon /></Button>
-                                        </Popconfirm>
+                                    <td className="p-5">
+                                        <div className="flex items-center gap-2">
+                                            <Button variant="text" onClick={() => handleEditClick(promo)} className="border-none shadow-none px-2">
+                                                <EditIcon className="text-black" />
+                                            </Button>
+                                            <Popconfirm
+                                                title="Are you sure to delete this promo code?"
+                                                onConfirm={() => handleDeleteClick(promo.id)}
+                                                okText="Yes"
+                                                cancelText="No"
+                                            >
+                                                <Button className="border-none shadow-none px-2"><DeleteIcon /></Button>
+                                            </Popconfirm>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
