@@ -19,12 +19,11 @@ module.exports = {
 
   rules: {
     "no-param-reassign": "off",
-    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-    'react/react-in-jsx-scope': 'off',
-    'react/jsx-props-no-spreading': 'off',
-    '@typescript-eslint/no-unused-vars': 'warn',
-    'import/prefer-default-export': 'off',
-    'react-refresh/only-export-components': 'off',
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "import/prefer-default-export": "off",
+    "react-refresh/only-export-components": "off"
   },
   settings: {
     'import/resolver': {
@@ -37,9 +36,6 @@ module.exports = {
         alias: {
           src: './src',
         },
-      },
-      alias: {
-        src: './src',
       },
     },
     react: {
