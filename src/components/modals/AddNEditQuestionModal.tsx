@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Divider, Input, Modal, Select } from "antd";
+import { AxiosError } from "axios";
+//components
+import { Button, Divider, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
+import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
+//Hooks & Utils
 import { useGetAllCategoriesDataForDropDown } from "store/AllCategoriesData";
-
+import { AUDIO_FILE_TYPES, IMAGE_FILE_TYPES, VIDEO_FILE_TYPES } from "constants/global";
+import useAddQuestion from "pages/questionNCategory/questions/hooks/useAddQuestion";
+import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
+//icons
 import UploadImageIcon from "assets/icons/image-icon.svg?react";
 import VideoIcon from "assets/icons/video-icon.svg?react";
 import AudioIcon from "assets/icons/audio-icon.svg?react";
@@ -20,9 +27,8 @@ interface StateType {
     selectedCategory: string | null;
     selectedDifficulty: string | null;
     selectedQuestionType: string | null;
-    page: number;
-    hasMore: boolean;
     categoriesOptions: { value: string; label: string }[];
+    selectedCorrectOption: OptionType | null;
 }
 
 interface OfflineQuestionNAnswerData {
@@ -44,6 +50,12 @@ interface QuestionNAnswerProps {
     onClose: () => void;
 };
 
+type UploadedFileType = "image" | "video" | "audio";
+type ErrorStateType = {
+    questionMedia: boolean;
+    answerMedia: boolean;
+}
+
 const DifficultyOptions = [
     { value: 'easy', label: 'Easy', points: 200 },
     { value: 'medium', label: 'Medium', points: 400 },
@@ -51,11 +63,12 @@ const DifficultyOptions = [
 ];
 
 const QuestionTypeOptions = [
-    { value: 'simpleQuestion', label: 'Simple Question' },
-    { value: 'multipleChoice', label: "MCQ's Question" },
+    { value: 'Direct Answer', label: 'Simple Question' },
+    { value: 'MCQs', label: "MCQ's Question" },
 ];
 
 const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
+    const { addQuestionMutate, isLoading } = useAddQuestion();
     const [questionState, setQuestionState] = useState<OfflineQuestionNAnswerData | null>({
         questionEN: "",
         questionAR: "",
@@ -64,14 +77,17 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         answerAR: "",
         answerMedia: "",
     });
+
     const [options, setOptions] = useState<OptionType[]>([
         { english: "", arabic: "" },
         { english: "", arabic: "" },
         { english: "", arabic: "" },
         { english: "", arabic: "" },
     ]);
+
     const { categoriesData } = useGetAllCategoriesDataForDropDown();
-    const PAGE_SIZE = 10;
+    const [uploadedFileType, setUploadedFileType] = useState<UploadedFileType | null>(null);
+    const [errorState, setErrorState] = useState<ErrorStateType>({ questionMedia: false, answerMedia: false });
 
     const [state, setState] = useState<StateType>({
         questionMediaObj: null,
@@ -81,17 +97,37 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         selectedCategory: null,
         selectedDifficulty: null,
         selectedQuestionType: "simpleQuestion",
-        page: 1,
-        hasMore: true,
         categoriesOptions: [],
+        selectedCorrectOption: null,
     });
 
     const questionFileInputRef = useRef<HTMLInputElement>(null);
-    const triggerQuestionFileInput = () => {
+    const triggerQuestionFileInput = (type: UploadedFileType) => {
+        setUploadedFileType(type);
+        if (!questionFileInputRef.current) return;
+
+        if (type === "image" && questionFileInputRef.current) {
+            questionFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp";
+        } else if (type === "video") {
+            questionFileInputRef.current.accept = ".mp4,.webm,.ogg";
+        } else if (type === "audio") {
+            questionFileInputRef.current.accept = ".mp3,.wav,.ogg";
+        }
         questionFileInputRef.current?.click();
     };
+
     const answerFileInputRef = useRef<HTMLInputElement>(null);
-    const triggerAnswerFileInput = () => {
+    const triggerAnswerFileInput = (type: UploadedFileType) => {
+        setUploadedFileType(type);
+        if (!answerFileInputRef.current) return;
+
+        if (type === "image" && answerFileInputRef.current) {
+            answerFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp";
+        } else if (type === "video") {
+            answerFileInputRef.current.accept = ".mp4,.webm,.ogg";
+        } else if (type === "audio") {
+            answerFileInputRef.current.accept = ".mp3,.wav,.ogg";
+        }
         answerFileInputRef.current?.click();
     };
 
@@ -99,30 +135,16 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
     // Load options when `page` changes
     useEffect(() => {
         if (!categoriesData?.length) return;
-        const start = (state.page - 1) * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        const newOptions = categoriesData.slice(start, end).map((cat: any) => ({
+        const newOptions = categoriesData?.map((cat: any) => ({
             value: cat.id,
             label: cat.name,
         }));
 
         setState(prev => ({
             ...prev,
-            categoriesOptions: [...prev.categoriesOptions, ...newOptions],
-            hasMore: end < categoriesData.length
+            categoriesOptions: [...newOptions],
         }));
-    }, [state.page, categoriesData]);
-
-    // Detect scroll inside dropdown
-    const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-        if (scrollTop + clientHeight >= scrollHeight - 5 && state.hasMore) {
-            setState(prev => ({
-                ...prev,
-                page: prev.page + 1
-            }));
-        }
-    };
+    }, [categoriesData]);
 
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,9 +157,34 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         });
     };
 
+    const fileValidation = (file: File | undefined) => {
+        const fileExt = file?.type.split("/")[1] || file?.name.split(".").pop();
+        if (uploadedFileType === "image" && !IMAGE_FILE_TYPES.includes(`.${fileExt}`)) {
+            return { error: true, message: "Image file type must be valid formate : " + IMAGE_FILE_TYPES.join(", ") };
+        } else if (uploadedFileType === "video" && !VIDEO_FILE_TYPES.includes(`.${fileExt}`)) {
+            return { error: true, message: "Video file type must be valid formate : " + VIDEO_FILE_TYPES.join(", ") };
+        } else if (uploadedFileType === "audio" && !AUDIO_FILE_TYPES.includes(`.${fileExt}`)) {
+            return { error: true, message: "Audio file type must be valid formate : " + AUDIO_FILE_TYPES.join(", ") };
+        }
+        return { error: false, message: "" };
+    };
+
     const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         const name = event.target.name;
+        const error = fileValidation(file);
+        if (error.error) {
+            setErrorState(prev => ({
+                ...prev,
+                [name]: error.message
+            }));
+            return;
+        } else {
+            setErrorState(prev => ({
+                ...prev,
+                [name]: ""
+            }));
+        }
         if (file) {
             if (name === "questionMedia") {
                 setState(prev => ({
@@ -175,21 +222,92 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
 
     const handleAddQuestion = () => {
         if (questionState) {
-            resetState();
+            handleOk();
         }
     };
+
     const handleAddOptions = () => {
-        setState(prev => ({
-            ...prev,
-            step: 1
-        }));
+        // If there are already 4 options, validate them
+        if (options.length === 4) {
+            // Check for any empty option
+            const emptyOption = options.find(opt => !opt.english.trim());
+            if (emptyOption) {
+                showErrorMessage("All options must be filled.");
+                return;
+            }
+
+            // Check for duplicate options (case-insensitive, trimmed)
+            const englishOptions = options.map(opt => opt.english.trim().toLowerCase());
+            const hasDuplicate = englishOptions.some((opt, idx) => englishOptions.indexOf(opt) !== idx);
+            if (hasDuplicate) {
+                showErrorMessage("Options must be unique.");
+                return;
+            }
+        }
+
+        setState(prev => ({ ...prev, step: 1 }));
     };
 
     const handleGoOptions = () => {
-        setState(prev => ({
-            ...prev,
-            step: 2
-        }));
+        setState(prev => ({ ...prev, step: 2 }));
+    };
+
+
+    const createFormData = () => {
+        const formData = new FormData();
+
+        // Helper to safely append values
+        const safeAppend = (key: string, value: any) => {
+            formData.append(key, value ?? "");
+        };
+
+        safeAppend("questionType", state.selectedQuestionType);
+        safeAppend("type", state.mode === "online" ? "text" : "text-and-media");
+        safeAppend("categoryId", state.selectedCategory);
+        safeAppend("questionText[en]", questionState?.questionEN);
+        safeAppend("questionText[ar]", questionState?.questionAR);
+        safeAppend("answerExplanation[en]", questionState?.answerEN);
+        safeAppend("answerExplanation[ar]", questionState?.answerAR);
+        safeAppend("difficulty", state.selectedDifficulty);
+
+        const points = DifficultyOptions.find(difficulty => difficulty.value === state.selectedDifficulty)?.points;
+        safeAppend("points", points !== undefined ? String(points) : "");
+
+        if (state.mode === "online") {
+            safeAppend("options[en]", options.map(opt => opt.english).join(","));
+            safeAppend("options[ar]", options.map(opt => opt.arabic).join(","));
+            safeAppend("correctAnswer[en]", state.selectedCorrectOption?.english);
+            safeAppend("correctAnswer[ar]", state.selectedCorrectOption?.arabic);
+        } else {
+            if (state.questionMediaObj) {
+                formData.append("media", state.questionMediaObj);
+            }
+            if (state.answerMediaObj) {
+                formData.append("answerMedia", state.answerMediaObj);
+            }
+        }
+
+        return formData;
+    };
+
+    const handleOk = () => {
+
+        const formData = createFormData();
+        if (formData) {
+            addQuestionMutate(formData, {
+                onSuccess: async () => {
+                    showSuccessMessage('Question added successfuly.');
+                    resetState();
+                },
+                onError: (error: unknown) => {
+                    if (error instanceof AxiosError) {
+                        showErrorMessage(error?.response?.data?.message);
+                    } else {
+                        showErrorMessage('Unknown error occurred.');
+                    }
+                },
+            });
+        }
     };
 
     const resetState = () => {
@@ -204,8 +322,18 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         setState(prev => ({
             ...prev,
             questionMediaObj: null,
-            answerMediaObj: null
+            answerMediaObj: null,
+            selectedCategory: null,
+            selectedDifficulty: null,
+            selectedQuestionType: "simpleQuestion",
+            selectedCorrectOption: null,
         }));
+        setOptions([
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+        ]);
     };
 
     const handleChange = (index: number, field: keyof OptionType, value: string) => {
@@ -224,8 +352,26 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         setState((prev) => ({
             ...prev,
             [field]: value,
-            mode: value === "simpleQuestion" ? "offline" : "online",
+            mode: value === "MCQs" ? "online" : "offline",
         }));
+    };
+
+
+    const handleSelectCorrectOption = (e: RadioChangeEvent) => {
+        const correctOption = options.find(opt => opt.english === e.target.value);
+        if (correctOption) {
+            setState(prev => ({ ...prev, selectedCorrectOption: correctOption, }));
+        }
+    };
+
+    const handleGoBackToStep1 = () => {
+        setState(prev => ({ ...prev, step: 1 }));
+        setOptions([
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+            { english: "", arabic: "" },
+        ]);
     };
 
     return (
@@ -242,7 +388,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                         <button
                             type="button"
                             className="focus:outline-none w-5 h-5 md:w-8 md:h-8 flex items-center justify-center rounded-full text-medium-gray hover:text-black  hover:bg-light-gray transition-colors duration-300"
-                            onClick={() => setState(prev => ({ ...prev, step: 1 }))}
+                            onClick={handleGoBackToStep1}
                             aria-label="Close"
                         >
                             <MdArrowBack className='text-base md:text-2xl' />
@@ -252,6 +398,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                 </div>
             }
         >
+            {isLoading && <FallbackLoader isModal={true} />}
             <Divider />
             <div className='w-full  space-y-5 h-auto max-h-[800px]'>
                 {state.step === 1 ?
@@ -270,7 +417,11 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                     filterOption={(input, option) =>
                                         (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                                     }
-                                    onPopupScroll={handlePopupScroll}
+                                    optionRender={(option) => (
+                                        <div key={option.data.value}>
+                                            <span>{option.data.label}</span>
+                                        </div>
+                                    )}
                                 />
                             </div>
                             <div className="flex flex-col gap-y-2">
@@ -317,7 +468,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                         <Input
                                             type='text'
                                             name='questionAR'
-                                            readOnly
+                                            // readOnly
                                             placeholder="Question Translation"
                                             value={questionState?.questionAR}
                                             onChange={(e) => handleOnChange(e)}
@@ -337,15 +488,15 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                             />
                                             {questionState?.questionMedia ?
                                                 <>
-                                                    <img
+                                                    {uploadedFileType === "image" && <img
                                                         src={(typeof questionState.questionMedia === 'string' ? questionState.questionMedia : "")}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
                                                         width={96}
                                                         loading="lazy"
                                                         height={96}
-                                                    />
-                                                    <span className="truncate  ml-5 mt-1">{state.questionMediaObj?.name}</span>
+                                                    />}
+                                                    <span className={`truncate  ${uploadedFileType === "image" ? "ml-5" : ""} mt-1`}>{state.questionMediaObj?.name}</span>
                                                     <button
                                                         className="ml-auto"
                                                         onClick={() => handleRemove("questionMedia")}
@@ -355,28 +506,26 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                                 </>
                                                 :
 
-                                                <button
-                                                    className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white hover:text-medium-gray transition-colors duration-300"
-                                                    onClick={triggerQuestionFileInput}
-                                                >
+                                                <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white" >
                                                     <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
                                                     <div className='flex items-center justify-between flex-1 px-8'>
-                                                        <div className='flex-centered gap-x-4'>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("image")}>
                                                             <UploadImageIcon />
-                                                            <span className="text-base ">Photo</span>
-                                                        </div>
-                                                        <div className='flex-centered gap-x-4'>
+                                                            <span className="text-base ">Image</span>
+                                                        </button>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("video")}>
                                                             <VideoIcon />
                                                             <span className="text-base ">Video</span>
-                                                        </div>
-                                                        <div className='flex-centered gap-x-4'>
+                                                        </button>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("audio")}>
                                                             <AudioIcon />
                                                             <span className="text-base ">Audio</span>
-                                                        </div>
+                                                        </button>
                                                     </div>
-                                                </button>
+                                                </div>
                                             }
                                         </div>
+                                        {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -399,7 +548,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                         <Input
                                             type='text'
                                             name='answerAR'
-                                            readOnly
+                                            // readOnly
                                             placeholder="Answer Translation"
                                             value={questionState?.answerAR}
                                             onChange={(e) => handleOnChange(e)}
@@ -419,15 +568,15 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                             />
                                             {questionState?.answerMedia ?
                                                 <>
-                                                    <img
+                                                    {uploadedFileType === "image" && <img
                                                         src={(typeof questionState.answerMedia === 'string' ? questionState.answerMedia : "")}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
                                                         width={96}
                                                         height={96}
                                                         loading="lazy"
-                                                    />
-                                                    <span className="truncate  ml-5 mt-1">{state.answerMediaObj?.name}</span>
+                                                    />}
+                                                    <span className={`truncate ${uploadedFileType === "image" ? "ml-5" : ""} mt-1`}>{state.answerMediaObj?.name}</span>
                                                     <button
                                                         className="ml-auto"
                                                         onClick={() => handleRemove("answerMedia")}
@@ -438,38 +587,56 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
 
                                                 :
 
-                                                <button
-                                                    className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white hover:text-medium-gray transition-colors duration-300"
-                                                    onClick={triggerAnswerFileInput}
-                                                >
+                                                <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white">
                                                     <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
                                                     <div className='flex items-center justify-between flex-1 px-8'>
-                                                        <div className='flex-centered gap-x-4'>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
                                                             <UploadImageIcon />
                                                             <span className="text-base ">Photo</span>
-                                                        </div>
-                                                        <div className='flex-centered gap-x-4'>
+                                                        </button>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
                                                             <VideoIcon />
                                                             <span className="text-base ">Video</span>
-                                                        </div>
-                                                        <div className='flex-centered gap-x-4'>
+                                                        </button>
+                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("audio")}>
                                                             <AudioIcon />
                                                             <span className="text-base ">Audio</span>
-                                                        </div>
+                                                        </button>
                                                     </div>
-                                                </button>
+                                                </div>
                                             }
                                         </div>
+                                        {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                     </div>
                                 </div>
                             </div>
                             {/* MCQs */}
-                            {state.selectedQuestionType === "multipleChoice" &&
-                                <div>
-                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add MCQ’S</h2>
-                                    <button className="w-10 h-10 border-border-gray rounded-lg bg-[#F5F5F5] flex-centered" onClick={handleGoOptions}>
-                                        <LuCirclePlus size={20} />
-                                    </button>
+                            {state.selectedQuestionType === "MCQs" &&
+                                <div className="w-full">
+                                    <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">Add MCQ’S <span className="text-sm text-gray-500">Select anyone with right answer</span></h2>
+
+                                    <Radio.Group
+                                        onChange={handleSelectCorrectOption}
+                                        value={state.selectedCorrectOption?.english}
+                                        className="flex w-full flex-wrap gap-4 mb-6"
+                                    >
+                                        {options.every(opt => opt.english !== "") && options.map((opt, index) => (
+                                            <Radio
+                                                key={index}
+                                                value={opt.english}
+                                                className="h-12 w-fit px-6 border rounded-lg flex-centered  hover:border-primary"
+                                            >
+                                                {opt.english}
+                                            </Radio>
+                                        ))}
+                                        <button
+                                            className="w-12 h-12 border border-gray-300 rounded-lg bg-[#F5F5F5] flex items-center justify-center"
+                                            onClick={handleGoOptions}
+                                        >
+                                            <LuCirclePlus size={24} />
+                                        </button>
+                                    </Radio.Group>
+
                                 </div>
                             }
                         </div>

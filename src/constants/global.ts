@@ -81,8 +81,12 @@ export const promoCodesData: PromoCodeRecord[] = [
 ];
 
 export const ROLES_OPTIONS = [
-    { label: 'Super Admin', value: ROLES.SUPER_ADMIN },
+    // { label: 'Super Admin', value: ROLES.SUPER_ADMIN },
     { label: 'Content Manager', value: ROLES.CONTENT_MANAGER },
     { label: 'Finance Manager', value: ROLES.FINANCE_MANAGER },
     { label: 'Read Only', value: ROLES.READ_ONLY },
 ];
+
+export const IMAGE_FILE_TYPES = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+export const VIDEO_FILE_TYPES = [".mp4", ".webm", ".ogg"];
+export const AUDIO_FILE_TYPES = [".mp3", ".wav", ".ogg"];

@@ -1,18 +1,26 @@
-//icons
+import { useEffect, useState } from 'react';
+//Icons
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
-//componets
-import { Button, Empty, Pagination, Popconfirm, Select } from "antd";
+import DownloadIcon from 'assets/icons/download-icon.svg?react';
+//Hooks & Utils
+import useDeleteQuestion from './hooks/useDeleteQuestion';
 import useGetAllQuestionsData from './hooks/useGetAllQuestionsData';
 import { AllQuestionParams } from './core/_modals';
-import { useState } from 'react';
 import { getCurrentLanguage } from 'helpers/CustomHelpers';
-import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
-import useDeleteQuestion from './hooks/useDeleteQuestion';
+import { useGetAllCategoriesDataForDropDown } from 'store/AllCategoriesData';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
+//Components
+import { Button, Empty, Pagination, Popconfirm, Select } from "antd";
+import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import AddNEditQuestionModal from 'components/modals/AddNEditQuestionModal';
 
+interface StateType {
+    selectedCategory: string | null;
+    selectedDifficulty: string | null;
+    categoriesOptions: { value: string; label: string }[];
+}
 
 const tableHeaders = [
     { title: 'Question', key: 'question', className: "text-start" },
@@ -39,6 +47,33 @@ function Questions() {
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);
     const { deleteQuestionMutate } = useDeleteQuestion();
+    const { categoriesData } = useGetAllCategoriesDataForDropDown();
+    const [state, setState] = useState<StateType>({
+        selectedCategory: null,
+        selectedDifficulty: null,
+        categoriesOptions: [],
+    });
+
+    useEffect(() => {
+        if (categoriesData?.length) {
+            setState(prev => ({
+                ...prev,
+                categoriesOptions: categoriesData.map((cat: any) => ({ value: cat.id, label: cat.name })),
+            }));
+        }
+    }, [categoriesData]);
+
+    const handleSelectChange = (value: string | undefined, name: string) => {
+        setState(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        if (name === "selectedCategory") {
+            setParams(prev => ({ ...prev, categoryId: value }));
+        } else if (name === "selectedDifficulty") {
+            setParams(prev => ({ ...prev, difficulty: value }));
+        }
+    };
 
     const handleAddNewQuestion = () => {
         setIsModalOpen(true);
@@ -47,7 +82,7 @@ function Questions() {
         setParams(prev => ({ ...prev, page }));
     };
     const handleEditClick = (data: any) => {
-        // Add new alert logic here
+        console.log(data);
     };
     const handleDeleteClick = (data: any) => {
         let id = data?._id;
@@ -77,15 +112,40 @@ function Questions() {
                 <Select
                     allowClear
                     options={DifficultyOptions}
+                    value={state.selectedDifficulty || undefined}
                     placeholder="Difficulty"
                     className='h-12 w-48'
+                    onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
                 />
                 <Select
                     allowClear
-                    options={DifficultyOptions}
+                    options={state.categoriesOptions}
+                    value={state.selectedCategory || undefined}
                     placeholder="Category"
-                    className='h-12 w-48'
+                    className="h-12 w-48"
+                    onChange={(value) => handleSelectChange(value, "selectedCategory")}
+                    showSearch
+                    filterOption={(input, option) =>
+                        (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    // onPopupScroll={handlePopupScroll}
+                    optionRender={(option) => (
+                        <div key={option.data.value}>
+                            <span>{option.data.label}</span>
+                        </div>
+                    )}
                 />
+                <Button
+                    type="text"
+                    className="bg-black text-white h-12 w-fit ml-auto"
+                    onClick={() => {
+                        // Implement download logic here
+                    }}
+                    icon={<DownloadIcon className="w-5 h-5 mr-2" />}
+                >
+
+                    Download all questions
+                </Button>
             </div>
 
             <div className="border border-gray-200 rounded-lg mt-5">
