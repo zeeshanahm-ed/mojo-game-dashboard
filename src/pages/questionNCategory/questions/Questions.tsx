@@ -9,7 +9,7 @@ import useDeleteQuestion from './hooks/useDeleteQuestion';
 import useGetAllQuestionsData from './hooks/useGetAllQuestionsData';
 import { AllQuestionParams } from './core/_modals';
 import { getCurrentLanguage } from 'helpers/CustomHelpers';
-import { useGetAllCategoriesDataForDropDown } from 'store/AllCategoriesData';
+import { useGetAllCategoriesDataForDropDownFromStore } from 'store/AllCategoriesData';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 //Components
 import { Button, Empty, Pagination, Popconfirm, Select } from "antd";
@@ -47,7 +47,7 @@ function Questions() {
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);
     const { deleteQuestionMutate } = useDeleteQuestion();
-    const { categoriesData } = useGetAllCategoriesDataForDropDown();
+    const { categoriesData } = useGetAllCategoriesDataForDropDownFromStore();
     const [state, setState] = useState<StateType>({
         selectedCategory: null,
         selectedDifficulty: null,
@@ -227,6 +227,7 @@ function Questions() {
 
             <AddNEditQuestionModal
                 open={isModalOpen}
+                getAddedQuestionData={() => refetch()}
                 onClose={() => setIsModalOpen(false)}
             />
         </section>

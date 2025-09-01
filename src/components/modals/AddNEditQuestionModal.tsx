@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import { Button, Divider, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 //Hooks & Utils
-import { useGetAllCategoriesDataForDropDown } from "store/AllCategoriesData";
+import { useGetAllCategoriesDataForDropDownFromStore } from "store/AllCategoriesData";
 import { AUDIO_FILE_TYPES, IMAGE_FILE_TYPES, VIDEO_FILE_TYPES } from "constants/global";
 import useAddQuestion from "pages/questionNCategory/questions/hooks/useAddQuestion";
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
@@ -48,12 +48,14 @@ type OptionType = {
 interface QuestionNAnswerProps {
     open: boolean;
     onClose: () => void;
+    getAddedQuestionData: () => void;
 };
 
 type UploadedFileType = "image" | "video" | "audio";
 type ErrorStateType = {
-    questionMedia: boolean;
-    answerMedia: boolean;
+    questionMedia: string;
+    answerMedia: string;
+    options: string;
 }
 
 const DifficultyOptions = [
@@ -67,7 +69,7 @@ const QuestionTypeOptions = [
     { value: 'MCQs', label: "MCQ's Question" },
 ];
 
-const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
+const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: QuestionNAnswerProps) => {
     const { addQuestionMutate, isLoading } = useAddQuestion();
     const [questionState, setQuestionState] = useState<OfflineQuestionNAnswerData | null>({
         questionEN: "",
@@ -85,9 +87,13 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         { english: "", arabic: "" },
     ]);
 
-    const { categoriesData } = useGetAllCategoriesDataForDropDown();
+    const { categoriesData } = useGetAllCategoriesDataForDropDownFromStore();
     const [uploadedFileType, setUploadedFileType] = useState<UploadedFileType | null>(null);
-    const [errorState, setErrorState] = useState<ErrorStateType>({ questionMedia: false, answerMedia: false });
+    const [errorState, setErrorState] = useState<ErrorStateType>({
+        questionMedia: "",
+        answerMedia: "",
+        options: "",
+    });
 
     const [state, setState] = useState<StateType>({
         questionMediaObj: null,
@@ -96,7 +102,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         step: 1,
         selectedCategory: null,
         selectedDifficulty: null,
-        selectedQuestionType: "simpleQuestion",
+        selectedQuestionType: "Direct Answer",
         categoriesOptions: [],
         selectedCorrectOption: null,
     });
@@ -218,6 +224,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                 [name]: ""
             } as OfflineQuestionNAnswerData;
         });
+        setState(prev => ({ ...prev, questionMediaObj: null, answerMediaObj: null }));
     };
 
     const handleAddQuestion = () => {
@@ -232,7 +239,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
             // Check for any empty option
             const emptyOption = options.find(opt => !opt.english.trim());
             if (emptyOption) {
-                showErrorMessage("All options must be filled.");
+                setErrorState(prev => ({ ...prev, options: "All options must be filled." }));
                 return;
             }
 
@@ -240,7 +247,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
             const englishOptions = options.map(opt => opt.english.trim().toLowerCase());
             const hasDuplicate = englishOptions.some((opt, idx) => englishOptions.indexOf(opt) !== idx);
             if (hasDuplicate) {
-                showErrorMessage("Options must be unique.");
+                setErrorState(prev => ({ ...prev, options: "Options must be unique." }));
                 return;
             }
         }
@@ -251,7 +258,6 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
     const handleGoOptions = () => {
         setState(prev => ({ ...prev, step: 2 }));
     };
-
 
     const createFormData = () => {
         const formData = new FormData();
@@ -274,8 +280,11 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         safeAppend("points", points !== undefined ? String(points) : "");
 
         if (state.mode === "online") {
-            safeAppend("options[en]", options.map(opt => opt.english).join(","));
-            safeAppend("options[ar]", options.map(opt => opt.arabic).join(","));
+            options.forEach((opt) => {
+                safeAppend("options[en][]", opt.english);
+                safeAppend("options[ar][]", opt.arabic);
+            });
+
             safeAppend("correctAnswer[en]", state.selectedCorrectOption?.english);
             safeAppend("correctAnswer[ar]", state.selectedCorrectOption?.arabic);
         } else {
@@ -296,8 +305,10 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         if (formData) {
             addQuestionMutate(formData, {
                 onSuccess: async () => {
-                    showSuccessMessage('Question added successfuly.');
+                    showSuccessMessage('Question created successfully.');
                     resetState();
+                    getAddedQuestionData();
+                    handleClose();
                 },
                 onError: (error: unknown) => {
                     if (error instanceof AxiosError) {
@@ -334,12 +345,19 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
             { english: "", arabic: "" },
             { english: "", arabic: "" },
         ]);
+        setErrorState({
+            questionMedia: "",
+            answerMedia: "",
+            options: "",
+        });
+        setUploadedFileType(null);
     };
 
     const handleChange = (index: number, field: keyof OptionType, value: string) => {
         const updatedOptions = [...options];
         updatedOptions[index][field] = value;
         setOptions(updatedOptions);
+        setErrorState(prev => ({ ...prev, options: "" }));
     };
 
     const handleTranslate = (index: number) => {
@@ -352,8 +370,10 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         setState((prev) => ({
             ...prev,
             [field]: value,
-            mode: value === "MCQs" ? "online" : "offline",
         }));
+        if (field === "selectedQuestionType") {
+            setState(prev => ({ ...prev, mode: value === "MCQs" ? "online" : "offline" }));
+        }
     };
 
 
@@ -374,11 +394,25 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
         ]);
     };
 
+    const handleClose = () => {
+        resetState();
+        onClose();
+    };
+
+
+    const handleDisabled = () => {
+        if (state.selectedQuestionType === "MCQs") {
+            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
+        } else {
+            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaObj || !state.answerMediaObj;
+        }
+    };
+
     return (
 
         <Modal
             open={open}
-            onCancel={onClose}
+            onCancel={handleClose}
             footer={null}
             centered
             width={700}
@@ -403,7 +437,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
             <div className='w-full  space-y-5 h-auto max-h-[800px]'>
                 {state.step === 1 ?
                     <>
-                        <div className="flex items-center justify-between gap-x-5">
+                        <div className="flex items-baseline justify-between gap-x-5">
                             <div className="flex flex-col gap-y-2">
                                 <label className="text-base">Assign Category</label>
                                 <Select
@@ -524,8 +558,8 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                                     </div>
                                                 </div>
                                             }
+                                            {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                         </div>
-                                        {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -592,7 +626,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                                     <div className='flex items-center justify-between flex-1 px-8'>
                                                         <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
                                                             <UploadImageIcon />
-                                                            <span className="text-base ">Photo</span>
+                                                            <span className="text-base ">Image</span>
                                                         </button>
                                                         <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
                                                             <VideoIcon />
@@ -605,8 +639,8 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                                     </div>
                                                 </div>
                                             }
+                                            {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                         </div>
-                                        {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -678,6 +712,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                                     </div>
                                 </div>
                             ))}
+                            {errorState.options && <p className="text-red-500 text-sm text-center">{errorState.options}</p>}
                         </div>
 
                     </>
@@ -688,7 +723,7 @@ const AddNEditQuestionModal = ({ open, onClose }: QuestionNAnswerProps) => {
                         <Button variant="text" className="h-12 bg-black text-white" onClick={handleAddQuestion}>
                             Bulk Upload <MdOutlineFileUpload size={20} />
                         </Button>
-                        <Button variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
+                        <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
                             Add Question
                         </Button>
                     </div> :

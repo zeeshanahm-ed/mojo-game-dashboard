@@ -24,6 +24,7 @@ const QUERIES_KEYS = {
   GET_ANALYTICS: 'analytics',
   GET_IJPS_RESTART_DATA: 'ijpsRestartData',
   CREATE_IJPS_RESTART_DATA: 'createIJPSRestartData',
+  GET_PROMO_CODES: 'getPromoCodes',
 };
 
 export { QUERIES_KEYS };

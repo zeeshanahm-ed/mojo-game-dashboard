@@ -6,7 +6,7 @@ type CategoriesStore = {
 };
 
 
-export const useGetAllCategoriesDataForDropDown = create<CategoriesStore>((set) => ({
+export const useGetAllCategoriesDataForDropDownFromStore = create<CategoriesStore>((set) => ({
     categoriesData: null,
     setCategoriesData: (categoriesData: any) => set({ categoriesData }),
 }));
