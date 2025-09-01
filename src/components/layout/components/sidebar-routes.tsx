@@ -7,9 +7,11 @@ import Logout from 'assets/icons/logout-icon.svg?react';
 // Helpers
 import * as authHelper from '../../../auth/core/auth-helpers';
 import useGetCategoriesForDropDown from 'pages/questionNCategory/categories/core/hooks/useGetCategoriesForDropDown';
-import { useGetAllCategoriesDataForDropDown } from 'store/AllCategoriesData';
+import { useGetAllCategoriesDataForDropDownFromStore } from 'store/AllCategoriesData';
 import { useEffect, useState } from 'react';
 import LogoutModal from 'auth/logout-modal';
+import useGetAllUsersDataForDropDown from 'pages/user-management/core/hooks/useGetAllUsersDataForDropDown';
+import { useGetAllUsersDataForDropDownFromStore } from 'store/AllUsersData';
 // import { handleErrorMineImg, USER_ROLES } from 'components/global/global';
 
 
@@ -20,11 +22,16 @@ function SidebarRoutes() {
 
 
   const { allCategoriesData } = useGetCategoriesForDropDown();
-  const { setCategoriesData } = useGetAllCategoriesDataForDropDown();
+  const { allUsersData } = useGetAllUsersDataForDropDown();
+  const { setCategoriesData } = useGetAllCategoriesDataForDropDownFromStore();
+  const { setUsersData } = useGetAllUsersDataForDropDownFromStore();
 
   useEffect(() => {
     if (allCategoriesData) {
       setCategoriesData(allCategoriesData);
+    }
+    if (allUsersData) {
+      setUsersData(allUsersData);
     }
   }, [allCategoriesData, setCategoriesData]);
 
