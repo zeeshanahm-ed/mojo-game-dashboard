@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 
 type UsersStore = {
-    usersData: any;
+    allUsersData: any;
     setUsersData: (usersData: any) => void;
 };
 
 
 export const useGetAllUsersDataForDropDownFromStore = create<UsersStore>((set) => ({
-    usersData: null,
-    setUsersData: (usersData: any) => set({ usersData }),
+    allUsersData: null,
+    setUsersData: (allUsersData: any) => set({ allUsersData }),
 }));
