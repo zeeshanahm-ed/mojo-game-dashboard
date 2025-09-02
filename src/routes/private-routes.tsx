@@ -10,10 +10,13 @@ import Settings from 'pages/settings/settings';
 import UserManagement from 'pages/user-management/user-management';
 import QuestionsNCategories from 'pages/questionNCategory/QuestionsNCategories';
 import RolesNPermissions from 'pages/rolesNPermissions/RolesNPermissions';
-import PromoCodeManagement from 'pages/promo-code-management/PromoCodeManagement';
+// import PromoCodeManagement from 'pages/promo-code-management/PromoCodeManagement';
 import Profile from 'pages/profile/Profile';
-import PaymentTransactions from 'pages/payment-transactions/PaymentTransactions';
+// import PaymentTransactions from 'pages/payment-transactions/PaymentTransactions';
 import Subscription from 'pages/subscription/Subscription';
+
+
+// Payment Transactions and Promo Code Management are stopped for now.
 
 function PrivateRoutes() {
   // const { currentUser } = useAuth();
@@ -37,8 +40,8 @@ function PrivateRoutes() {
         <Route path='settings' element={<Settings />} />
         <Route path='question-category' element={<QuestionsNCategories />} />
         <Route path='roles-permissions' element={<RolesNPermissions />} />
-        <Route path='promo-code-management' element={<PromoCodeManagement />} />
-        <Route path='payment-transactions' element={<PaymentTransactions />} />
+        {/* <Route path='promo-code-management' element={<PromoCodeManagement />} /> */}
+        {/* <Route path='payment-transactions' element={<PaymentTransactions />} /> */}
         <Route path='subscription' element={<Subscription />} />
         <Route path='profile' element={<Profile />} />
 
