@@ -416,6 +416,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
             footer={null}
             centered
             width={700}
+            maskClosable={false}
             title={
                 <div className="flex items-center gap-2">
                     {state.step === 2 &&

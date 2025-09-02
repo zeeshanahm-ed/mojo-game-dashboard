@@ -19,6 +19,7 @@ const QUERIES_KEYS = {
   GET_LEADS: 'leads',
   GET_LEADS_BY_ID: 'getLeadsById',
   GET_ALL_CATEGORIES: 'allCategories',
+  GET_ALL_USERS: 'allUsers',
   GET_CATEGORIES: 'categories',
   GET_QUESTIONS: 'questions',
   GET_ANALYTICS: 'analytics',

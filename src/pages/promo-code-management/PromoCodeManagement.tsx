@@ -109,7 +109,7 @@ export const PromoCodeManagement: React.FC = () => {
                                                 <td className="p-5">{promo?.code || "-"}</td>
                                                 <td className="p-5">{`${promo?.percentage}%` || "-"}</td>
                                                 <td className="p-5">{promo?.usageLimit || "-"}</td>
-                                                <td className="p-5">{promo?.assigned || "-"}</td>
+                                                <td className="p-5">{promo?.assignedUsers?.length > 0 ? "Custom users" : "All users"}</td>
                                                 <td className="p-5 text-blue-600 underline cursor-pointer">
                                                     <a href={promo?.promoAnalyticsLink || "-"}>Track usage</a>
                                                 </td>

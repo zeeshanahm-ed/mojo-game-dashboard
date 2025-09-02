@@ -1,25 +1,25 @@
 
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Select, Radio, DatePicker, Button, Divider, Input, Tag } from 'antd';
+import { Modal, Select, Radio, DatePicker, Button, Divider, Input, Tag } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import { PromoCodeRecord } from 'utils/Interfaces';
 import NumericStepper from 'components/core-ui/numaric-stepper/NumericStepper';
+const { RangePicker } = DatePicker;
+import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 //icons
 import DateIcon from 'assets/icons/date-icon.svg?react';
 import { CloseOutlined } from '@ant-design/icons';
 import { FiChevronDown } from "react-icons/fi";
+//Hooks & Utils
 import useAddPromoCode from 'pages/promo-code-management/core/hooks/useAddPromoCode';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
-import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
+import { useGetAllUsersDataForDropDownFromStore } from 'store/AllUsersData';
 
-const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 
 interface PromoModalProps {
     open: boolean;
     onClose: () => void;
-    editData?: PromoCodeRecord | null;
+    editData?: any[] | null;
     refetchPromoData: () => void;
 }
 
@@ -27,18 +27,9 @@ interface FormState {
     promoCode: string;
     percentage: number;
     usageLimit: number;
-    assignTo: 'all' | 'custom';
     customUsers: string[];
-    discountDuration: [Dayjs, Dayjs];
+    discountDuration: [Dayjs | null, Dayjs | null];
 }
-
-// Custom users options (mock data)
-const customUserOptions = [
-    { label: 'John Doe', value: 'john_doe' },
-    { label: 'Jane Smith', value: 'jane_smith' },
-    { label: 'Mike Johnson', value: 'mike_johnson' },
-    { label: 'Sarah Wilson', value: 'sarah_wilson' }
-];
 
 
 const AddNEditPromoModal: React.FC<PromoModalProps> = ({
@@ -48,16 +39,27 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
     refetchPromoData,
 }) => {
     const { addPromoCodeMutate, isLoading } = useAddPromoCode();
+    const { allUsersData } = useGetAllUsersDataForDropDownFromStore();
+    const [customUserOptions, setCustomUserOptions] = useState<any[]>([]);
     const [assignTo, setAssignTo] = useState<'all' | 'custom'>('all');
     const isEdit = !!editData;
     const [formState, setFormState] = useState<FormState>({
         promoCode: "",
         percentage: 0,
         usageLimit: 0,
-        assignTo: "all",
         customUsers: [],
         discountDuration: [dayjs(), dayjs()],
     });
+
+    useEffect(() => {
+        if (allUsersData) {
+            const newOptions = allUsersData.map((user: any) => ({
+                value: user._id,
+                label: `${user.firstName} ${user.lastName}`
+            }));
+            setCustomUserOptions(newOptions);
+        }
+    }, [allUsersData]);
 
 
     useEffect(() => {
@@ -67,7 +69,6 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
                     promoCode: editData.promoCode,
                     percentage: editData.percentage,
                     usageLimit: editData.usageLimit,
-                    assignTo: editData.assignTo,
                     customUsers: editData.customUsers || [],
                     discountDuration: [
                         dayjs(editData.discountDuration.startDate),
@@ -80,9 +81,8 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
                     promoCode: "",
                     percentage: 5,
                     usageLimit: 5,
-                    assignTo: "all",
                     customUsers: [],
-                    discountDuration: [dayjs(), dayjs()],
+                    discountDuration: [null, null],
                 });
             }
         }
@@ -93,14 +93,16 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
             code: formState.promoCode,
             percentage: formState.percentage,
             usageLimit: formState.usageLimit,
-            assignedUsers: [],
-            validFrom: formState.discountDuration[0].toISOString(),
-            validUntil: formState.discountDuration[1].toISOString(),
+            assignedUsers: assignTo === 'custom' ? formState.customUsers : [],
+            validFrom: formState?.discountDuration[0]?.toISOString(),
+            validUntil: formState?.discountDuration[1]?.toISOString(),
         }
         addPromoCodeMutate(body, {
             onSuccess: () => {
                 showSuccessMessage('Promo code added successfully.');
                 refetchPromoData();
+                resetState();
+                onClose();
             },
             onError: () => {
                 showErrorMessage('Failed to add promo code.');
@@ -120,10 +122,10 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
             promoCode: "",
             percentage: 5,
             usageLimit: 5,
-            assignTo: "all",
             customUsers: [],
-            discountDuration: [dayjs(), dayjs()],
+            discountDuration: [null, null],
         });
+        setAssignTo('all');
     };
 
     const handleSelectChange = (value: string | number, field: keyof FormState) => {
@@ -140,11 +142,18 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
             <Tag
                 closable={closable}
                 onClose={onClose}
-                className={`text-black text-base p-1 m-1 border-0`}
+                className={`text-black  text-base p-1 m-1 border-0`}
             >
                 {label}
             </Tag>
         );
+    };
+
+    const isButtonDisabled = () => {
+        if (assignTo === 'custom') {
+            return !formState.promoCode || !formState.percentage || !formState.usageLimit || !formState.discountDuration || !formState.customUsers.length;
+        }
+        return !formState.promoCode || !formState.percentage || !formState.usageLimit || !formState.discountDuration;
     };
 
     return (
@@ -155,6 +164,7 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
             width={650}
             footer={null}
             centered
+            maskClosable={false}
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
         >
             <Divider />
@@ -215,16 +225,18 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
                                 <div className="flex items-center gap-3 flex-1">
                                     <Radio value="custom" className="text-base">Custom users</Radio>
                                     {assignTo === 'custom' && (
-                                        <div className="mb-0 flex-1">
+                                        <div className="mb-0 flex-1 max-h-48 overflow-y-auto">
                                             <Select
-                                                size='large'
-                                                className='h-full text-center'
-                                                mode='tags'
+                                                size="large"
+                                                className="h-full text-center"
+                                                mode="multiple"   // ⬅️ only allows existing options
+                                                showSearch
                                                 allowClear
                                                 tagRender={tagRender}
-                                                style={{ width: '100%' }}
-                                                placeholder='Add custom users'
+                                                style={{ width: "100%" }}
+                                                placeholder="Add custom users"
                                                 options={customUserOptions}
+                                                optionFilterProp="label"
                                                 onChange={(value) => {
                                                     handleSelectChange(value, "customUsers");
                                                 }}
@@ -248,7 +260,6 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
                             format="DD MMM"
                             placeholder={['Start Date', 'End Date']}
                             separator="-"
-                            allowClear={false}
                             value={formState.discountDuration}
                             onChange={(value) => handleDiscountDurationChange(value)}
                         />
@@ -260,8 +271,9 @@ const AddNEditPromoModal: React.FC<PromoModalProps> = ({
                 <div className="flex justify-end mt-2">
                     <Button
                         type="primary"
+                        disabled={isButtonDisabled()}
                         onClick={handleAddPromoCode}
-                        className="bg-blue-500 hover:bg-blue-600 border-blue-500 h-12 px-8 text-base font-medium"
+                        className=" h-12 px-8 text-base font-medium"
                     >
                         {isEdit ? 'Update Promo' : 'Add Promo'}
                     </Button>

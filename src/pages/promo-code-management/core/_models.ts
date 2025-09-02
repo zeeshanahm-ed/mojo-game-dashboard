@@ -3,6 +3,6 @@ export interface AddPromoCodeTypes {
     percentage: number,
     usageLimit: number,
     assignedUsers: string[],
-    validFrom: string,
-    validUntil: string,
+    validFrom: string | undefined,
+    validUntil: string | undefined,
 }

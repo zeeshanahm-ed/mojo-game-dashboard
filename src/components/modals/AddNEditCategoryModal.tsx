@@ -113,6 +113,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
             onCancel={onClose}
             footer={null}
             centered
+            maskClosable={false}
             width={700}
             title={<p className='font-normal text-2xl'>{editData ? 'Edit category' : 'Add new category'}</p>}
         >

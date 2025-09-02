@@ -33,7 +33,7 @@ function SidebarRoutes() {
     if (allUsersData) {
       setUsersData(allUsersData);
     }
-  }, [allCategoriesData, setCategoriesData]);
+  }, [allCategoriesData, allUsersData]);
 
   // Define the routes along with the roles that can access them
   const routes = [
@@ -55,18 +55,18 @@ function SidebarRoutes() {
       path: '/question-category',
       roles: true,
     },
-    {
-      key: 'review-requests',
-      label: 'Review Requests',
-      path: '/review-requests',
-      roles: true,
-    },
-    {
-      key: 'game-packs-pricing',
-      label: 'Game packs & pricing',
-      path: '/game-packs-pricing',
-      roles: true,
-    },
+    // {
+    //   key: 'review-requests',
+    //   label: 'Review Requests',
+    //   path: '/review-requests',
+    //   roles: true,
+    // },
+    // {
+    //   key: 'game-packs-pricing',
+    //   label: 'Game packs & pricing',
+    //   path: '/game-packs-pricing',
+    //   roles: true,
+    // },
     {
       key: 'payment-transactions',
       label: 'Payment & Transactions',

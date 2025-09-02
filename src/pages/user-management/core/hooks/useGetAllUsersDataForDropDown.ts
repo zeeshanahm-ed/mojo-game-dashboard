@@ -3,7 +3,7 @@ import { getAllUsersDataForDropDown, } from '../_requests';
 import { QUERIES_KEYS } from 'helpers/crud-helper/consts';
 
 const useGetAllUsersDataForDropDown = () => {
-    const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ALL_CATEGORIES,], () => getAllUsersDataForDropDown(),
+    const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ALL_USERS,], () => getAllUsersDataForDropDown(),
         {
             cacheTime: 1,
             staleTime: 0,
