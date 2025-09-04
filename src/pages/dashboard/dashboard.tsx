@@ -59,7 +59,7 @@ const Dashboard = () => {
 
   const { setTitle } = useHeaderProps();
   const [activeTab, setActiveTab] = useState('Daily')
-  const [statisticsDateRanges, setStatisticsDateRanges] = useState<ServicesStatusDataParams>({
+  const [setStatisticsDateRanges] = useState<ServicesStatusDataParams>({
     startDate: "",
     endDate: "",
   });

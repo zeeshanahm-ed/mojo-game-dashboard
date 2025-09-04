@@ -48,6 +48,6 @@ export interface IVerifyOtpRequestBody {
 export interface IChangePasswordForm {
   newPassword: string;
   confirmPassword: string;
-  otp: string | null;
+  otp: string | undefined;
   email: string | null;
 }

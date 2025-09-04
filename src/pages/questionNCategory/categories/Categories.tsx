@@ -99,7 +99,7 @@ function Categories() {
                                                 key={index}
                                                 className="border-b hover:bg-gray-50 text-center"
                                             >
-                                                <td className="p-5"><img src={row?.photo || GameImage} alt={row?.name} loading="lazy" className="w-10 h-10 object-cover ml-10" /></td>
+                                                <td className="p-5"><img src={row?.photo || GameImage} alt={row?.name} loading="lazy" className="w-10 h-10 object-contain ml-10" /></td>
                                                 <td className="p-5">{row?.name}</td>
                                                 <td className="p-5 flex justify-end">
                                                     <div className="flex justify-center items-center gap-4">

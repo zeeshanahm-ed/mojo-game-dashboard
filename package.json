@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
-    "@fingerprintjs/fingerprintjs": "^4.6.2",
     "antd": "^5.17.4",
     "axios": "^1.6.2",
     "copy-to-clipboard": "^3.3.3",

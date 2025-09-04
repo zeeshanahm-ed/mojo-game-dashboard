@@ -9,7 +9,7 @@ const useAddCategory = () => {
         error: addCategoryError,
         isLoading: isAddCategoryLoading,
         isSuccess: isAddCategorySuccess,
-    } = useMutation((body: any) => addCategory(body));
+    } = useMutation((body: FormData) => addCategory(body));
 
     return {
         addCategoryMutate,

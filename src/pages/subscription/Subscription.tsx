@@ -102,6 +102,7 @@ export const Subscription: React.FC = () => {
     };
 
     const handlePageChange = (page: number) => {
+        console.log(page);
     };
 
 

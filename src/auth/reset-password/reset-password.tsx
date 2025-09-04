@@ -17,7 +17,7 @@ function ResetPassword() {
       email: forgotEmail,
       newPassword: values?.newPassword,
       confirmPassword: values?.confirmNewPassword,
-      otp: verifiedOtp?.replaceAll(",", "")
+      otp: verifiedOtp?.replace(/,/g, "")
     }
     try {
       await resetPassword(body);

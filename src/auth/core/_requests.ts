@@ -2,7 +2,6 @@ import api from 'services/api/api';
 import authApi from 'services/api/authApi';
 
 import { IChangePasswordForm, IForgotPasswordForm, ISignInForm, ISignUpForm, IVerifyOtpRequestBody } from './_models';
-import { getAuthHeaders } from 'utils/getAuthheaders';
 
 const SIGNIN_URL = '/auth/login';
 const SIGNUP_URL = '/auth/register';
@@ -13,8 +12,7 @@ const RESET_PASS_CODE = '/auth/reset-password';
 const CHANGE_PASS_CODE = '/auth/update-password';
 
 export async function login(body: ISignInForm) {
-  const headers = await getAuthHeaders();
-  return api.post(SIGNIN_URL, body, { headers });
+  return api.post(SIGNIN_URL, body);
 }
 
 export function signUp(body: ISignUpForm) {

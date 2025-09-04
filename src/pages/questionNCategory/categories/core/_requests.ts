@@ -11,9 +11,17 @@ export function getAllCategoriesDataForDropDown() {
 export function deleteCategory(id: string) {
     return api.delete(`${CATEGORY_URL}/${id}`).then((response) => response.data);
 }
-export function updateCategoryData(data: any, id: string) {
-    return api.patch(`${CATEGORY_URL}/${id}`, data).then((response) => response.data);
+export function updateCategoryData(data: FormData, id: string) {
+    return api.patch(`${CATEGORY_URL}/${id}`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }).then((response) => response.data);
 }
-export function addCategory(data: any) {
-    return api.post(`${CATEGORY_URL}/create`, data).then((response) => response.data);
+export function addCategory(data: FormData) {
+    return api.post(`${CATEGORY_URL}/create`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }).then((response) => response.data);
 }

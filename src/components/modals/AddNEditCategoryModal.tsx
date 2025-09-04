@@ -72,11 +72,15 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
 
     const handleUpdate = () => {
         if (!categoryName.trim()) return;
-        const request = {
-            name: categoryName,
-            photo: file ? file : editData?.photo
+        const formData = new FormData();
+        formData.append("name", categoryName);
+        if (file) {
+            formData.append("photo", file as File);
+        } else {
+            formData.append("photo", editData?.photo);
         }
-        updateCategoryMutate({ body: request, id: editData?._id }, {
+
+        updateCategoryMutate({ body: formData, id: editData?._id }, {
             onSuccess: () => {
                 showSuccessMessage("Category updated successfully.");
                 refatchCategoriesData();
@@ -93,7 +97,11 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
     const handleAdd = () => {
         if (!categoryName.trim()) return;
 
-        addCategoryMutate({ name: categoryName, photo: file }, {
+        const formData = new FormData();
+        formData.append("name", categoryName);
+        formData.append("photo", file as File);
+
+        addCategoryMutate(formData, {
             onSuccess: () => {
                 showSuccessMessage("Category added successfully.");
                 refatchCategoriesData();
