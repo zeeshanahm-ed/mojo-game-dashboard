@@ -5,7 +5,7 @@ import { getDashboardServiceStatusData } from '../_request';
 
 const useDashboardServicesStatusData = (params: ServicesStatusDataParams) => {
   const { data, error, isLoading, isError, isSuccess, refetch } = useQuery(
-    [QUERIES_KEYS.GET_DASHBOARD_GENERAL_SERVICES, params],
+    [QUERIES_KEYS.GET_DASHBOARD_DATA, params],
     () => getDashboardServiceStatusData(params),
     {
       cacheTime: 1,

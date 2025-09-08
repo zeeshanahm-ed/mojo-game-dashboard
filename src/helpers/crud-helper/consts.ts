@@ -7,6 +7,7 @@ const QUERIES_KEYS = {
   GET_CATEGORIES: 'categories',
   GET_QUESTIONS: 'questions',
   GET_SINGLE_QUESTIONS: 'singleQuestions',
+  GET_DASHBOARD_DATA: 'dashboardData',
 };
 
 export { QUERIES_KEYS };
