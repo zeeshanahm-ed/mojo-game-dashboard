@@ -7,6 +7,8 @@ import useUpdateCategory from "pages/questionNCategory/categories/core/hooks/use
 //icons
 import { UploadOutlined } from "@ant-design/icons";
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
+import { QUERIES_KEYS } from "helpers/crud-helper/consts";
+import { useQueryClient } from "react-query";
 
 
 interface AddCategoryModalProps {
@@ -27,6 +29,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
     const { updateCategoryMutate, isUpdateCategoryLoading } = useUpdateCategory();
     const [file, setFile] = useState<File | null>(null);
     const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
 
     useEffect(() => {
@@ -84,6 +87,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
             onSuccess: () => {
                 showSuccessMessage("Category updated successfully.");
                 refatchCategoriesData();
+                queryClient.invalidateQueries(QUERIES_KEYS.GET_ALL_CATEGORIES);
                 setFile(null);
                 setCategoryName("");
                 onClose();
@@ -104,6 +108,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
         addCategoryMutate(formData, {
             onSuccess: () => {
                 showSuccessMessage("Category added successfully.");
+                queryClient.invalidateQueries(QUERIES_KEYS.GET_ALL_CATEGORIES);
                 refatchCategoriesData();
                 setFile(null);
                 setCategoryName("");

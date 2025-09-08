@@ -2,9 +2,9 @@ import { useMutation } from 'react-query';
 import { updateQuestionData } from '../core/_request';
 
 const useUpdateQuestion = () => {
-    const { mutate, isError, error, isLoading, isSuccess } = useMutation((body: any) => updateQuestionData(body));
+    const { mutate, isError, error, isLoading, isSuccess } = useMutation(({ body, id }: { body: FormData, id: string | null }) => updateQuestionData(body, id));
 
-    return { updateQuestion: mutate, isError, error, singleDeleteLoading: isLoading, isSuccess };
+    return { updateQuestionMutate: mutate, isError, error, isLoading, isSuccess };
 };
 
 export default useUpdateQuestion;

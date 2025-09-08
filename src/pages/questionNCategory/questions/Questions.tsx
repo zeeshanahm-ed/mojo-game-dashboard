@@ -42,8 +42,8 @@ function Questions() {
         page: 1,
         limit: 10,
         lang: currentLang,
-        status: 'Approved',
     });
+    const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);
     const { deleteQuestionMutate } = useDeleteQuestion();
@@ -69,9 +69,9 @@ function Questions() {
             [name]: value
         }));
         if (name === "selectedCategory") {
-            setParams(prev => ({ ...prev, categoryId: value }));
+            setParams(prev => ({ ...prev, page: 1, categoryId: value }));
         } else if (name === "selectedDifficulty") {
-            setParams(prev => ({ ...prev, difficulty: value }));
+            setParams(prev => ({ ...prev, page: 1, difficulty: value }));
         }
     };
 
@@ -81,8 +81,9 @@ function Questions() {
     const handlePageChange = (page: number) => {
         setParams(prev => ({ ...prev, page }));
     };
-    const handleEditClick = (data: any) => {
-        console.log(data);
+    const handleEditClick = (id: string) => {
+        setIsModalOpen(true);
+        setEditQuestionId(id);
     };
     const handleDeleteClick = (data: any) => {
         let id = data?._id;
@@ -187,10 +188,10 @@ function Questions() {
                                             >
                                                 <td className="p-5 text-start">{question?.questionText || '-'}</td>
                                                 <td className="p-5 text-center">{question?.category?.name || '-'}</td>
-                                                <td className="p-5 text-center">{question?.difficulty || '-'}</td>
+                                                <td className="p-5 text-center capitalize">{question?.difficulty || '-'}</td>
                                                 <td className="p-5 flex justify-center">
                                                     <div className="flex justify-center items-center gap-4">
-                                                        <Button variant="text" onClick={() => handleEditClick(question)} className="border-none shadow-none">
+                                                        <Button variant="text" onClick={() => handleEditClick(question?._id)} className="border-none shadow-none">
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
@@ -225,11 +226,12 @@ function Questions() {
                 showSizeChanger={false}
             />
 
-            <AddNEditQuestionModal
+            {isModalOpen && <AddNEditQuestionModal
                 open={isModalOpen}
+                questionId={editQuestionId || ''}
                 getAddedQuestionData={() => refetch()}
-                onClose={() => setIsModalOpen(false)}
-            />
+                onClose={() => { setIsModalOpen(false); setEditQuestionId(null); }}
+            />}
         </section>
     )
 }

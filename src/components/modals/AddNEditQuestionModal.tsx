@@ -8,6 +8,9 @@ import { useGetAllCategoriesDataForDropDownFromStore } from "store/AllCategories
 import { AUDIO_FILE_TYPES, IMAGE_FILE_TYPES, VIDEO_FILE_TYPES } from "constants/global";
 import useAddQuestion from "pages/questionNCategory/questions/hooks/useAddQuestion";
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
+import useUpdateQuestion from "pages/questionNCategory/questions/hooks/useUpdateQuestion";
+import useGetSingleQuestion from "pages/questionNCategory/questions/hooks/useGetSingleQuestion";
+import { formatFileSize, splitFileName } from "helpers/CustomHelpers";
 //icons
 import UploadImageIcon from "assets/icons/image-icon.svg?react";
 import VideoIcon from "assets/icons/video-icon.svg?react";
@@ -29,6 +32,8 @@ interface StateType {
     selectedQuestionType: string | null;
     categoriesOptions: { value: string; label: string }[];
     selectedCorrectOption: OptionType | null;
+    questionMediaFileName: string | null;
+    answerMediaFileName: string | null;
 }
 
 interface OfflineQuestionNAnswerData {
@@ -49,6 +54,7 @@ interface QuestionNAnswerProps {
     open: boolean;
     onClose: () => void;
     getAddedQuestionData: () => void;
+    questionId: string | null;
 };
 
 type UploadedFileType = "image" | "video" | "audio";
@@ -69,8 +75,10 @@ const QuestionTypeOptions = [
     { value: 'MCQs', label: "MCQ's Question" },
 ];
 
-const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: QuestionNAnswerProps) => {
+const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId = null }: QuestionNAnswerProps) => {
     const { addQuestionMutate, isLoading } = useAddQuestion();
+    const { questionData, isLoading: isQuestionLoading } = questionId ? useGetSingleQuestion(questionId) : { questionData: null, isLoading: false };
+    const { updateQuestionMutate, isLoading: updateQuestionLoading } = useUpdateQuestion();
     const [questionState, setQuestionState] = useState<OfflineQuestionNAnswerData | null>({
         questionEN: "",
         questionAR: "",
@@ -105,6 +113,8 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
         selectedQuestionType: "Direct Answer",
         categoriesOptions: [],
         selectedCorrectOption: null,
+        questionMediaFileName: null,
+        answerMediaFileName: null,
     });
 
     const questionFileInputRef = useRef<HTMLInputElement>(null);
@@ -152,6 +162,35 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
         }));
     }, [categoriesData]);
 
+    useEffect(() => {
+        if (questionData) {
+            setQuestionState(prev => ({
+                ...prev,
+                questionEN: questionData?.multilingualData?.questionText.en,
+                questionAR: questionData?.multilingualData?.questionText.ar,
+                answerEN: questionData?.multilingualData?.answerExplanation.en,
+                answerAR: questionData?.multilingualData?.answerExplanation.ar,
+                questionMedia: questionData?.mediaUrl,
+                answerMedia: questionData?.answerMediaUrl,
+            }));
+            const questionMediaFileName = splitFileName(questionData?.mediaUrl);
+            const answerMediaFileName = splitFileName(questionData?.answerMediaUrl);
+            setOptions(questionData?.options);
+            setState(prev => ({
+                ...prev,
+                selectedCategory: questionData?.category?._id,
+                selectedDifficulty: questionData?.difficulty,
+                selectedQuestionType: questionData?.questionType,
+                selectedCorrectOption: questionData?.correctAnswer,
+                questionMediaFileName: questionMediaFileName,
+                answerMediaFileName: answerMediaFileName,
+                questionMediaObj: questionData?.mediaUrl,
+                answerMediaObj: questionData?.answerMediaUrl,
+            }));
+
+        }
+    }, [questionData]);
+
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -167,10 +206,21 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
         const fileExt = file?.type.split("/")[1] || file?.name.split(".").pop();
         if (uploadedFileType === "image" && !IMAGE_FILE_TYPES.includes(`.${fileExt}`)) {
             return { error: true, message: "Image file type must be valid formate : " + IMAGE_FILE_TYPES.join(", ") };
-        } else if (uploadedFileType === "video" && !VIDEO_FILE_TYPES.includes(`.${fileExt}`)) {
+        }
+        else if (uploadedFileType === "image" && formatFileSize(file?.size) > "20") {
+            return { error: true, message: "Image file size must be less than 20MB" };
+        }
+        else if (uploadedFileType === "video" && !VIDEO_FILE_TYPES.includes(`.${fileExt}`)) {
             return { error: true, message: "Video file type must be valid formate : " + VIDEO_FILE_TYPES.join(", ") };
-        } else if (uploadedFileType === "audio" && !AUDIO_FILE_TYPES.includes(`.${fileExt}`)) {
+        }
+        else if (uploadedFileType === "video" && formatFileSize(file?.size) > "30") {
+            return { error: true, message: "Video file size must be less than 30MB" };
+        }
+        else if (uploadedFileType === "audio" && !AUDIO_FILE_TYPES.includes(`.${fileExt}`)) {
             return { error: true, message: "Audio file type must be valid formate : " + AUDIO_FILE_TYPES.join(", ") };
+        }
+        else if (uploadedFileType === "audio" && formatFileSize(file?.size) > "10") {
+            return { error: true, message: "Audio file size must be less than 10MB" };
         }
         return { error: false, message: "" };
     };
@@ -195,12 +245,14 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
             if (name === "questionMedia") {
                 setState(prev => ({
                     ...prev,
-                    questionMediaObj: file
+                    questionMediaObj: file,
+                    questionMediaFileName: file.name
                 }));
             } else if (name === "answerMedia") {
                 setState(prev => ({
                     ...prev,
-                    answerMediaObj: file
+                    answerMediaObj: file,
+                    answerMediaFileName: file.name
                 }));
             }
 
@@ -224,12 +276,20 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                 [name]: ""
             } as OfflineQuestionNAnswerData;
         });
-        setState(prev => ({ ...prev, questionMediaObj: null, answerMediaObj: null }));
+        setState(prev => ({
+            ...prev,
+            [name + "Obj"]: null,
+            [name + "FileName"]: null,
+        }));
     };
 
     const handleAddQuestion = () => {
         if (questionState) {
-            handleOk();
+            if (questionId) {
+                handleUpdate();
+            } else {
+                handleOk();
+            }
         }
     };
 
@@ -288,10 +348,10 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
             safeAppend("correctAnswer[en]", state.selectedCorrectOption?.english);
             safeAppend("correctAnswer[ar]", state.selectedCorrectOption?.arabic);
         } else {
-            if (state.questionMediaObj) {
+            if (state.questionMediaObj?.type && state.questionMediaObj?.size) {
                 formData.append("media", state.questionMediaObj);
             }
-            if (state.answerMediaObj) {
+            if (state.answerMediaObj?.type && state.answerMediaObj?.size) {
                 formData.append("answerMedia", state.answerMediaObj);
             }
         }
@@ -306,6 +366,28 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
             addQuestionMutate(formData, {
                 onSuccess: async () => {
                     showSuccessMessage('Question created successfully.');
+                    resetState();
+                    getAddedQuestionData();
+                    handleClose();
+                },
+                onError: (error: unknown) => {
+                    if (error instanceof AxiosError) {
+                        showErrorMessage(error?.response?.data?.message);
+                    } else {
+                        showErrorMessage('Unknown error occurred.');
+                    }
+                },
+            });
+        }
+    };
+
+    const handleUpdate = () => {
+
+        const formData = createFormData();
+        if (formData) {
+            updateQuestionMutate({ body: formData, id: questionId }, {
+                onSuccess: async () => {
+                    showSuccessMessage('Question updated successfully.');
                     resetState();
                     getAddedQuestionData();
                     handleClose();
@@ -404,9 +486,19 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
         if (state.selectedQuestionType === "MCQs") {
             return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
         } else {
-            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaObj || !state.answerMediaObj;
+            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaFileName || !state.answerMediaFileName;
         }
     };
+
+    // const getImageUrl = () => {
+    //     const url = URL.createObjectURL(state.questionMediaObj as Blob);
+    //     const extension = getFileExtension(url);
+    //     if (state.questionMediaObj) {
+    //         return url;
+    //     } else {
+    //         return "";
+    //     }
+    // };
 
     return (
 
@@ -433,7 +525,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                 </div>
             }
         >
-            {isLoading && <FallbackLoader isModal={true} />}
+            {(isLoading || isQuestionLoading || updateQuestionLoading) && <FallbackLoader isModal={true} />}
             <Divider />
             <div className='w-full  space-y-5 h-auto max-h-[800px]'>
                 {state.step === 1 ?
@@ -497,7 +589,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                         className="w-full px-4"
                                     />
                                     <div className='relative'>
-                                        <button className='absolute top-4 left-5 z-50  underline hover:no-underline'>
+                                        <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
                                             Translate
                                         </button>
                                         <Input
@@ -523,15 +615,15 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                             />
                                             {questionState?.questionMedia ?
                                                 <>
-                                                    {uploadedFileType === "image" && <img
-                                                        src={(typeof questionState.questionMedia === 'string' ? questionState.questionMedia : "")}
+                                                    {/* {<img
+                                                        src={getImageUrl()}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
                                                         width={96}
                                                         loading="lazy"
                                                         height={96}
-                                                    />}
-                                                    <span className={`truncate  ${uploadedFileType === "image" ? "ml-5" : ""} mt-1`}>{state.questionMediaObj?.name}</span>
+                                                    />} */}
+                                                    <span className={`truncate  ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.questionMediaFileName}</span>
                                                     <button
                                                         className="ml-auto"
                                                         onClick={() => handleRemove("questionMedia")}
@@ -559,8 +651,8 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                                     </div>
                                                 </div>
                                             }
-                                            {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                         </div>
+                                        {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -577,7 +669,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                         className="w-full px-4"
                                     />
                                     <div className='relative'>
-                                        <button className='absolute top-4 left-5 z-50  underline hover:no-underline'>
+                                        <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
                                             Translate
                                         </button>
                                         <Input
@@ -603,15 +695,15 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                             />
                                             {questionState?.answerMedia ?
                                                 <>
-                                                    {uploadedFileType === "image" && <img
+                                                    {/* {<img
                                                         src={(typeof questionState.answerMedia === 'string' ? questionState.answerMedia : "")}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
                                                         width={96}
                                                         height={96}
                                                         loading="lazy"
-                                                    />}
-                                                    <span className={`truncate ${uploadedFileType === "image" ? "ml-5" : ""} mt-1`}>{state.answerMediaObj?.name}</span>
+                                                    />} */}
+                                                    <span className={`truncate ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.answerMediaFileName}</span>
                                                     <button
                                                         className="ml-auto"
                                                         onClick={() => handleRemove("answerMedia")}
@@ -640,8 +732,8 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                                                     </div>
                                                 </div>
                                             }
-                                            {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                         </div>
+                                        {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -725,7 +817,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData }: Question
                             Bulk Upload <MdOutlineFileUpload size={20} />
                         </Button>
                         <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
-                            Add Question
+                            {questionId ? "Update Question" : "Add Question"}
                         </Button>
                     </div> :
                     <div className='w-full flex items-center justify-end mt-5'>
