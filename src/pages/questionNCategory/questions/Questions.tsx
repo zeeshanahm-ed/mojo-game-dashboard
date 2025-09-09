@@ -15,6 +15,7 @@ import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import { Button, Empty, Pagination, Popconfirm, Select } from "antd";
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import AddNEditQuestionModal from 'components/modals/AddNEditQuestionModal';
+import { getDownloadAllQuestions } from './core/_request';
 
 interface StateType {
     selectedCategory: string | null;
@@ -98,6 +99,37 @@ function Questions() {
         });
     };
 
+    const handleDownloadAllQuestions = async () => {
+        try {
+            const response = await getDownloadAllQuestions();
+
+            // Create a blob link
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+
+            // ✅ try to read filename from header if backend sends it
+            const contentDisposition = response.headers["content-disposition"];
+            let fileName = "questions-export.xlsx";
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+)"?/);
+                if (match?.[1]) {
+                    fileName = match[1];
+                }
+            }
+
+            link.href = url;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            // cleanup
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading file:", error);
+        }
+    };
+
 
     return (
         <section className="overflow-hidden mb-10">
@@ -139,12 +171,9 @@ function Questions() {
                 <Button
                     type="text"
                     className="bg-black text-white h-12 w-fit ml-auto"
-                    onClick={() => {
-                        // Implement download logic here
-                    }}
+                    onClick={() => handleDownloadAllQuestions()}
                     icon={<DownloadIcon className="w-5 h-5 mr-2" />}
                 >
-
                     Download all questions
                 </Button>
             </div>

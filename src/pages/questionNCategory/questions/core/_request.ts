@@ -30,3 +30,8 @@ export function addQuestion(data: FormData) {
         },
     })
 }
+export function getDownloadAllQuestions() {
+    return api.get(`${QUESTION_URL}/download/excel`, {
+        responseType: "blob",
+    });
+}
