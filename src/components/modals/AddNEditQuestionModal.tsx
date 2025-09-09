@@ -545,7 +545,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
         if (file) {
             const formData = new FormData();
-            formData.append("files", file);
+            formData.append("file", file);
             updateBulkQuestionData(formData).then(() => {
                 showSuccessMessage("Bulk questions uploaded successfully");
             }).catch((error) => {
@@ -595,7 +595,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         >
             {(isLoading || isQuestionLoading || updateQuestionLoading || uploadedFileLoading) && <FallbackLoader isModal={true} />}
             <Divider />
-            <div className='w-full  space-y-5 h-auto max-h-[800px]'>
+            <div className='w-full space-y-5'>
                 {state.step === 1 ?
                     <>
                         <div className="flex items-baseline justify-between gap-x-5">
