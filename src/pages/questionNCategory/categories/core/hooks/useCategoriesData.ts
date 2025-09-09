@@ -5,6 +5,7 @@ import { QUERIES_KEYS } from 'helpers/crud-helper/consts';
 const useCategoriesData = (params: any) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_CATEGORIES, , params], () => getCategoriesData(params),
         {
+            keepPreviousData: true,
             cacheTime: 1,
             staleTime: 0,
         }

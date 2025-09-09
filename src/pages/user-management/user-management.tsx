@@ -83,7 +83,7 @@ export const UserManagement: React.FC = () => {
         <div className="border border-border-gray p-5 rounded flex items-center gap-4 flex-wrap">
           <Checkbox
             checked={selectedStatus === "all"}
-            onChange={() => setSelectedStatus("all")}
+            onChange={() => handleStatusChange("all")}
           >
             All Accounts
           </Checkbox>
@@ -107,7 +107,7 @@ export const UserManagement: React.FC = () => {
       {/* Custom Table */}
       <div className="border border-gray-200  rounded-lg mt-5">
         <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-          Showing all Users <span className="text-border-gray text-sm ml-2">new users</span>
+          Showing all Users {pagination?.total && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
         </div>
 
         {/* Scroll Wrapper */}

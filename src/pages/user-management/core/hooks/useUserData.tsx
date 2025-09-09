@@ -5,6 +5,11 @@ import { GetUserDataParems } from '../_modals';
 
 const useUserData = (params: GetUserDataParems) => {
   const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_USERS, params], () => getUserData(params),
+    {
+      keepPreviousData: true,
+      cacheTime: 1,
+      staleTime: 0,
+    }
   );
   return { userData: data?.data?.data?.data, pagination: data?.data?.data?.pagination, error, isLoading, isError, isSuccess, refetch };
 };

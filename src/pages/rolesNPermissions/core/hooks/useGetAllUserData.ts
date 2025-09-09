@@ -5,6 +5,11 @@ import { GetUserDataParems } from '../_models';
 
 const useGetAllUserData = (params: GetUserDataParems) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ADMIN_USERS, , params], () => getAllUserData(params),
+        {
+            keepPreviousData: true,
+            cacheTime: 1,
+            staleTime: 0,
+        }
     );
     return { userData: data?.data?.data, pagination: data?.data?.pagination, error, isLoading, isError, isSuccess, refetch };
 };

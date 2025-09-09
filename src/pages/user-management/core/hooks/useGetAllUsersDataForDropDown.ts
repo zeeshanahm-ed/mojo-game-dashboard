@@ -5,6 +5,7 @@ import { QUERIES_KEYS } from 'helpers/crud-helper/consts';
 const useGetAllUsersDataForDropDown = () => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ALL_USERS,], () => getAllUsersDataForDropDown(),
         {
+            keepPreviousData: true,
             cacheTime: 1,
             staleTime: 0,
         }
