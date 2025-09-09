@@ -173,20 +173,34 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 questionMedia: questionData?.mediaUrl,
                 answerMedia: questionData?.answerMediaUrl,
             }));
+
             const questionMediaFileName = splitFileName(questionData?.mediaUrl);
             const answerMediaFileName = splitFileName(questionData?.answerMediaUrl);
-            setOptions(questionData?.options);
+
             setState(prev => ({
                 ...prev,
                 selectedCategory: questionData?.category?._id,
                 selectedDifficulty: questionData?.difficulty,
                 selectedQuestionType: questionData?.questionType,
-                selectedCorrectOption: questionData?.correctAnswer,
+                selectedCorrectOption: questionData?.multilingualData?.correctAnswer ? {
+                    english: questionData?.multilingualData?.correctAnswer.en,
+                    arabic: questionData?.multilingualData?.correctAnswer.ar,
+                } : null,
                 questionMediaFileName: questionMediaFileName,
                 answerMediaFileName: answerMediaFileName,
                 questionMediaObj: questionData?.mediaUrl,
                 answerMediaObj: questionData?.answerMediaUrl,
+                mode: questionData?.questionType === "MCQs" ? "online" : "offline",
             }));
+
+            if (questionData?.options) {
+                const mapped = questionData?.multilingualData?.options?.en.map((enItem: string, index: number) => ({
+                    english: enItem,
+                    arabic: questionData?.multilingualData?.options?.ar[index] || "",
+                }));
+
+                setOptions(mapped);
+            }
 
         }
     }, [questionData]);
@@ -468,12 +482,6 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
     const handleGoBackToStep1 = () => {
         setState(prev => ({ ...prev, step: 1 }));
-        setOptions([
-            { english: "", arabic: "" },
-            { english: "", arabic: "" },
-            { english: "", arabic: "" },
-            { english: "", arabic: "" },
-        ]);
     };
 
     const handleClose = () => {
