@@ -35,3 +35,18 @@ export function getDownloadAllQuestions() {
         responseType: "blob",
     });
 }
+export function getDownloadBulkUploadTemplate() {
+    return api.get(`${QUESTION_URL}/download/template`, {
+        responseType: "blob",
+    });
+}
+
+export function updateBulkQuestionData(data: FormData) {
+    return api.post(`${QUESTION_URL}/upload/bulk`, data,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    ).then((response) => response.data);
+}

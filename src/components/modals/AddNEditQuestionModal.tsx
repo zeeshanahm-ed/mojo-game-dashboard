@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AxiosError } from "axios";
 //components
-import { Button, Divider, Input, Modal, Radio, RadioChangeEvent, Select } from "antd";
+import { Button, Divider, Input, Modal, Radio, RadioChangeEvent, Select, Upload } from "antd";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 //Hooks & Utils
 import { useGetAllCategoriesDataForDropDownFromStore } from "store/AllCategoriesData";
@@ -19,6 +19,7 @@ import { MdDelete, MdOutlineFileUpload } from "react-icons/md";
 import { LuCirclePlus } from "react-icons/lu";
 import ShuffleIcon from "assets/icons/shuffle-icon.svg?react";
 import { MdArrowBack } from 'react-icons/md';
+import { getDownloadBulkUploadTemplate, updateBulkQuestionData } from "pages/questionNCategory/questions/core/_request";
 
 type Mode = "online" | "offline";
 
@@ -77,6 +78,7 @@ const QuestionTypeOptions = [
 
 const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId = null }: QuestionNAnswerProps) => {
     const { addQuestionMutate, isLoading } = useAddQuestion();
+    const [uploadedFileLoading, setUploadedFileLoading] = useState<boolean>(false);
     const { questionData, isLoading: isQuestionLoading } = questionId ? useGetSingleQuestion(questionId) : { questionData: null, isLoading: false };
     const { updateQuestionMutate, isLoading: updateQuestionLoading } = useUpdateQuestion();
     const [questionState, setQuestionState] = useState<OfflineQuestionNAnswerData | null>({
@@ -498,6 +500,64 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await getDownloadBulkUploadTemplate();
+
+            // Create a blob link
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+
+            // ✅ try to read filename from header if backend sends it
+            const contentDisposition = response.headers["content-disposition"];
+            let fileName = "question-template.xlsx";
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+)"?/);
+                if (match?.[1]) {
+                    fileName = match[1];
+                }
+            }
+
+            link.href = url;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            // cleanup
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading file:", error);
+        }
+    };
+
+
+    const handleUploadBulkQuestions = (info: any) => {
+        setUploadedFileLoading(true);
+        const file = info.file;
+        const acceptFileTypes = [".xls", ".xlsx"];
+        const fileExt = file?.name.split(".").pop();
+        if (!fileExt || !acceptFileTypes.includes(`.${fileExt}`)) {
+            showErrorMessage("Invalid file type. Please upload an Excel file or download the template.");
+            setUploadedFileLoading(false);
+            return;
+        }
+
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            updateBulkQuestionData(formData).then(() => {
+                showSuccessMessage("Bulk questions uploaded successfully");
+            }).catch((error) => {
+                showErrorMessage("Error uploading bulk questions");
+                console.error("Error uploading bulk questions:", error);
+            }).finally(() => {
+                setUploadedFileLoading(false);
+            });
+        }
+    };
+
+
     // const getImageUrl = () => {
     //     const url = URL.createObjectURL(state.questionMediaObj as Blob);
     //     const extension = getFileExtension(url);
@@ -515,7 +575,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             onCancel={handleClose}
             footer={null}
             centered
-            width={700}
+            width={800}
             maskClosable={false}
             title={
                 <div className="flex items-center gap-2">
@@ -533,7 +593,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 </div>
             }
         >
-            {(isLoading || isQuestionLoading || updateQuestionLoading) && <FallbackLoader isModal={true} />}
+            {(isLoading || isQuestionLoading || updateQuestionLoading || uploadedFileLoading) && <FallbackLoader isModal={true} />}
             <Divider />
             <div className='w-full  space-y-5 h-auto max-h-[800px]'>
                 {state.step === 1 ?
@@ -821,9 +881,22 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 <Divider />
                 {state.step === 1 ?
                     <div className='w-full flex items-center justify-between mt-5'>
-                        <Button variant="text" className="h-12 bg-black text-white" onClick={handleAddQuestion}>
-                            Bulk Upload <MdOutlineFileUpload size={20} />
-                        </Button>
+                        <div className="space-x-4">
+
+                            <Upload
+                                accept=".xls,.xlsx"
+                                beforeUpload={() => false} // prevent auto upload
+                                onChange={handleUploadBulkQuestions}
+                                showUploadList={false}
+                            >
+                                <Button variant="text" className="h-12 border-none bg-black text-white">
+                                    Try Bulk Upload <MdOutlineFileUpload size={20} />
+                                </Button>
+                            </Upload>
+                            <Button variant="link" className="h-12" onClick={handleDownloadTemplate}>
+                                Download Excel Template
+                            </Button>
+                        </div>
                         <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
                             {questionId ? "Update Question" : "Add Question"}
                         </Button>
