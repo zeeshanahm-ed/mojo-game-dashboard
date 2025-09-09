@@ -545,7 +545,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
         if (file) {
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("files", file);
             updateBulkQuestionData(formData).then(() => {
                 showSuccessMessage("Bulk questions uploaded successfully");
             }).catch((error) => {
