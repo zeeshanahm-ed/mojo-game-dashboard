@@ -15,7 +15,7 @@ const LogoutModal: React.FC<PromoModalProps> = ({ open, onClose, }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        navigate('/sign-in');
+        navigate('/logout');
     }
 
     return (
