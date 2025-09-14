@@ -313,8 +313,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         // If there are already 4 options, validate them
         if (options.length === 4) {
             // Check for any empty option
-            const emptyOption = options.find(opt => !opt.english.trim());
-            if (emptyOption) {
+            const emptyENOption = options.find(opt => !opt.english.trim());
+            const emptyAROption = options.find(opt => !opt.arabic.trim());
+            if (emptyENOption || emptyAROption) {
                 setErrorState(prev => ({ ...prev, options: "All options must be filled." }));
                 return;
             }
@@ -386,12 +387,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                     getAddedQuestionData();
                     handleClose();
                 },
-                onError: (error: unknown) => {
-                    if (error instanceof AxiosError) {
-                        showErrorMessage(error?.response?.data?.message);
-                    } else {
-                        showErrorMessage('Unknown error occurred.');
-                    }
+                onError: (error: any) => {
+                    showErrorMessage(error?.response?.data?.message);
+                    console.error('Error:', error);
                 },
             });
         }
@@ -408,12 +406,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                     getAddedQuestionData();
                     handleClose();
                 },
-                onError: (error: unknown) => {
-                    if (error instanceof AxiosError) {
-                        showErrorMessage(error?.response?.data?.message);
-                    } else {
-                        showErrorMessage('Unknown error occurred.');
-                    }
+                onError: (error: any) => {
+                    showErrorMessage(error?.response?.data?.message);
+                    console.error('Error:', error);
                 },
             });
         }
@@ -462,6 +457,8 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         const updatedOptions = [...options];
         updatedOptions[index].arabic = "ترجمة: " + updatedOptions[index].english;
         setOptions(updatedOptions);
+        setErrorState(prev => ({ ...prev, options: "" }));
+
     };
 
     const handleSelectChange = (value: string, field: keyof StateType) => {

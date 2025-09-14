@@ -54,8 +54,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         onClose();
         refetchAllUserData();
       },
-      onError: () => {
-        showErrorMessage('An error occurred while changing the user status.');
+      onError: (error: any) => {
+        showErrorMessage(error?.response?.data?.message);
+        console.error('Error:', error);
       },
 
     });
@@ -68,8 +69,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         refetchAllUserData();
         onClose();
       },
-      onError: () => {
-        showErrorMessage('An error occurred while deleting the user.');
+      onError: (error: any) => {
+        showErrorMessage(error?.response?.data?.message);
+        console.error('Error:', error);
       },
 
     });

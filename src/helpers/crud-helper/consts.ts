@@ -9,6 +9,8 @@ const QUERIES_KEYS = {
   GET_SINGLE_QUESTIONS: 'singleQuestions',
   GET_DOWNLOAD_ALL_QUESTIONS: 'downloadAllQuestions',
   GET_DASHBOARD_DATA: 'dashboardData',
+  GET_SUBSCRIPTION_DATA: 'subscriptionData',
+  GET_ALL_REVIEWED_QUESTIONS: 'GET_ALL_REVIEWED_QUESTIONS',
 };
 
 export { QUERIES_KEYS };

@@ -93,8 +93,9 @@ function Questions() {
                 showSuccessMessage('Question deleted successfully.');
                 refetch();
             },
-            onError: () => {
-                showErrorMessage('An error occurred while deleting the question.');
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };

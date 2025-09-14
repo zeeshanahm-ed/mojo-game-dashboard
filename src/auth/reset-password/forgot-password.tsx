@@ -26,7 +26,7 @@ function ForgotPassword() {
 
   return (
     <Container>
-      <section className="flex justify-center  w-full h-screen  bg-white relative pt-52 font-urbanist">
+      <section className="flex justify-center items-center w-full h-screen  bg-white relative font-urbanist">
         <div className="w-full max-w-md p-8 space-y-6">
           {/* Logo and title */}
           <div className="mb-10 text-center">
@@ -80,7 +80,7 @@ function ForgotPassword() {
           </Form>
 
           {/* Footer */}
-          <footer className=" text-center text-lg absolute bottom-10">
+          <footer className=" text-center text-base absolute bottom-5">
             Copyright 2025 MOJO Admin. All rights reserved.
           </footer>
         </div>

@@ -36,7 +36,7 @@ function ResetPassword() {
 
   return (
     <Container>
-      <section className='flex justify-center  w-full h-screen  bg-white relative pt-52 font-urbanist'>
+      <section className='flex justify-center  w-full h-screen  bg-white relative items-center font-urbanist'>
         <div className='w-full flex flex-col max-w-md p-8 space-y-6'>
           {/* Logo and title */}
           <div className="mb-10 text-center">

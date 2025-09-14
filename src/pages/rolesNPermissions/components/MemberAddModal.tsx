@@ -44,8 +44,9 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
                 refetchAllUserData();
                 onCancel();
             },
-            onError: () => {
-                showErrorMessage("An error occurred while adding the user.");
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };
@@ -61,8 +62,9 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
                 refetchAllUserData();
                 onCancel();
             },
-            onError: () => {
-                showErrorMessage("An error occurred while updating the user.");
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     }

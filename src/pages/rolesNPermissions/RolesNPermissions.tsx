@@ -60,8 +60,9 @@ export const RolesNPermissions: React.FC = () => {
                 showSuccessMessage('User deleted successfully!');
                 refetch();
             },
-            onError: () => {
-                showErrorMessage('An error occurred while deleting the user.');
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };
@@ -72,8 +73,9 @@ export const RolesNPermissions: React.FC = () => {
                 showSuccessMessage('User role changed successfully!');
                 refetch();
             },
-            onError: () => {
-                showErrorMessage('An error occurred while changing the user role.');
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
 
         });

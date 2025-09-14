@@ -55,7 +55,7 @@ function SignIn() {
   }, [currentUser, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-white relative pt-52 font-urbanist">
+    <div className="min-h-screen flex flex-col items-center bg-white relative justify-center font-urbanist">
       {/* Logo and title */}
       <div className="mb-10 text-center">
         <h1 className="text-8xl font-bold tracking-widest font-secondary">MOJO</h1>
@@ -120,7 +120,7 @@ function SignIn() {
       </div>
 
       {/* Footer */}
-      <footer className=" text-center text-lg absolute bottom-10">
+      <footer className=" text-center text-base absolute bottom-5">
         Copyright 2025 MOJO Admin. All rights reserved.
       </footer>
     </div>

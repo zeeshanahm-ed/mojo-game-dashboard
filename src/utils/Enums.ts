@@ -1,5 +1,17 @@
 export enum ROLES {
+    SUPER_ADMIN = 'super_admin',
     CONTENT_MANAGER = 'content_manager',
     FINANCE_MANAGER = 'finance_manager',
     READ_ONLY = 'read_only',
+    REVIEWER = 'reviewer',
+    MODERATOR = 'moderator',
+};
+
+export enum ROLESLABEL {
+    super_admin = 'ADMIN',
+    content_manager = 'CONTENT MANAGER',
+    finance_manager = 'FINANCE MANAGER',
+    read_only = 'READ ONLY',
+    reviewer = 'REVIEWER',
+    moderator = 'MODERATOR',
 }

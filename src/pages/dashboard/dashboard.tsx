@@ -1,76 +1,60 @@
 import { useEffect, useState } from 'react';
 import { useHeaderProps } from 'components/core/use-header-props';
-import { ServicesStatusDataParams } from './core/_modals';
 import CircleChart from './components/CircleChart';
 // import useDashboardData from './core/hooks/useDashboardData';
 import { DatePicker, Divider, Typography } from 'antd';
 import DateIcon from 'assets/icons/date-icon.svg?react';
 import RevenueChart from './components/RevenueChart ';
+import useGetDashboardStatistics from './core/hooks/useGetDashboardStatistics';
+import { useDirection } from 'hooks/useGetDirection';
 
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
 
-const tabs = ['Daily', 'Weekly', 'Monthly'];
+// const tabs = ['Daily', 'Weekly', 'Monthly'];
 const legendItems = [
   { label: 'Target', color: 'bg-green-500' },
   { label: 'Above Target', color: 'bg-green-300' },
   { label: 'Below Target', color: 'bg-red-500' }
 ];
 
-// Dummy static data
-const categoriesData = [
-  { name: "Football", count: 40 },
-  { name: "Supported Employment", count: 30 },
-  { name: "Wrestling", count: 20 },
-  { name: "Job Coaching", count: 10 },
-];
-const lifelinesData = [
-  { name: "Call a friend", count: 50 },
-  { name: "2nd Chance", count: 30 },
-  { name: "Steal a score", count: 20 },
-];
+// Static data removed - now using dynamic data from API
 
-// Optional: color resolver
+// Color generator with consistent colors based on name hash
 const getColorByStatus = (name: string) => {
-  switch (name) {
-    case "Football":
-      return "#22c55e"; // green
-    case "Supported Employment":
-      return "#f97316"; // orange
-    case "Wrestling":
-      return "#a855f7"; // purple
-    case "Job Coaching":
-      return "#dc2626"; // red
-    case "Call a friend":
-      return "#5b21b6"; // deep purple
-    case "2nd Chance":
-      return "#db2777"; // pink
-    case "Steal a score":
-      return "#3b82f6"; // blue
-    default:
-      return "#9ca3af"; // gray
+  // Create a simple hash from the name for consistent color generation
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
+
+  // Generate HSL values with good contrast and brightness
+  const hue = Math.abs(hash) % 360; // 0-360 degrees
+  const saturation = 65 + (Math.abs(hash) % 25); // 65-90% for good saturation
+  const lightness = 45 + (Math.abs(hash) % 20); // 45-65% for good contrast
+
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
 
 const Dashboard = () => {
 
   const { setTitle } = useHeaderProps();
-  const [activeTab, setActiveTab] = useState('Daily')
-  const [setStatisticsDateRanges] = useState<ServicesStatusDataParams>({
-    startDate: "",
-    endDate: "",
-  });
-  // const { DashboardData } = useDashboardData(statisticsDateRanges);
+  const direction = useDirection();
+  const [params, setParams] = useState({
+
+  })
+  const { dashboardData } = useGetDashboardStatistics(params);
+  const [activeTab, setActiveTab] = useState('Monthly')
 
   useEffect(() => setTitle('Dashboard'), [setTitle]);
 
 
   const handleDateRangeChange = (date: any, setState: any) => {
     if (!date?.length) {
-      setState({ startDate: "", endDate: "" });
+      setState({});
     } else {
       setState((prev: any) => ({
         ...prev,
@@ -86,7 +70,7 @@ const Dashboard = () => {
         <h1 className="text-2xl font-medium font-poppins">User Monitoring</h1>
         <div className="flex items-center justify-end flex-wrap gap-2">
           {/* Tab buttons */}
-          <div className="flex border border-gray-300 h-11 rounded overflow-hidden">
+          {/* <div className="flex border border-gray-300 h-11 rounded overflow-hidden">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
@@ -97,12 +81,12 @@ const Dashboard = () => {
               ${index !== tabs.length - 1 ? 'border-r border-gray-300' : ''}`}
               >{tab}</button>
             ))}
-          </div>
+          </div> */}
           <RangePicker
             prefix={<DateIcon className="w-6 h-6 mr-2" />}
             suffixIcon={null}
             className='h-11 w-[320px]'
-            onChange={(date) => handleDateRangeChange(date, setStatisticsDateRanges)}
+            onChange={(date) => handleDateRangeChange(date, setParams)}
             format="MM/DD/YYYY"
           />
         </div>
@@ -113,16 +97,16 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className={`flex items-center border-[#4E7909] justify-between border px-6 py-3 rounded`}>
             <Text className={`text-[#4E7909] text-lg`}>Active Users</Text>
-            <Text className="text-gray-900 flex items-center text-lg">
-              <div className={`h-8 w-px bg-gray-300 mx-4 text-[#4E7909]`}></div>
-              45
+            <Text className="text-[#4E7909] flex items-center text-lg ">
+              <div className='h-8 w-px bg-gray-300 mx-4'></div>
+              {dashboardData?.statistics?.activeUsers || 0}
             </Text>
           </div>
-          <div className={`flex items-center border-[#797509] justify-between border px-6 py-3 rounded`}>
+          <div className={`flex items-center border-[#797509] justify-between border px-6 py-3 rounded `}>
             <Text className={`text-[#797509] text-lg`}>New Registration</Text>
-            <Text className="text-gray-900 flex items-center text-lg">
-              <div className={`h-8 w-px bg-gray-300 mx-4 text-[#797509]`}></div>
-              02
+            <Text className="text-[#797509] flex items-center text-lg">
+              <div className='h-8 w-px bg-gray-300 mx-4 '></div>
+              {dashboardData?.statistics?.newRegistration || 0}
             </Text>
           </div>
         </div>
@@ -155,43 +139,49 @@ const Dashboard = () => {
         {/* Most Used Categories */}
         <div className="flex-1 flex lg:flex-col 2xl:flex-row justify-center gap-x-20 items-center min-w-[300px] h-auto">
           <CircleChart
-            data={categoriesData}
+            data={dashboardData?.popularCategories || []}
             title="Usage"
             innerRadius={100}
             outerRadius={150}
             minWidth={300}
+            isCategory={true}
             getColorByStatus={getColorByStatus}
+            direction={direction}
           />
           <div className="flex flex-col gap-3">
-            {categoriesData.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
-                {/* Dot */}
-                <span
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: getColorByStatus(item.name) }}
-                />
-                {/* Label */}
-                <span className="font-medium" style={{ color: getColorByStatus(item.name) }}>
-                  {item.name}
-                </span>
-              </div>
-            ))}
+            {(dashboardData?.popularCategories || []).map((item: any, index: number) => {
+              const displayName = typeof item.name === 'string' ? item.name : (direction === 'rtl' ? item.name.ar : item.name.en);
+              return (
+                <div key={item.id || index} className="flex items-center gap-2">
+                  {/* Dot */}
+                  <span
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: getColorByStatus(displayName) }}
+                  />
+                  {/* Label */}
+                  <span className="font-medium" style={{ color: getColorByStatus(displayName) }}>
+                    {displayName}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-
         </div>
         <div className="w-[2px] h-72 bg-border-gray"></div>
         <div className="flex-1 flex justify-center lg:flex-col 2xl:flex-row gap-x-20 items-center min-w-[300px] h-auto">
           <CircleChart
-            data={lifelinesData}
+            data={dashboardData?.lifelines || []}
             title="Usage"
             innerRadius={100}
             outerRadius={150}
             minWidth={300}
             getColorByStatus={getColorByStatus}
+            isCategory={false}
+            direction={direction}
           />
           <div className="flex flex-col gap-3">
-            {lifelinesData.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
+            {(dashboardData?.lifelines || []).map((item: any, index: number) => (
+              <div key={item.id || index} className="flex items-center gap-2">
                 {/* Dot */}
                 <span
                   className="w-3 h-3 rounded-full"

@@ -14,6 +14,9 @@ import RolesNPermissions from 'pages/rolesNPermissions/RolesNPermissions';
 import Profile from 'pages/profile/Profile';
 // import PaymentTransactions from 'pages/payment-transactions/PaymentTransactions';
 import Subscription from 'pages/subscription/Subscription';
+import Reviewers from 'pages/reviewers/Reviewers';
+import ReviewedQuestions from 'pages/reviewed-questions/ReviewedQuestions';
+import LiveQuestions from 'pages/live-questions/LiveQuestions';
 
 
 // Payment Transactions and Promo Code Management are stopped for now.
@@ -44,6 +47,9 @@ function PrivateRoutes() {
         {/* <Route path='payment-transactions' element={<PaymentTransactions />} /> */}
         <Route path='subscription' element={<Subscription />} />
         <Route path='profile' element={<Profile />} />
+        <Route path='reviewers' element={<Reviewers />} />
+        <Route path='reviewed-questions' element={<ReviewedQuestions />} />
+        <Route path='live-questions' element={<LiveQuestions />} />
 
         {/* Catch all route */}
         <Route path='*' element={<Navigate to='/' />} />
