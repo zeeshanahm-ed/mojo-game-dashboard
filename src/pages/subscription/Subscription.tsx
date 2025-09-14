@@ -24,12 +24,11 @@ const StatusColorClass: Record<StatusType, string> = {
 type StatusType = "active" | "pending" | "completed" | "cancelled";
 
 const statusOptions = [
-    { value: 'Active', label: 'Active' },
-    { value: 'Pending', label: 'Pending' },
-    { value: 'Cancelled', label: 'Cancelled' },
-    { value: 'Completed', label: 'Completed' },
+    { value: 'active', label: 'Active' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'canceled', label: 'Cancelled' },
+    { value: 'completed', label: 'Completed' },
 ];
-
 
 export const Subscription: React.FC = () => {
     const { setTitle } = useHeaderProps();
@@ -37,15 +36,15 @@ export const Subscription: React.FC = () => {
     const [params, setParams] = useState({
         page: 1,
         limit: 10,
-        selectedStatus: ""
     })
-    const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory({})
+    const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory(params)
 
 
     useEffect(() => setTitle('Payments & Transactions'), [setTitle]);
 
     const handleSelectChange = (value: string | undefined) => {
         setSelectedStatus(value);
+        setParams(prev => ({ ...prev, page: 1, status: value }))
     };
 
     const handlePageChange = (page: number) => {
@@ -107,7 +106,7 @@ export const Subscription: React.FC = () => {
                                                 </Tooltip>
                                                 <td className="p-5"> {subscription.fullName || "-"}</td>
                                                 <td className="">
-                                                    <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status]}`}>{subscription?.status}</div>
+                                                    <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status as StatusType]}`}>{subscription?.status}</div>
                                                 </td>
                                                 <td className="p-5">{subscription.email || "-"}</td>
                                                 <td className={`p-5`}>{dayjs(subscription.startDate).format("MM/DD/YYYY")}</td>

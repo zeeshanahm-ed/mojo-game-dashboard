@@ -30,10 +30,10 @@ export const getFileExtension = (file: string) => {
     return file ? file?.split('/')[3]?.split('.')?.pop() || '' : '';
 };
 
-export const formatFileSize = (bytes: number | undefined): string => {
-    if (!bytes) return "0";
+export const formatFileSize = (bytes: number | undefined): number => {
+    if (!bytes) return 0;
     const mb = bytes / (1024 * 1024);
-    return mb.toFixed(2);
+    return parseFloat(mb.toFixed(2));
 };
 
 // Permission helper function

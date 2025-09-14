@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { AxiosError } from "axios";
 //components
 import { Button, Divider, Input, Modal, Radio, RadioChangeEvent, Select, Upload } from "antd";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
@@ -11,6 +10,7 @@ import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 import useUpdateQuestion from "pages/questionNCategory/questions/hooks/useUpdateQuestion";
 import useGetSingleQuestion from "pages/questionNCategory/questions/hooks/useGetSingleQuestion";
 import { formatFileSize, splitFileName } from "helpers/CustomHelpers";
+import BulkUploadResultModal from 'components/modals/BulkUploadResultModal';
 //icons
 import UploadImageIcon from "assets/icons/image-icon.svg?react";
 import VideoIcon from "assets/icons/video-icon.svg?react";
@@ -119,17 +119,24 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         answerMediaFileName: null,
     });
 
+    const [bulkUploadFileErrorData, setBulkUploadFileErrorData] = useState<{
+        success: number;
+        failed: number;
+        errors: string[];
+    } | null>(null);
+    const [isBulkUploadResultModalOpen, setIsBulkUploadResultModalOpen] = useState(false);
+
     const questionFileInputRef = useRef<HTMLInputElement>(null);
     const triggerQuestionFileInput = (type: UploadedFileType) => {
         setUploadedFileType(type);
         if (!questionFileInputRef.current) return;
 
         if (type === "image" && questionFileInputRef.current) {
-            questionFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp";
+            questionFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp,.svg";
         } else if (type === "video") {
             questionFileInputRef.current.accept = ".mp4,.webm,.ogg";
         } else if (type === "audio") {
-            questionFileInputRef.current.accept = ".mp3,.wav,.ogg";
+            questionFileInputRef.current.accept = ".mp3,.wav,.ogg,.mpeg";
         }
         questionFileInputRef.current?.click();
     };
@@ -140,11 +147,11 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         if (!answerFileInputRef.current) return;
 
         if (type === "image" && answerFileInputRef.current) {
-            answerFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp";
+            answerFileInputRef.current.accept = ".jpg,.jpeg,.png,.gif,.webp,.svg";
         } else if (type === "video") {
             answerFileInputRef.current.accept = ".mp4,.webm,.ogg";
         } else if (type === "audio") {
-            answerFileInputRef.current.accept = ".mp3,.wav,.ogg";
+            answerFileInputRef.current.accept = ".mp3,.wav,.ogg,.mpeg";
         }
         answerFileInputRef.current?.click();
     };
@@ -219,29 +226,58 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
     };
 
     const fileValidation = (file: File | undefined) => {
-        const fileExt = file?.type.split("/")[1] || file?.name.split(".").pop();
-        if (uploadedFileType === "image" && !IMAGE_FILE_TYPES.includes(`.${fileExt}`)) {
-            return { error: true, message: "Image file type must be valid formate : " + IMAGE_FILE_TYPES.join(", ") };
+        if (!file) {
+            return { error: true, message: "Please select a file" };
         }
-        else if (uploadedFileType === "image" && formatFileSize(file?.size) > "20") {
-            return { error: true, message: "Image file size must be less than 20MB" };
+
+        const fileExt = file.type.split("/")[1] || file.name.split(".").pop();
+        const fileSizeMB = formatFileSize(file.size);
+
+        // File type and size limits configuration
+        const fileConfig = {
+            image: {
+                allowedTypes: IMAGE_FILE_TYPES,
+                maxSize: 20,
+                typeName: "Image"
+            },
+            video: {
+                allowedTypes: VIDEO_FILE_TYPES,
+                maxSize: 30,
+                typeName: "Video"
+            },
+            audio: {
+                allowedTypes: AUDIO_FILE_TYPES,
+                maxSize: 10,
+                typeName: "Audio"
+            }
+        };
+
+        const config = fileConfig[uploadedFileType as keyof typeof fileConfig];
+
+        if (!config) {
+            return { error: true, message: "Invalid file type selected" };
         }
-        else if (uploadedFileType === "video" && !VIDEO_FILE_TYPES.includes(`.${fileExt}`)) {
-            return { error: true, message: "Video file type must be valid formate : " + VIDEO_FILE_TYPES.join(", ") };
+
+        // Check file extension
+        if (!config.allowedTypes.includes(`.${fileExt}`)) {
+            return {
+                error: true,
+                message: `${config.typeName} file type must be valid format: ${config.allowedTypes.join(", ")}`
+            };
         }
-        else if (uploadedFileType === "video" && formatFileSize(file?.size) > "30") {
-            return { error: true, message: "Video file size must be less than 30MB" };
+
+        // Check file size
+        if (fileSizeMB > config.maxSize) {
+            return {
+                error: true,
+                message: `${config.typeName} file size must be less than ${config.maxSize}MB`
+            };
         }
-        else if (uploadedFileType === "audio" && !AUDIO_FILE_TYPES.includes(`.${fileExt}`)) {
-            return { error: true, message: "Audio file type must be valid formate : " + AUDIO_FILE_TYPES.join(", ") };
-        }
-        else if (uploadedFileType === "audio" && formatFileSize(file?.size) > "10") {
-            return { error: true, message: "Audio file size must be less than 10MB" };
-        }
+
         return { error: false, message: "" };
     };
 
-    const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleQuestionNAnswerMedia = (event: any) => {
         const file = event.target.files?.[0];
         const name = event.target.name;
         const error = fileValidation(file);
@@ -297,6 +333,13 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             [name + "Obj"]: null,
             [name + "FileName"]: null,
         }));
+
+        // Reset the input value to allow re-uploading the same file
+        if (name === "questionMedia" && questionFileInputRef.current) {
+            questionFileInputRef.current.value = "";
+        } else if (name === "answerMedia" && answerFileInputRef.current) {
+            answerFileInputRef.current.value = "";
+        }
     };
 
     const handleAddQuestion = () => {
@@ -543,8 +586,13 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         if (file) {
             const formData = new FormData();
             formData.append("file", file);
-            updateBulkQuestionData(formData).then(() => {
-                showSuccessMessage("Bulk questions uploaded successfully");
+            updateBulkQuestionData(formData).then((res) => {
+                if (res.data.errors.length > 0) {
+                    setBulkUploadFileErrorData(res.data);
+                    setIsBulkUploadResultModalOpen(true);
+                } else {
+                    showSuccessMessage("Bulk questions uploaded successfully");
+                }
             }).catch((error) => {
                 showErrorMessage("Error uploading bulk questions");
                 console.error("Error uploading bulk questions:", error);
@@ -566,121 +614,120 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
     // };
 
     return (
-
-        <Modal
-            open={open}
-            onCancel={handleClose}
-            footer={null}
-            centered
-            width={800}
-            maskClosable={false}
-            title={
-                <div className="flex items-center gap-2">
-                    {state.step === 2 &&
-                        <button
-                            type="button"
-                            className="focus:outline-none w-5 h-5 md:w-8 md:h-8 flex items-center justify-center rounded-full text-medium-gray hover:text-black  hover:bg-light-gray transition-colors duration-300"
-                            onClick={handleGoBackToStep1}
-                            aria-label="Close"
-                        >
-                            <MdArrowBack className='text-base md:text-2xl' />
-                        </button>
-                    }
-                    <p className='font-normal text-2xl'>Add New Question</p>
-                </div>
-            }
-        >
-            {(isLoading || isQuestionLoading || updateQuestionLoading || uploadedFileLoading) && <FallbackLoader isModal={true} />}
-            <Divider />
-            <div className='w-full space-y-5'>
-                {state.step === 1 ?
-                    <>
-                        <div className="flex items-baseline justify-between gap-x-5">
-                            <div className="flex flex-col gap-y-2">
-                                <label className="text-base">Assign Category</label>
-                                <Select
-                                    allowClear={false}
-                                    options={state.categoriesOptions}
-                                    onChange={(value) => handleSelectChange(value, "selectedCategory")}
-                                    value={state.selectedCategory || undefined}
-                                    placeholder="Assign Category"
-                                    className="h-12 w-48"
-                                    showSearch
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    optionRender={(option) => (
-                                        <div key={option.data.value}>
-                                            <span>{option.data.label}</span>
-                                        </div>
-                                    )}
-                                />
-                            </div>
-                            <div className="flex flex-col gap-y-2">
-                                <label className="text-base">Choose Difficulty</label>
-                                <Select
-                                    allowClear={false}
-                                    options={DifficultyOptions}
-                                    placeholder="Choose Difficulty"
-                                    className='h-12 w-48'
-                                    onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
-                                    value={state.selectedDifficulty || undefined}
-                                />
-                            </div>
-                            <div className="flex flex-col gap-y-2">
-                                <label className="text-base">Question Type</label>
-                                <Select
-                                    allowClear={false}
-                                    options={QuestionTypeOptions}
-                                    onChange={(value) => handleSelectChange(value, "selectedQuestionType")}
-                                    value={state.selectedQuestionType || undefined}
-                                    placeholder="Question Type"
-                                    className='h-12 w-48'
-
-                                />
-                            </div>
-                        </div>
-                        <div className='space-y-5 overflow-y-auto h-auto max-h-[600px]'>
-                            {/* Question */}
-                            <div>
-                                <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Question <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
-                                <div className='space-y-5'>
-                                    <Input
-                                        name='questionEN'
-                                        type='text'
-                                        placeholder="Question"
-                                        value={questionState?.questionEN}
-                                        onChange={(e) => handleOnChange(e)}
-                                        className="w-full px-4"
+        <>
+            <Modal
+                open={open}
+                onCancel={handleClose}
+                footer={null}
+                centered
+                width={800}
+                maskClosable={false}
+                title={
+                    <div className="flex items-center gap-2">
+                        {state.step === 2 &&
+                            <button
+                                type="button"
+                                className="focus:outline-none w-5 h-5 md:w-8 md:h-8 flex items-center justify-center rounded-full text-medium-gray hover:text-black  hover:bg-light-gray transition-colors duration-300"
+                                onClick={handleGoBackToStep1}
+                                aria-label="Close"
+                            >
+                                <MdArrowBack className='text-base md:text-2xl' />
+                            </button>
+                        }
+                        <p className='font-normal text-2xl'>Add New Question</p>
+                    </div>
+                }
+            >
+                {(isLoading || isQuestionLoading || updateQuestionLoading || uploadedFileLoading) && <FallbackLoader isModal={true} />}
+                <Divider />
+                <div className='w-full space-y-5'>
+                    {state.step === 1 ?
+                        <>
+                            <div className="flex items-baseline justify-between gap-x-5">
+                                <div className="flex flex-col gap-y-2">
+                                    <label className="text-base">Assign Category</label>
+                                    <Select
+                                        allowClear={false}
+                                        options={state.categoriesOptions}
+                                        onChange={(value) => handleSelectChange(value, "selectedCategory")}
+                                        value={state.selectedCategory || undefined}
+                                        placeholder="Assign Category"
+                                        className="h-12 w-48"
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                                        }
+                                        optionRender={(option) => (
+                                            <div key={option.data.value}>
+                                                <span>{option.data.label}</span>
+                                            </div>
+                                        )}
                                     />
-                                    <div className='relative'>
-                                        <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                            Translate
-                                        </button>
+                                </div>
+                                <div className="flex flex-col gap-y-2">
+                                    <label className="text-base">Choose Difficulty</label>
+                                    <Select
+                                        allowClear={false}
+                                        options={DifficultyOptions}
+                                        placeholder="Choose Difficulty"
+                                        className='h-12 w-48'
+                                        onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
+                                        value={state.selectedDifficulty || undefined}
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-y-2">
+                                    <label className="text-base">Question Type</label>
+                                    <Select
+                                        allowClear={false}
+                                        options={QuestionTypeOptions}
+                                        onChange={(value) => handleSelectChange(value, "selectedQuestionType")}
+                                        value={state.selectedQuestionType || undefined}
+                                        placeholder="Question Type"
+                                        className='h-12 w-48'
+
+                                    />
+                                </div>
+                            </div>
+                            <div className='space-y-5 overflow-y-auto h-auto max-h-[600px]'>
+                                {/* Question */}
+                                <div>
+                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Question <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
+                                    <div className='space-y-5'>
                                         <Input
+                                            name='questionEN'
                                             type='text'
-                                            name='questionAR'
-                                            // readOnly
-                                            placeholder="Question Translation"
-                                            value={questionState?.questionAR}
+                                            placeholder="Question"
+                                            value={questionState?.questionEN}
                                             onChange={(e) => handleOnChange(e)}
-                                            className="w-full text-end px-4"
+                                            className="w-full px-4"
                                         />
-                                    </div>
-                                    <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
-                                        <div className="relative w-full h-14 px-4 transform rounded-lg overflow-hidden border border-border-gray flex items-center justify-center">
-                                            {/* Hidden file input */}
-                                            <input
-                                                type="file"
-                                                ref={questionFileInputRef}
-                                                name="questionMedia"
-                                                onChange={handleProfilePictureChange}
-                                                accept="image/*"
-                                                className="hidden"
+                                        <div className='relative'>
+                                            <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
+                                                Translate
+                                            </button>
+                                            <Input
+                                                type='text'
+                                                name='questionAR'
+                                                // readOnly
+                                                placeholder="Question Translation"
+                                                value={questionState?.questionAR}
+                                                onChange={(e) => handleOnChange(e)}
+                                                className="w-full text-end px-4"
                                             />
-                                            {questionState?.questionMedia ?
-                                                <>
-                                                    {/* {<img
+                                        </div>
+                                        <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
+                                            <div className="relative w-full h-14 px-4 transform rounded-lg overflow-hidden border border-border-gray flex items-center justify-center">
+                                                {/* Hidden file input */}
+                                                <input
+                                                    type="file"
+                                                    ref={questionFileInputRef}
+                                                    name="questionMedia"
+                                                    onChange={handleQuestionNAnswerMedia}
+                                                    className="hidden"
+                                                />
+                                                {questionState?.questionMedia ?
+                                                    <>
+                                                        {/* {<img
                                                         src={getImageUrl()}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
@@ -688,79 +735,78 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                         loading="lazy"
                                                         height={96}
                                                     />} */}
-                                                    <span className={`truncate  ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.questionMediaFileName}</span>
-                                                    <button
-                                                        className="ml-auto"
-                                                        onClick={() => handleRemove("questionMedia")}
-                                                    >
-                                                        <MdDelete className="text-danger" size={24} />
-                                                    </button>
-                                                </>
-                                                :
+                                                        <span className={`truncate  ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.questionMediaFileName}</span>
+                                                        <button
+                                                            className="ml-auto"
+                                                            onClick={() => handleRemove("questionMedia")}
+                                                        >
+                                                            <MdDelete className="text-danger" size={24} />
+                                                        </button>
+                                                    </>
+                                                    :
 
-                                                <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white" >
-                                                    <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
-                                                    <div className='flex items-center justify-between flex-1 px-8'>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("image")}>
-                                                            <UploadImageIcon />
-                                                            <span className="text-base ">Image</span>
-                                                        </button>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("video")}>
-                                                            <VideoIcon />
-                                                            <span className="text-base ">Video</span>
-                                                        </button>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("audio")}>
-                                                            <AudioIcon />
-                                                            <span className="text-base ">Audio</span>
-                                                        </button>
+                                                    <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white" >
+                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
+                                                        <div className='flex items-center justify-between flex-1 px-8'>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("image")}>
+                                                                <UploadImageIcon />
+                                                                <span className="text-base ">Image</span>
+                                                            </button>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("video")}>
+                                                                <VideoIcon />
+                                                                <span className="text-base ">Video</span>
+                                                            </button>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("audio")}>
+                                                                <AudioIcon />
+                                                                <span className="text-base ">Audio</span>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            }
+                                                }
+                                            </div>
+                                            {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                         </div>
-                                        {errorState.questionMedia && <p className="text-red-500 text-sm">{errorState.questionMedia}</p>}
                                     </div>
                                 </div>
-                            </div>
-                            {/* Answer */}
-                            <div>
-                                <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Answer <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
-                                <div className='space-y-5'>
-                                    <Input
-                                        name='answerEN'
-                                        type='text'
-                                        placeholder="Answer"
-                                        value={questionState?.answerEN}
-                                        onChange={(e) => handleOnChange(e)}
-                                        className="w-full px-4"
-                                    />
-                                    <div className='relative'>
-                                        <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                            Translate
-                                        </button>
+                                {/* Answer */}
+                                <div>
+                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Answer <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
+                                    <div className='space-y-5'>
                                         <Input
+                                            name='answerEN'
                                             type='text'
-                                            name='answerAR'
-                                            // readOnly
-                                            placeholder="Answer Translation"
-                                            value={questionState?.answerAR}
+                                            placeholder="Answer"
+                                            value={questionState?.answerEN}
                                             onChange={(e) => handleOnChange(e)}
-                                            className="w-full border text-end px-4"
+                                            className="w-full px-4"
                                         />
-                                    </div>
-                                    <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
-                                        <div className="relative w-full h-14 px-4 rounded-lg transform overflow-hidden border border-border-gray flex items-center justify-center">
-                                            {/* Hidden file input */}
-                                            <input
-                                                type="file"
-                                                ref={answerFileInputRef}
-                                                name="answerMedia"
-                                                onChange={handleProfilePictureChange}
-                                                accept="image/*"
-                                                className="hidden"
+                                        <div className='relative'>
+                                            <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
+                                                Translate
+                                            </button>
+                                            <Input
+                                                type='text'
+                                                name='answerAR'
+                                                // readOnly
+                                                placeholder="Answer Translation"
+                                                value={questionState?.answerAR}
+                                                onChange={(e) => handleOnChange(e)}
+                                                className="w-full border text-end px-4"
                                             />
-                                            {questionState?.answerMedia ?
-                                                <>
-                                                    {/* {<img
+                                        </div>
+                                        <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
+                                            <div className="relative w-full h-14 px-4 rounded-lg transform overflow-hidden border border-border-gray flex items-center justify-center">
+                                                {/* Hidden file input */}
+                                                <input
+                                                    type="file"
+                                                    ref={answerFileInputRef}
+                                                    name="answerMedia"
+                                                    onChange={handleQuestionNAnswerMedia}
+                                                    className="hidden"
+                                                />
+                                                {questionState?.answerMedia ?
+                                                    <>
+                                                        {/* {<img
                                                         src={(typeof questionState.answerMedia === 'string' ? questionState.answerMedia : "")}
                                                         alt="preview"
                                                         className="w-8 h-8 object-contain"
@@ -768,144 +814,153 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                         height={96}
                                                         loading="lazy"
                                                     />} */}
-                                                    <span className={`truncate ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.answerMediaFileName}</span>
-                                                    <button
-                                                        className="ml-auto"
-                                                        onClick={() => handleRemove("answerMedia")}
-                                                    >
-                                                        <MdDelete className="text-danger" size={24} />
-                                                    </button>
-                                                </>
+                                                        <span className={`truncate ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.answerMediaFileName}</span>
+                                                        <button
+                                                            className="ml-auto"
+                                                            onClick={() => handleRemove("answerMedia")}
+                                                        >
+                                                            <MdDelete className="text-danger" size={24} />
+                                                        </button>
+                                                    </>
 
-                                                :
+                                                    :
 
-                                                <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white">
-                                                    <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
-                                                    <div className='flex items-center justify-between flex-1 px-8'>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
-                                                            <UploadImageIcon />
-                                                            <span className="text-base ">Image</span>
-                                                        </button>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
-                                                            <VideoIcon />
-                                                            <span className="text-base ">Video</span>
-                                                        </button>
-                                                        <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("audio")}>
-                                                            <AudioIcon />
-                                                            <span className="text-base ">Audio</span>
-                                                        </button>
+                                                    <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white">
+                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
+                                                        <div className='flex items-center justify-between flex-1 px-8'>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
+                                                                <UploadImageIcon />
+                                                                <span className="text-base ">Image</span>
+                                                            </button>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
+                                                                <VideoIcon />
+                                                                <span className="text-base ">Video</span>
+                                                            </button>
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("audio")}>
+                                                                <AudioIcon />
+                                                                <span className="text-base ">Audio</span>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            }
+                                                }
+                                            </div>
+                                            {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                         </div>
-                                        {errorState.answerMedia && <p className="text-red-500 text-sm">{errorState.answerMedia}</p>}
                                     </div>
                                 </div>
-                            </div>
-                            {/* MCQs */}
-                            {state.selectedQuestionType === "MCQs" &&
-                                <div className="w-full">
-                                    <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">Add MCQ’S <span className="text-sm text-gray-500">Select anyone with right answer</span></h2>
+                                {/* MCQs */}
+                                {state.selectedQuestionType === "MCQs" &&
+                                    <div className="w-full">
+                                        <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">Add MCQ’S <span className="text-sm text-gray-500">Select anyone with right answer</span></h2>
 
-                                    <Radio.Group
-                                        onChange={handleSelectCorrectOption}
-                                        value={state.selectedCorrectOption?.english}
-                                        className="flex w-full flex-wrap gap-4 mb-6"
-                                    >
-                                        {options.every(opt => opt.english !== "") && options.map((opt, index) => (
-                                            <Radio
-                                                key={index}
-                                                value={opt.english}
-                                                className="h-12 w-fit px-6 border rounded-lg flex-centered  hover:border-primary"
-                                            >
-                                                {opt.english}
-                                            </Radio>
-                                        ))}
-                                        <button
-                                            className="w-12 h-12 border border-gray-300 rounded-lg bg-[#F5F5F5] flex items-center justify-center"
-                                            onClick={handleGoOptions}
+                                        <Radio.Group
+                                            onChange={handleSelectCorrectOption}
+                                            value={state.selectedCorrectOption?.english}
+                                            className="flex w-full flex-wrap gap-4 mb-6"
                                         >
-                                            <LuCirclePlus size={24} />
-                                        </button>
-                                    </Radio.Group>
-
-                                </div>
-                            }
-                        </div>
-                    </>
-                    :
-                    <>
-                        <div className="space-y-6">
-                            {options.map((opt, index) => (
-                                <div key={index} className="space-y-1">
-                                    <p className="font-medium">Option {index + 1}</p>
-
-                                    <div className="flex items-center gap-3">
-                                        {/* English Input */}
-                                        <div className="flex flex-col flex-1">
-                                            <Input
-                                                placeholder="Type option"
-                                                value={opt.english}
-                                                onChange={(e) => handleChange(index, "english", e.target.value)}
-                                                className="flex-1 h-14"
-                                            />
-                                            <span className="text-xs text-gray-500 mt-1">English</span>
-                                        </div>
-
-                                        {/* Shuffle Icon */}
-                                        <span className="flex-shrink-0 -mt-5">
-                                            <ShuffleIcon />
-                                        </span>
-
-                                        {/* Translate Button */}
-                                        <div className="w-2/5 ">
+                                            {options.every(opt => opt.english !== "") && options.map((opt, index) => (
+                                                <Radio
+                                                    key={index}
+                                                    value={opt.english}
+                                                    className="h-12 w-fit px-6 border rounded-lg flex-centered  hover:border-primary"
+                                                >
+                                                    {opt.english}
+                                                </Radio>
+                                            ))}
                                             <button
-                                                onClick={() => handleTranslate(index)}
-                                                className="w-full h-12 rounded-lg border underline font-medium hover:no-underline"
+                                                className="w-12 h-12 border border-gray-300 rounded-lg bg-[#F5F5F5] flex items-center justify-center"
+                                                onClick={handleGoOptions}
                                             >
-                                                {opt.arabic ? opt.arabic : "Translate"}
+                                                <LuCirclePlus size={24} />
                                             </button>
-                                            <span className="text-xs text-gray-500 mt-1">Arabic</span>
+                                        </Radio.Group>
+
+                                    </div>
+                                }
+                            </div>
+                        </>
+                        :
+                        <>
+                            <div className="space-y-6">
+                                {options.map((opt, index) => (
+                                    <div key={index} className="space-y-1">
+                                        <p className="font-medium">Option {index + 1}</p>
+
+                                        <div className="flex items-center gap-3">
+                                            {/* English Input */}
+                                            <div className="flex flex-col flex-1">
+                                                <Input
+                                                    placeholder="Type option"
+                                                    value={opt.english}
+                                                    onChange={(e) => handleChange(index, "english", e.target.value)}
+                                                    className="flex-1 h-14"
+                                                />
+                                                <span className="text-xs text-gray-500 mt-1">English</span>
+                                            </div>
+
+                                            {/* Shuffle Icon */}
+                                            <span className="flex-shrink-0 -mt-5">
+                                                <ShuffleIcon />
+                                            </span>
+
+                                            {/* Translate Button */}
+                                            <div className="w-2/5 ">
+                                                <button
+                                                    onClick={() => handleTranslate(index)}
+                                                    className="w-full h-12 rounded-lg border underline font-medium hover:no-underline"
+                                                >
+                                                    {opt.arabic ? opt.arabic : "Translate"}
+                                                </button>
+                                                <span className="text-xs text-gray-500 mt-1">Arabic</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                            {errorState.options && <p className="text-red-500 text-sm text-center">{errorState.options}</p>}
-                        </div>
+                                ))}
+                                {errorState.options && <p className="text-red-500 text-sm text-center">{errorState.options}</p>}
+                            </div>
 
-                    </>
-                }
-                <Divider />
-                {state.step === 1 ?
-                    <div className='w-full flex items-center justify-between mt-5'>
-                        <div className="space-x-4">
+                        </>
+                    }
+                    <Divider />
+                    {state.step === 1 ?
+                        <div className='w-full flex items-center justify-between mt-5'>
+                            <div className="space-x-4">
 
-                            <Upload
-                                accept=".xls,.xlsx"
-                                beforeUpload={() => false} // prevent auto upload
-                                onChange={handleUploadBulkQuestions}
-                                showUploadList={false}
-                            >
-                                <Button variant="text" className="h-12 border-none bg-black text-white">
-                                    Try Bulk Upload <MdOutlineFileUpload size={20} />
+                                <Upload
+                                    accept=".xls,.xlsx"
+                                    beforeUpload={() => false} // prevent auto upload
+                                    onChange={handleUploadBulkQuestions}
+                                    showUploadList={false}
+                                >
+                                    <Button variant="text" className="h-12 border-none bg-black text-white">
+                                        Try Bulk Upload <MdOutlineFileUpload size={20} />
+                                    </Button>
+                                </Upload>
+                                <Button variant="link" className="h-12" onClick={handleDownloadTemplate}>
+                                    Download Excel Template
                                 </Button>
-                            </Upload>
-                            <Button variant="link" className="h-12" onClick={handleDownloadTemplate}>
-                                Download Excel Template
+                            </div>
+                            <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
+                                {questionId ? "Update Question" : "Add Question"}
+                            </Button>
+                        </div> :
+                        <div className='w-full flex items-center justify-end mt-5'>
+                            <Button variant="text" type="primary" className="h-12" onClick={handleAddOptions}>
+                                Add Options
                             </Button>
                         </div>
-                        <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
-                            {questionId ? "Update Question" : "Add Question"}
-                        </Button>
-                    </div> :
-                    <div className='w-full flex items-center justify-end mt-5'>
-                        <Button variant="text" type="primary" className="h-12" onClick={handleAddOptions}>
-                            Add Options
-                        </Button>
-                    </div>
-                }
-            </div>
-        </Modal >
+                    }
+                </div>
+            </Modal >
+            <BulkUploadResultModal
+                open={isBulkUploadResultModalOpen}
+                onClose={() => {
+                    setIsBulkUploadResultModalOpen(false);
+                    setBulkUploadFileErrorData(null);
+                }}
+                data={bulkUploadFileErrorData}
+            />
+        </>
     )
 };
 

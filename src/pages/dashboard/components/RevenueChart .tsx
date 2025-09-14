@@ -8,47 +8,58 @@ import {
     Cell,
 } from "recharts";
 
-interface ChartData {
-    month: string;
-    target: number;
-    aboveTarget: number;
-    belowTarget: number;
+interface BackendData {
+    totalAmount: number;
+    subscriptions: number;
+    currency: string;
+    byMonth: Array<{
+        label: string;
+        totalAmount: number;
+        subscriptions: number;
+        year: number;
+        month: number;
+    }>;
 }
 
-const data: ChartData[] = [
-    { month: "Jan", target: 25, aboveTarget: 15, belowTarget: 0 },
-    { month: "Feb", target: 45, aboveTarget: 25, belowTarget: 0 },
-    { month: "Mar", target: 20, aboveTarget: 15, belowTarget: 0 },
-    { month: "Apr", target: 30, aboveTarget: 35, belowTarget: 0 },
-    { month: "May", target: 55, aboveTarget: 25, belowTarget: 0 },
-    { month: "Jun", target: 65, aboveTarget: 20, belowTarget: 0 },
-    { month: "Jul", target: 25, aboveTarget: 20, belowTarget: 0 },
-    { month: "Aug", target: 15, aboveTarget: 15, belowTarget: 25 },
-    { month: "Sep", target: 30, aboveTarget: 20, belowTarget: 0 },
-    { month: "Oct", target: 0, aboveTarget: 0, belowTarget: 0 },
-    { month: "Nov", target: 20, aboveTarget: 15, belowTarget: 0 },
-    { month: "Dec", target: 30, aboveTarget: 35, belowTarget: 0 },
-];
+const RevenueChart = ({ data }: { data: BackendData }) => {
+    // Transform backend data to chart format
+    const chartData = data?.byMonth?.map((item) => {
+        // Calculate percentages based on total amount
+        const totalAmount = data.totalAmount || 1; // Avoid division by zero
+        const percentage = totalAmount > 0 ? (item.totalAmount / totalAmount) * 100 : 0;
 
-const RevenueChart = () => {
+        // Show minimum 2% bar for zero values to make them visible
+        const displayPercentage = item.totalAmount === 0 ? 2 : percentage;
+
+        return {
+            month: item.label,
+            target: displayPercentage,
+            aboveTarget: 0, // Not used in your data structure
+            belowTarget: 0, // Not used in your data structure
+            totalAmount: item.totalAmount,
+            subscriptions: item.subscriptions,
+            originalData: item,
+            isZeroValue: item.totalAmount === 0
+        };
+    }) || [];
+
     return (
         <div className="bg-white py-6 ">
             <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                        data={data}
+                        data={chartData}
                         barCategoryGap="10%"
                         margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
                     >
-
                         <XAxis
                             dataKey="month"
-                            axisLine={{ stroke: "#d1d5db", }} // Light gray line under months
+                            axisLine={{ stroke: "#d1d5db" }}
                             tickLine={true}
-                            tick={{ fontSize: 12, fill: "#374151", }}
+                            tick={{ fontSize: 12, fill: "#374151" }}
                         />
                         <YAxis
-                            axisLine={{ stroke: "#d1d5db" }} // Light gray Y axis
+                            axisLine={{ stroke: "#d1d5db" }}
                             tickLine={true}
                             tick={{ fontSize: 12, fill: "#374151" }}
                             tickFormatter={(value) => `${value}%`}
@@ -56,29 +67,26 @@ const RevenueChart = () => {
                             ticks={[0, 25, 50, 75, 100]}
                         />
                         <Tooltip
-                            formatter={(value) => `${value}%`}
+                            formatter={(value, name, props) => {
+                                const data = props.payload;
+                                if (data.isZeroValue) {
+                                    return ['No Revenue', 'Revenue'];
+                                }
+                                return [
+                                    `${data.totalAmount} ${data.originalData ? data.originalData.currency || 'USD' : 'USD'}`,
+                                    'Revenue'
+                                ];
+                            }}
                             contentStyle={{
                                 fontSize: "12px",
                                 borderRadius: "6px",
                             }}
                         />
-                        <Bar
-                            dataKey="target"
-                            stackId="revenue"
-                            fill="#22c55e"
-                            radius={[0, 0, 0, 0]}
-                        />
-                        <Bar
-                            dataKey="aboveTarget"
-                            stackId="revenue"
-                            fill="#86efac"
-                            radius={[3, 3, 0, 0]}
-                        />
-                        <Bar dataKey="belowTarget" stackId="revenue" radius={[3, 3, 0, 0]}>
-                            {data.map((entry, index) => (
+                        <Bar dataKey="target" stackId="revenue" radius={[3, 3, 0, 0]}>
+                            {chartData.map((entry, index) => (
                                 <Cell
                                     key={`cell-${index}`}
-                                    fill={entry.belowTarget > 0 ? "#ef4444" : "transparent"}
+                                    fill={entry.isZeroValue ? "#e5e7eb" : "#22c55e"}
                                 />
                             ))}
                         </Bar>

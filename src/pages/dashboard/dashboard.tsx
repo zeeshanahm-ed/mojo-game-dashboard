@@ -132,7 +132,7 @@ const Dashboard = () => {
       </div>
 
       <Divider />
-      <RevenueChart />
+      <RevenueChart data={dashboardData?.revenue} />
       <Divider />
 
       <div className="w-full flex items-center justify-between overflow-hidden">
