@@ -11,6 +11,9 @@ export function getAllCategoriesDataForDropDown() {
 export function deleteCategory(id: string) {
     return api.delete(`${CATEGORY_URL}/${id}`).then((response) => response.data);
 }
+export function changeCategoryStatus(id: string, params: any) {
+    return api.patch(`${CATEGORY_URL}/${id}/status`, params).then((response) => response.data);
+}
 export function updateCategoryData(data: FormData, id: string) {
     return api.patch(`${CATEGORY_URL}/${id}`, data, {
         headers: {

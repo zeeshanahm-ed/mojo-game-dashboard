@@ -55,12 +55,12 @@ function SidebarRoutes() {
       path: '/question-category',
       roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
-    {
-      key: 'settings-controls',
-      label: 'Settings & Controls',
-      path: '/settings',
-      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
-    },
+    // {
+    //   key: 'settings-controls',
+    //   label: 'Settings & Controls',
+    //   path: '/settings',
+    //   roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
+    // },
     {
       key: 'roles-permissions',
       label: 'Roles & Permissions',

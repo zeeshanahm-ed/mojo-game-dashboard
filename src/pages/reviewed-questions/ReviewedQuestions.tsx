@@ -32,6 +32,7 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
         { title: 'User Name', key: 'userName', className: "text-start" },
         { title: 'Question', key: 'question', className: "text-start" },
         { title: 'Category', key: 'category', className: "text-start" },
+        { title: 'Action', key: 'action', className: "text-start" },
     ];
 
     const handlePageChange = (page: number) => {

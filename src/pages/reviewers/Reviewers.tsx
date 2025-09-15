@@ -35,7 +35,7 @@ const Reviewers: React.FC = () => {
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
-        role: "user",
+        role: "reviewer",
         status: "all"
     });
 

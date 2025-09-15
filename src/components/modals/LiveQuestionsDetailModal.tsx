@@ -2,15 +2,9 @@ import React from 'react';
 import { Button, Modal, Tooltip, Divider } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 //icons
-import WrongIcon from "../../assets/icons/wrong-status-icon.svg?react";
-import RightIcon from "../../assets/icons/right-status-icon.svg?react";
-import AmbiguousIcon from "../../assets/icons/ambigous-status-icon.svg?react";
 import QuestionIcon from "../../assets/icons/question-icon.svg?react"
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
-// import useAddReview from 'pages/dashboard/core/hooks/useAddReview';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
-import useMoveQuestionToPandingPool from 'pages/reviewed-questions/core/hooks/useMoveQuestionToPandingPool';
-import usePublishQuestion from 'pages/reviewed-questions/core/hooks/usePublishQuestion';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
 
 interface QuestionReviewModalProps {
@@ -19,37 +13,29 @@ interface QuestionReviewModalProps {
     getReviewQuestionData: () => void;
     questionData: any;
     currentLanguage: string;
-    activeTab: string;
 }
 
 
-const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, getReviewQuestionData, open, onClose,
+const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getReviewQuestionData, open, onClose,
     questionData,
     currentLanguage
 }) => {
-    const { publishQuestionMutate, isLoading } = usePublishQuestion();
-    const { isLoading: pandingPoolLoading, moveQuestionToPandingPoolMutate } = useMoveQuestionToPandingPool();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
 
 
-
     const getQuestionText = () => {
-        return questionData?.questionText?.[currentLanguage] || questionData?.questionText?.en || '';
+        return questionData?.multilingualData.questionText?.[currentLanguage] || questionData?.multilingualData.questionText?.en || '';
     };
     const getAnswerExplanationText = () => {
-        return questionData?.answerExplanation?.[currentLanguage] || questionData?.answerExplanation?.en || '';
+        return questionData?.multilingualData.answerExplanation?.[currentLanguage] || questionData?.multilingualData.answerExplanation?.en || '';
     };
 
     const getOptions = () => {
-        return questionData?.options?.[currentLanguage] || questionData?.options?.en || [];
+        return questionData?.multilingualData.options?.[currentLanguage] || questionData?.multilingualData.options?.en || [];
     };
 
     const getCorrectAnswer = () => {
-        return questionData?.correctAnswer?.[currentLanguage] || questionData?.correctAnswer?.en || '';
-    };
-
-    const getCategoryName = () => {
-        return questionData?.categoryName?.[currentLanguage] || questionData?.categoryName?.en || 'Category  Name';
+        return questionData?.multilingualData.correctAnswer?.[currentLanguage] || questionData?.multilingualData.correctAnswer?.en || '';
     };
 
     const getDifficultyColor = (difficulty: string) => {
@@ -132,43 +118,6 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
     const options = getOptions();
     const correctAnswer = getCorrectAnswer();
 
-    const handlePublishQuestion = () => {
-        const body = {
-            questionId: questionData?.questionId,
-        }
-
-        publishQuestionMutate(body, {
-            onSuccess: async () => {
-                showSuccessMessage('Question published successfully.');
-                getReviewQuestionData();
-                onClose();
-            },
-            onError: (error: any) => {
-                showErrorMessage(error?.response?.data?.message);
-                console.error('Error:', error);
-            },
-        });
-    };
-
-    const handleMoveToPanding = () => {
-        const body = {
-            questionId: questionData?.questionId,
-        }
-
-        moveQuestionToPandingPoolMutate(body, {
-            onSuccess: async () => {
-                showSuccessMessage('Question moved successfully.');
-                getReviewQuestionData();
-                onClose();
-            },
-            onError: (error: any) => {
-                showErrorMessage(error?.response?.data?.message);
-                console.error('Error:', error);
-            },
-        });
-    };
-
-
     const handleDeleteClick = () => {
         let id = questionData?._id;
         deleteQuestionMutate(id, {
@@ -209,35 +158,35 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
             className="question-review-modal"
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
         >
-            {isLoading || pandingPoolLoading || isQuestionLoading ? <FallbackLoader isModal={true} /> : <></>}
+            {isQuestionLoading ? <FallbackLoader isModal={true} /> : <></>}
             <div>
 
                 {/* Tags and Reviews */}
                 <div className="flex items-center gap-3 mb-6 mt-5">
-                    <Tooltip title={questionData?.categoryName}>
-                        <span className="truncate max-w-[150px] px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
-                            {getCategoryName()}
+                    <Tooltip title={questionData?.category.name}>
+                        <span className="truncate px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
+                            {questionData?.category.name || "Category  Name"}
                         </span>
                     </Tooltip>
                     <span className={`px-3 py-2 rounded capitalize text-sm border ${getDifficultyColor(questionData?.difficulty)}`}>
                         {questionData?.difficulty}
                     </span>
-                    <div className="flex items-center px-3 py-2 gap-3 border rounded flex-1">
+                    {/* <div className="flex items-center justify-between px-3 py-2 gap-2 border rounded flex-1">
                         {questionData.reviews?.length > 0 ? (
                             questionData.reviews.map((review: any, index: number) => (
                                 <div key={index} className="flex  items-center gap-1">
-                                    <Tooltip title={review.reviewerName}>
-                                        <span className="text-sm text-gray-700 max-w-[100px] truncate">{review.reviewerName}</span>
+                                    <Tooltip title={review.name}>
+                                        <span className="text-sm text-gray-700 max-w-[70px] truncate">{review.name}</span>
                                     </Tooltip>
-                                    {review.decision === 'Correct' && <RightIcon />}
-                                    {review.decision === 'Incorrect' && <WrongIcon />}
-                                    {review.decision === 'Ambiguous' && <AmbiguousIcon />}
+                                    {review.decession === 'correct' && <RightIcon />}
+                                    {review.decession === 'incorrect' && <WrongIcon />}
+                                    {review.decession === 'ambiguity' && <AmbiguousIcon />}
                                 </div>
                             ))
                         ) : (
                             <span className="text-sm text-gray-400">No reviews yet</span>
                         )}
-                    </div>
+                    </div> */}
                 </div>
                 <Divider />
                 {/* Question Section */}
@@ -284,37 +233,18 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                 )}
                 <Divider />
                 {/* Submit Review Section */}
-                <div className='flex justify-between'>
+                <div className='flex justify-end'>
                     <Button
                         type="primary"
-                        onClick={handlePublishQuestion}
+                        onClick={handleDeleteClick}
                         className="h-12 font-normal"
                     >
-                        Publish Question
+                        Delete Question
                     </Button>
-                    <div className='flex gap-x-2'>
-                        {activeTab !== "Approved" && activeTab !== "Live" ?
-                            <Button
-                                type="primary"
-                                onClick={handleMoveToPanding}
-                                className="h-12 font-normal"
-                            >
-                                Move to pending
-                            </Button>
-                            : null
-                        }
-                        <Button
-                            type="default"
-                            onClick={handleDeleteClick}
-                            className="h-12 font-normal bg-[#434547] text-white border-[#434547]"
-                        >
-                            Discard
-                        </Button>
-                    </div>
                 </div>
             </div>
         </Modal>
     );
 };
 
-export default QuestionReviewModal;
+export default LiveQuestionsDetailModal;
