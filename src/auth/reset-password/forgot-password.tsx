@@ -5,22 +5,27 @@ import Container from "components/core-ui/container/container";
 import useBack from "hooks/use-back";
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 import MailIcon from "../../assets/icons/mail.svg?react";
+import { useState } from "react";
 
 function ForgotPassword() {
   const { handleBack } = useBack();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values: { email: string }) => {
     const email = values.email;
     localStorage.setItem("forgotEmail", email);
     const body = { email };
     try {
+      setIsLoading(true);
       await forgotPassCode(body);
       showSuccessMessage("Reset link sent to your email!");
       navigate("/auth/verification");
-    } catch (error) {
-      showErrorMessage("Failed to send reset link. Please try again.");
-      console.error("Error:", error);
+    } catch (error: any) {
+      showErrorMessage(error?.response?.data?.message);
+      console.error("Failed to send reset link:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,6 +66,7 @@ function ForgotPassword() {
             {/* Submit button */}
             <Form.Item>
               <Button
+                loading={isLoading}
                 type="primary"
                 htmlType="submit"
                 size="large"

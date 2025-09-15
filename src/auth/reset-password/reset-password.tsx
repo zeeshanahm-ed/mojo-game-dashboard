@@ -5,9 +5,11 @@ import LockIcon from 'assets/icons/lock.svg?react';
 import { resetPassword } from 'auth/core/_requests';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 function ResetPassword() {
   const { handleBack } = useBack();
+  const [isLoading, setIsLoading] = useState(false);
   const forgotEmail = localStorage.getItem('forgotEmail');
   const verifiedOtp = localStorage.getItem('verifiedOtp');
   const navigate = useNavigate();
@@ -20,17 +22,17 @@ function ResetPassword() {
       otp: verifiedOtp?.replace(/,/g, "")
     }
     try {
+      setIsLoading(true);
       await resetPassword(body);
       showSuccessMessage('Successfully updated!');
       navigate('/auth/sign-in');
       localStorage.removeItem('forgotEmail');
       localStorage.removeItem('verifiedOtp');
-    } catch (error) {
-      showErrorMessage('Error while updating!');
-
-      console.error('Error:', error);
+    } catch (error: any) {
+      showErrorMessage(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
-    // Here, you can perform the API call to reset the password with values.newPassword and values.confirmNewPassword
   };
 
 
@@ -90,6 +92,7 @@ function ResetPassword() {
 
             <Form.Item>
               <Button
+                loading={isLoading}
                 type='primary'
                 htmlType='submit' // This makes the button submit the form
                 className='h-16 w-full bg-button-blue mt-2'
