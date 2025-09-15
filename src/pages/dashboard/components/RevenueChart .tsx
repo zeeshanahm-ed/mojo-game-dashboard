@@ -67,7 +67,7 @@ const RevenueChart = ({ data }: { data: BackendData }) => {
                             ticks={[0, 25, 50, 75, 100]}
                         />
                         <Tooltip
-                            formatter={(value, name, props) => {
+                            formatter={(_value, _name, props) => {
                                 const data = props.payload;
                                 if (data.isZeroValue) {
                                     return ['No Revenue', 'Revenue'];

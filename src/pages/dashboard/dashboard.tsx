@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   })
   const { dashboardData } = useGetDashboardStatistics(params);
-  const [activeTab, setActiveTab] = useState('Monthly')
+  // const [activeTab, setActiveTab] = useState('Monthly')
 
   useEffect(() => setTitle('Dashboard'), [setTitle]);
 

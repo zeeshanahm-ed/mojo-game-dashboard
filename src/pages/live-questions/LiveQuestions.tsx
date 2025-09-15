@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Empty, Pagination, Tooltip } from 'antd';
+import { Button, Empty, Pagination } from 'antd';
 //Hooks
 
 import { getCurrentLanguage } from 'helpers/CustomHelpers';
