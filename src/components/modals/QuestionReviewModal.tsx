@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Modal, Tooltip, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Button, Modal, Tooltip, Divider, Popconfirm, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 //icons
 import WrongIcon from "../../assets/icons/wrong-status-icon.svg?react";
@@ -12,6 +12,7 @@ import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import useMoveQuestionToPandingPool from 'pages/reviewed-questions/core/hooks/useMoveQuestionToPandingPool';
 import usePublishQuestion from 'pages/reviewed-questions/core/hooks/usePublishQuestion';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
+import useChangeReviewedQuestionStatus from 'pages/reviewed-questions/core/hooks/useChangeReviewedQuestionStatus';
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -23,13 +24,12 @@ interface QuestionReviewModalProps {
 }
 
 
-const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, getReviewQuestionData, open, onClose,
-    questionData,
-    currentLanguage
-}) => {
+const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, getReviewQuestionData, open, onClose, questionData, currentLanguage }) => {
     const { publishQuestionMutate, isLoading } = usePublishQuestion();
     const { isLoading: pandingPoolLoading, moveQuestionToPandingPoolMutate } = useMoveQuestionToPandingPool();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
+    const [selectedStatus, setSelectedStatus] = useState<string>(questionData.status);
+    const { changeReviewedQuestionStatusMutate, isLoading: isChangeStatusLoading } = useChangeReviewedQuestionStatus();
 
 
 
@@ -184,6 +184,30 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
         });
     };
 
+    const QuestionStatusOptions = [
+        { value: "Approved", label: "Right" },
+        { value: "Rejected", label: "Wrong" },
+        { value: "Ambiguous", label: "Ambiguous" },
+    ]
+    const handleStatusChange = (value: string) => {
+        setSelectedStatus(value);
+        const body = {
+            "questionId": questionData.questionId,
+            "status": value
+        }
+        changeReviewedQuestionStatusMutate(body, {
+            onSuccess: () => {
+                showSuccessMessage("Status updated successfully.");
+                getReviewQuestionData();
+                onClose()
+            },
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+            },
+        }
+        );
+    };
+
     return (
         <Modal
             open={open}
@@ -209,12 +233,12 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
             className="question-review-modal"
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
         >
-            {isLoading || pandingPoolLoading || isQuestionLoading ? <FallbackLoader isModal={true} /> : <></>}
+            {isLoading || pandingPoolLoading || isQuestionLoading || isChangeStatusLoading ? <FallbackLoader isModal={true} /> : <></>}
             <div>
 
                 {/* Tags and Reviews */}
                 <div className="flex items-center gap-3 mb-6 mt-5">
-                    <Tooltip title={questionData?.categoryName}>
+                    <Tooltip title={getCategoryName()}>
                         <span className="truncate max-w-[150px] px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
                             {getCategoryName()}
                         </span>
@@ -240,6 +264,15 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                     </div>
                 </div>
                 <Divider />
+                <div className='mb-3 flex items-center gap-x-10'>
+                    <h3 className="text-sm text-gray-700 mb-2">Status</h3>
+                    <Select
+                        className="w-full h-10"
+                        options={QuestionStatusOptions}
+                        value={selectedStatus}
+                        onChange={handleStatusChange}
+                    />
+                </div>
                 {/* Question Section */}
                 <div className="mb-6">
                     <h3 className="text-sm text-gray-700 mb-2">Question</h3>
@@ -303,13 +336,19 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                             </Button>
                             : null
                         }
-                        <Button
-                            type="default"
-                            onClick={handleDeleteClick}
-                            className="h-12 font-normal bg-[#434547] text-white border-[#434547]"
+                        <Popconfirm
+                            title="Are you sure to delete this question?"
+                            onConfirm={handleDeleteClick}
+                            okText="Yes"
+                            cancelText="No"
                         >
-                            Discard
-                        </Button>
+                            <Button
+                                type="default"
+                                className="h-12 font-normal bg-[#434547] text-white border-[#434547]"
+                            >
+                                Discard
+                            </Button>
+                        </Popconfirm>
                     </div>
                 </div>
             </div>

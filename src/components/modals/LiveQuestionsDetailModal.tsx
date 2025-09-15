@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, Tooltip, Divider } from 'antd';
+import { Button, Modal, Tooltip, Divider, Popconfirm } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 //icons
 import QuestionIcon from "../../assets/icons/question-icon.svg?react"
@@ -234,13 +234,19 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 <Divider />
                 {/* Submit Review Section */}
                 <div className='flex justify-end'>
-                    <Button
-                        type="primary"
-                        onClick={handleDeleteClick}
-                        className="h-12 font-normal"
+                    <Popconfirm
+                        title="Are you sure to delete this question?"
+                        onConfirm={handleDeleteClick}
+                        okText="Yes"
+                        cancelText="No"
                     >
-                        Delete Question
-                    </Button>
+                        <Button
+                            type="primary"
+                            className="h-12 font-normal"
+                        >
+                            Delete Question
+                        </Button>
+                    </Popconfirm>
                 </div>
             </div>
         </Modal>

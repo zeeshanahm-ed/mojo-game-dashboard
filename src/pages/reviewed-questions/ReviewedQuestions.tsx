@@ -78,7 +78,7 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                             <td className="p-4">
                                 <span className="text-gray-700">{record.questionText?.en || record.questionText?.ar}</span>
                             </td>
-                            <td className="p-4 text-center">
+                            <td className="p-4 text-start">
                                 <span className="text-gray-700">{record.categoryName?.en || record.categoryName?.ar || "-"}</span>
                             </td>
                             <td className="p-4">
