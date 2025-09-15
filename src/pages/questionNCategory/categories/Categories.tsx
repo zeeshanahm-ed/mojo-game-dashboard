@@ -4,13 +4,13 @@ import AddNEditCategoryModal from "components/modals/AddNEditCategoryModal";
 import useCategoriesData from "./core/hooks/useCategoriesData";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 import useDeleteCategory from "./core/hooks/useDeleteCategory";
+import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 
 //icons
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
-import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 
 
 function Categories() {
@@ -21,7 +21,7 @@ function Categories() {
         page: 1,
     });
     const { categoriesData, isLoading, pagination, refetch } = useCategoriesData(params);
-    const { deleteCategoryMutate, } = useDeleteCategory();
+    const { deleteCategoryMutate } = useDeleteCategory();
 
     const handleAddNewCat = () => {
         setIsModalOpen(true);
@@ -43,8 +43,9 @@ function Categories() {
                 showSuccessMessage('Category deleted successfully!');
                 refetch();
             },
-            onError: () => {
-                showErrorMessage('An error occurred while deleting the category.');
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };

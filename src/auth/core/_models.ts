@@ -19,6 +19,7 @@ export interface IUserModel {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  questionsReviewed?: number;
 }
 
 export interface ISignInForm {

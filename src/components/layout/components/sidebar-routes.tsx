@@ -11,10 +11,12 @@ import { useEffect, useState } from 'react';
 import LogoutModal from 'auth/logout-modal';
 import useGetAllUsersDataForDropDown from 'pages/user-management/core/hooks/useGetAllUsersDataForDropDown';
 import { useGetAllUsersDataForDropDownFromStore } from 'store/AllUsersData';
+import { ROLES } from 'utils/Enums';
 
 
 
 function SidebarRoutes() {
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
 
@@ -32,67 +34,75 @@ function SidebarRoutes() {
     }
   }, [allCategoriesData, allUsersData]);
 
+
   // Define the routes along with the roles that can access them
   const routes = [
     {
       key: 'dashboard',
       label: 'Dashboard',
       path: '/',
-      roles: true,
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
     {
       key: 'user-management',
       label: 'User Management',
       path: '/user-management',
-      roles: true,
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
     {
       key: 'question-category',
       label: 'Question/category',
       path: '/question-category',
-      roles: true,
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
-    // {
-    //   key: 'payment-transactions',
-    //   label: 'Payment & Transactions',
-    //   path: '/payment-transactions',
-    //   roles: true,
-    // },
-    // {
-    //   key: 'promo-code-management',
-    //   label: 'Promo code Management',
-    //   path: '/promo-code-management',
-    //   roles: true,
-    // },
     {
       key: 'settings-controls',
       label: 'Settings & Controls',
       path: '/settings',
-      roles: true,
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
     {
       key: 'roles-permissions',
       label: 'Roles & Permissions',
       path: '/roles-permissions',
-      roles: true,
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
     },
     {
       key: 'subscription',
       label: 'Subscription',
       path: '/subscription',
-      roles: true,
+      roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_MANAGER],
+    },
+    {
+      key: 'reviewers',
+      label: 'Reviewers',
+      path: '/reviewers',
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
+    },
+    {
+      key: 'reviewed-questions',
+      label: 'Reviewed Questions',
+      path: '/reviewed-questions',
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
+    },
+    {
+      key: 'live-questions',
+      label: 'Live Questions',
+      path: '/live-questions',
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
     },
   ];
 
+
+  const filteredRoutes = routes.filter((route) =>
+    currentUser?.role && route.roles.includes(currentUser.role)
+  );
 
   const navigate = useNavigate();
 
   const navigateToDashboard = () => {
     navigate('/');
   };
-
-
-  const filteredRoutes = routes.filter((route) => route.roles === true);
 
   return (
     <section className='fixed top-0 font-primary z-[999] font-medium flex flex-col h-screen border-r w-72'>
@@ -126,7 +136,7 @@ function SidebarRoutes() {
                     to={path}
                   >
                     <span className='inline-block bg-primary w-3 h-3 rounded-full' />
-                    <div className={twc('relative w-[100%] flex items-center my-4 justify-start gap-4  font-normal text-lg')} >
+                    <div className={twc('relative w-[100%] flex items-center my-3 justify-start gap-4  font-normal text-lg')} >
                       <span>{label}</span>
                     </div>
                   </NavLink>

@@ -41,12 +41,10 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
 
     // Detect if changes made
     const isChanged = useMemo(() => {
-        if (!editData) return categoryName.trim() !== "" || !!file;
-        return (
-            editData.name !== categoryName.trim() ||
-            (editData?.name || null) !== (file?.name || null)
-        );
-    }, [editData, categoryName, file]);
+        if (!editData) return categoryName.trim() !== "" && !!file;
+        return true
+
+    }, [editData, categoryName, file, fileUrl]);
 
     const handleUpload = (info: any) => {
         const file = info.file;
@@ -92,8 +90,9 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                 setCategoryName("");
                 onClose();
             },
-            onError: () => {
-                showErrorMessage("An error occurred while updating the category.");
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };
@@ -114,8 +113,9 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                 setCategoryName("");
                 onClose();
             },
-            onError: () => {
-                showErrorMessage("An error occurred while adding the category.");
+            onError: (error: any) => {
+                showErrorMessage(error?.response?.data?.message);
+                console.error('Error:', error);
             },
         });
     };

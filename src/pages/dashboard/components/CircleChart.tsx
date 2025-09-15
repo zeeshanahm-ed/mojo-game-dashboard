@@ -8,7 +8,12 @@ import {
 } from 'recharts';
 
 interface PieChartProps {
-    data: { count: number; name: string }[];
+    data: {
+        id: string;
+        name: string | { en: string; ar: string };
+        percentage: number;
+        count?: number; // for backward compatibility
+    }[];
     minWidth?: number | string;
     height?: number;
     title: string;
@@ -17,8 +22,18 @@ interface PieChartProps {
     innerRadius: number | undefined;
     outerRadius: number | undefined;
     teemChart?: boolean;
+    isCategory?: boolean;
     getColorByStatus?: (name: string) => string;
+    direction: 'ltr' | 'rtl';
 }
+
+// Helper function to get the correct name based on direction
+const getName = (name: string | { en: string; ar: string }, direction: 'ltr' | 'rtl'): string => {
+    if (typeof name === 'string') {
+        return name;
+    }
+    return direction === 'rtl' ? name.ar : name.en;
+};
 
 const renderCustomizedLabel = ({
     cx,
@@ -46,7 +61,7 @@ const renderCustomizedLabel = ({
             fontSize={12}
             fontWeight="500"
         >
-            {`${payload.originalCount === 0 ? 0 : (percent * 100).toFixed(0)}%`}
+            {`${payload.originalPercentage === 0 ? 0 : (percent * 100).toFixed(0)}%`}
         </text>
     );
 };
@@ -58,29 +73,43 @@ const CircleChart: React.FC<PieChartProps> = React.memo((props) => {
         outerRadius,
         innerRadius,
         minWidth,
-        getColorByStatus
+        getColorByStatus,
+        direction
     } = props;
 
     const [activeItems, setActiveItems] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
-        const initialActiveItems = data.reduce((acc, item) => ({
-            ...acc,
-            [item.name]: true,
-        }), {});
+        const initialActiveItems = data.reduce((acc, item) => {
+            const itemName = getName(item.name, direction);
+            return {
+                ...acc,
+                [itemName]: true,
+            };
+        }, {});
         setActiveItems(initialActiveItems);
-    }, [data]);
+    }, [data, direction]);
 
-    const activeData = data?.filter((item) => activeItems[item.name]);
-    const hasData = activeData?.some(item => item.count > 0);
-    const finalData = hasData ? activeData : [{ name: 'No Data', count: 0, originalCount: 0 }];
+    const activeData = data?.filter((item) => {
+        const itemName = getName(item.name, direction);
+        return activeItems[itemName];
+    });
+
+    const hasData = activeData?.some(item => item.percentage > 0);
+    const finalData = hasData ? activeData : [{
+        id: 'no-data',
+        name: 'No Data',
+        percentage: 0,
+        originalPercentage: 0
+    }];
 
     const MIN_VALUE = 0.0009;
 
     const processedData = finalData?.map((item) => ({
         ...item,
-        count: item.count === 0 ? MIN_VALUE : item.count,
-        originalCount: item.count,
+        count: item.percentage === 0 ? MIN_VALUE : item.percentage,
+        originalPercentage: item.percentage,
+        displayName: getName(item.name, direction),
     }));
 
 
@@ -117,18 +146,21 @@ const CircleChart: React.FC<PieChartProps> = React.memo((props) => {
                         label={renderCustomizedLabel}
                         labelLine={false}
                     >
-                        {finalData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={
-                                    entry.name === 'No Data'
-                                        ? '#d1d5db'
-                                        : getColorByStatus?.(entry.name)
-                                }
-                            />
-                        ))}
+                        {finalData.map((entry, index) => {
+                            const displayName = getName(entry.name, direction);
+                            return (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={
+                                        displayName === 'No Data'
+                                            ? '#d1d5db'
+                                            : getColorByStatus?.(displayName)
+                                    }
+                                />
+                            );
+                        })}
                     </Pie>
-                    <Tooltip wrapperClassName='bg-black' content={<CustomTooltip />} />
+                    <Tooltip wrapperClassName='bg-black' content={(props) => <CustomTooltip {...props} direction={direction} />} />
                 </PieChart>
             </ResponsiveContainer>
         </div>
@@ -137,19 +169,19 @@ const CircleChart: React.FC<PieChartProps> = React.memo((props) => {
 
 export default CircleChart;
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, direction }: any) => {
     if (!active || !payload || !payload.length) return null;
 
     const data = payload[0].payload?.payload;
     const name = data?.name;
+    const displayName = getName(name, direction);
 
     // Case 2: Fallback default formatter style
-    const original = data?.originalCount;
-    const percent = data?.count
+    const original = data?.originalPercentage;
 
     return (
         <div className="bg-white p-2 rounded shadow text-sm border">
-            {`${name}: ${original} (${percent?.toFixed(2)}%)`}
+            {`${displayName}: ${original}%`}
         </div>
     );
 };

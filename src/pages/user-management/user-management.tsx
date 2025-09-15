@@ -26,7 +26,7 @@ const statusColors: Record<IUserModel["status"], string> = {
   Archived: "text-dark-gray",
 };
 
-export const UserManagement: React.FC = () => {
+const UserManagement: React.FC = () => {
   const { setTitle } = useHeaderProps();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
