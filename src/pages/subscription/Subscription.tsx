@@ -101,16 +101,16 @@ export const Subscription: React.FC = () => {
                                     <tbody>
                                         {subscriptionData?.map((subscription: any, index: number) => (
                                             <tr key={index} className="border-t hover:bg-gray-50">
-                                                <Tooltip title={subscription.userId || "-"}>
-                                                    <td className="p-5  truncate max-w-[160px]">{subscription.userId || "-"}</td>
+                                                <Tooltip title={subscription?.user?._id || "-"}>
+                                                    <td className="p-5  truncate max-w-[160px]">{subscription?.user?._id || "-"}</td>
                                                 </Tooltip>
-                                                <td className="p-5"> {subscription.fullName || "-"}</td>
+                                                <td className="p-5"> {subscription?.user?.name || "-"}</td>
                                                 <td className="">
                                                     <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status as StatusType]}`}>{subscription?.status}</div>
                                                 </td>
-                                                <td className="p-5">{subscription.email || "-"}</td>
-                                                <td className={`p-5`}>{dayjs(subscription.startDate).format("MM/DD/YYYY")}</td>
-                                                <td className={`p-5`}>{dayjs(subscription.nextBillingDate).format("MM/DD/YYYY")}</td>
+                                                <td className="p-5">{subscription?.user?.email || "-"}</td>
+                                                <td className={`p-5`}>{dayjs(subscription?.startDate).format("MM/DD/YYYY")}</td>
+                                                <td className={`p-5`}>{dayjs(subscription?.nextBillingDate).format("MM/DD/YYYY")}</td>
                                             </tr>
                                         ))}
                                     </tbody>
