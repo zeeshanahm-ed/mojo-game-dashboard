@@ -11,3 +11,6 @@ export function moveQuestionToPandingPool(body: any) {
 export function publishQuestion(body: any) {
     return api.post(`${CONTRIBUTION_URL}/publish`, body).then((response) => response.data);
 };
+export function changeReviewedQuestionStatus(body: any) {
+    return api.post(`${CONTRIBUTION_URL}/set-status`, body).then((response) => response.data);
+};
