@@ -147,8 +147,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 <p className="text-base font-medium  truncate max-w-[95%]">{userData?.email}</p>
               </div>
               <div className='flex flex-1 gap-2 items-center'>
-                <label className="text-base text-medium-gray text-nowrap ">Wallet Balance :</label>
-                <p className="text-base font-medium">${userData?.creditsBalance}</p>
+                <label className="text-base text-medium-gray text-nowrap ">Credits Balance:</label>
+                <p className="text-base font-medium">{userData?.creditsBalance}</p>
               </div>
             </div>
 
