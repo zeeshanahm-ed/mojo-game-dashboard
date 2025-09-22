@@ -71,25 +71,25 @@ function SidebarRoutes() {
       key: 'subscription',
       label: 'Subscription',
       path: '/subscription',
-      roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_MANAGER],
+      roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_MANAGER, ROLES.CONTENT_MANAGER],
     },
     {
       key: 'reviewers',
       label: 'Reviewers',
       path: '/reviewers',
-      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CONTENT_MANAGER],
     },
     {
       key: 'reviewed-questions',
       label: 'Reviewed Questions',
       path: '/reviewed-questions',
-      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CONTENT_MANAGER],
     },
     {
       key: 'live-questions',
       label: 'Live Questions',
       path: '/live-questions',
-      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR],
+      roles: [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CONTENT_MANAGER],
     },
   ];
 

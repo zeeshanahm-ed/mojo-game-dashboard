@@ -9,7 +9,7 @@ export enum ROLES {
 
 export enum ROLESLABEL {
     super_admin = 'ADMIN',
-    content_manager = 'CONTENT MANAGER',
+    content_manager = 'CONTENT MODERATOR',
     finance_manager = 'FINANCE MANAGER',
     read_only = 'READ ONLY',
     reviewer = 'REVIEWER',

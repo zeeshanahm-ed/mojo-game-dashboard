@@ -1,11 +1,11 @@
 import { ROLES } from "utils/Enums";
 export const ROLES_OPTIONS = [
     // { label: 'Super Admin', value: ROLES.SUPER_ADMIN },
-    { label: 'Content Manager', value: ROLES.CONTENT_MANAGER },
+    { label: 'Content Moderator', value: ROLES.CONTENT_MANAGER },
     { label: 'Finance Manager', value: ROLES.FINANCE_MANAGER },
     { label: 'Read Only', value: ROLES.READ_ONLY },
     { label: 'Reviewer', value: ROLES.REVIEWER },
-    { label: 'Moderator', value: ROLES.MODERATOR }
+    // { label: 'Moderator', value: ROLES.MODERATOR }
 
 ];
 
