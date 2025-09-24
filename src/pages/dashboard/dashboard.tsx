@@ -14,11 +14,11 @@ const { RangePicker } = DatePicker;
 
 
 // const tabs = ['Daily', 'Weekly', 'Monthly'];
-const legendItems = [
-  { label: 'Target', color: 'bg-green-500' },
-  { label: 'Above Target', color: 'bg-green-300' },
-  { label: 'Below Target', color: 'bg-red-500' }
-];
+// const legendItems = [
+//   { label: 'Target', color: 'bg-green-500' },
+//   { label: 'Above Target', color: 'bg-green-300' },
+//   { label: 'Below Target', color: 'bg-red-500' }
+// ];
 
 // Static data removed - now using dynamic data from API
 
