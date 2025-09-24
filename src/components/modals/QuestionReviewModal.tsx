@@ -49,7 +49,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
     };
 
     const getCategoryName = () => {
-        return questionData?.categoryName?.[currentLanguage] || questionData?.categoryName?.en || 'Category  Name';
+        return questionData?.categoryName?.[currentLanguage] || questionData?.categoryName?.en || null;
     };
 
     const getDifficultyColor = (difficulty: string) => {
@@ -238,11 +238,13 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
 
                 {/* Tags and Reviews */}
                 <div className="flex items-center gap-3 mb-6 mt-5">
-                    <Tooltip title={getCategoryName()}>
-                        <span className="truncate max-w-[150px] px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
-                            {getCategoryName()}
-                        </span>
-                    </Tooltip>
+                    {getCategoryName() &&
+                        <Tooltip title={getCategoryName()}>
+                            <span className="truncate max-w-[150px] px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
+                                {getCategoryName()}
+                            </span>
+                        </Tooltip>
+                    }
                     <span className={`px-3 py-2 rounded capitalize text-sm border ${getDifficultyColor(questionData?.difficulty)}`}>
                         {questionData?.difficulty}
                     </span>

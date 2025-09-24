@@ -165,7 +165,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 <div className="flex items-center gap-3 mb-6 mt-5">
                     <Tooltip title={questionData?.category.name}>
                         <span className="truncate px-3 py-2 bg-[#A2A2A2] text-white rounded border-[#747474] text-sm">
-                            {questionData?.category.name || "Category  Name"}
+                            {questionData?.category.name}
                         </span>
                     </Tooltip>
                     <span className={`px-3 py-2 rounded capitalize text-sm border ${getDifficultyColor(questionData?.difficulty)}`}>

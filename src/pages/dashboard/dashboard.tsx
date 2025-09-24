@@ -119,7 +119,7 @@ const Dashboard = () => {
         </h1>
 
         {/* Legend */}
-        <div className="flex items-center gap-6">
+        {/* <div className="flex items-center gap-6">
           {legendItems.map((item, index) => (
             <div key={index} className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
@@ -128,7 +128,7 @@ const Dashboard = () => {
               </span>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
       <Divider />
