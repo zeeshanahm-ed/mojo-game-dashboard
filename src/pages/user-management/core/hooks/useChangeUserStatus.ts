@@ -5,7 +5,7 @@ import { ChangeStatusParams } from '../_modals';
 
 
 function useChangeUserStatus() {
-    const { mutate, isLoading } = useMutation((body: ChangeStatusParams,) => changeUserStatus(body));
+    const { mutate, isLoading } = useMutation((body: ChangeStatusParams) => changeUserStatus(body));
     return {
         changeStatusMutate: mutate,
         isLoading: isLoading,

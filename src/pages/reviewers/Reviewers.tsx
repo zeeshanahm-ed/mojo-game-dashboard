@@ -39,7 +39,7 @@ const Reviewers: React.FC = () => {
         status: "all"
     });
 
-    const { userData, isLoading, pagination } = useUserData(params);
+    const { userData, isLoading, pagination, refetch } = useUserData(params);
 
     useEffect(() => setTitle('Reviewers'), [setTitle]);
 
@@ -177,6 +177,7 @@ const Reviewers: React.FC = () => {
             <Suspense fallback={<FallbackLoader />}>
                 {isModalOpen &&
                     <ReviewerDetailModal
+                        refetchReviewerData={refetch}
                         isOpen={isModalOpen}
                         onClose={handleModalClose}
                         userData={modalData}

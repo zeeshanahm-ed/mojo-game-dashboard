@@ -534,9 +534,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
     const handleDisabled = () => {
         if (state.selectedQuestionType === "MCQs") {
-            return !questionState?.questionEN || !questionState?.answerEN || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
+            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
         } else {
-            return !questionState?.questionEN || !questionState?.answerEN || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaFileName || !state.answerMediaFileName;
+            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaFileName || !state.answerMediaFileName;
         }
     };
 
