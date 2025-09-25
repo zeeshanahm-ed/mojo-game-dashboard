@@ -8,14 +8,14 @@ import { IUserModel } from "auth";
 import { SearchOutlined } from "@ant-design/icons";
 import ArrowIcon from "assets/icons/arrow-icon.svg?react";
 import { debounce } from "helpers/CustomHelpers";
-import useUserData from "pages/user-management/core/hooks/useUserData";
 import ReviewerDetailModal from "components/modals/ReviewerDetailModal";
+import useGetAllReviewers from "./core/hooks/useGetAllReviewers";
 
 const Table_Header = [
     "User ID",
     "Full Name",
     "Email Address",
-    "Questions Reviewed",
+    "Total Reviews",
     "Status",
     "",
 ];
@@ -35,11 +35,10 @@ const Reviewers: React.FC = () => {
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
-        role: "reviewer",
-        status: "all"
     });
 
-    const { userData, isLoading, pagination, refetch } = useUserData(params);
+    // const { userData, isLoading, pagination, refetch } = useUserData(params);
+    const { reviewersData, isLoading, pagination, refetch } = useGetAllReviewers(params);
 
     useEffect(() => setTitle('Reviewers'), [setTitle]);
 
@@ -118,7 +117,7 @@ const Reviewers: React.FC = () => {
                         </div>
                         :
                         <>
-                            {userData?.length === 0 ?
+                            {reviewersData?.length === 0 ?
                                 <Empty className="my-12" description="No Users Found" />
                                 :
                                 <table className="min-w-[1092px] w-full">
@@ -127,7 +126,7 @@ const Reviewers: React.FC = () => {
                                             {Table_Header.map((header, index) => (
                                                 <th
                                                     key={index}
-                                                    className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
+                                                    className={`${header === "Total Reviews" ? "text-center" : "text-start"} p-5 font-normal text-left text-medium-gray whitespace-nowrap`}
                                                 >
                                                     {header}
                                                 </th>
@@ -135,18 +134,18 @@ const Reviewers: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {userData?.map((user: IUserModel, index: number) => (
+                                        {reviewersData?.map((user: any, index: number) => (
                                             <tr key={index} className="border-t hover:bg-gray-50">
                                                 <td className="p-5  truncate max-w-[160px]">
                                                     <Tooltip title={user?._id}>
                                                         {user?._id}
                                                     </Tooltip>
                                                 </td>
-                                                <td className="p-5">{user.firstName} {user.lastName}</td>
-                                                <td className="p-5">{user.email}</td>
-                                                <td className="p-5 text-center">{user.questionsReviewed || 20}</td>
-                                                <td className={`p-5 ${statusColors[user.status]}`}>
-                                                    {user.status}
+                                                <td className="p-5">{user?.firstName} {user?.lastName}</td>
+                                                <td className="p-5">{user?.email}</td>
+                                                <td className="p-5 text-center">{user?.totalReviews || "0"}</td>
+                                                <td className={`p-5 ${statusColors[user?.status]}`}>
+                                                    {user?.status}
                                                 </td>
                                                 <td className="p-5 text-xl cursor-pointer">
                                                     <Button onClick={() => handleModalToggle(user)} className="border-none shadow-none">

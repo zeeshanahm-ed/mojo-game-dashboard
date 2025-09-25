@@ -73,7 +73,7 @@ const RevenueChart = ({ data }: { data: BackendData }) => {
                                     return ['No Revenue', 'Revenue'];
                                 }
                                 return [
-                                    `${data.totalAmount} ${data.originalData ? data.originalData.currency || 'USD' : 'USD'}`,
+                                    `${data.totalAmount} ${data.originalData ? data.currency || 'SAR' : 'USD'}`,
                                     'Revenue'
                                 ];
                             }}

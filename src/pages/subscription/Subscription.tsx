@@ -10,6 +10,7 @@ const Table_Header = [
     "Full Name",
     "Status",
     "Email",
+    "Amount",
     "Initial Order",
     "Renewal Date",
 ];
@@ -109,6 +110,7 @@ export const Subscription: React.FC = () => {
                                                     <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status as StatusType]}`}>{subscription?.status}</div>
                                                 </td>
                                                 <td className="p-5">{subscription?.user?.email || "-"}</td>
+                                                <td className="p-5 capitalize">{`${subscription?.amount} ${subscription?.currency || "SAR"}` || "-"}</td>
                                                 <td className={`p-5`}>{dayjs(subscription?.startDate).format("MM/DD/YYYY")}</td>
                                                 <td className={`p-5`}>{dayjs(subscription?.nextBillingDate).format("MM/DD/YYYY")}</td>
                                             </tr>

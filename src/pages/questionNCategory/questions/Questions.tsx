@@ -25,6 +25,7 @@ interface StateType {
 
 const tableHeaders = [
     { title: 'Question', key: 'question', className: "text-start" },
+    { title: 'Status', key: 'status', className: "text-center" },
     { title: 'Category Assigned', key: 'categorySubjectAssigned', },
     { title: 'Difficulty', key: 'difficulty', },
     { title: 'Action', key: 'action', },
@@ -43,7 +44,6 @@ function Questions() {
         page: 1,
         limit: 10,
         lang: currentLang,
-        status: "Live"
     });
     const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
 
@@ -218,6 +218,7 @@ function Questions() {
                                                 className="border border-gray-200 hover:bg-gray-50 text-center last:border-none"
                                             >
                                                 <td className="p-5 text-start">{question?.questionText || '-'}</td>
+                                                <td className="p-5 text-center">{question?.status || '-'}</td>
                                                 <td className="p-5 text-center">{question?.category?.name || '-'}</td>
                                                 <td className="p-5 text-center capitalize">{question?.difficulty || '-'}</td>
                                                 <td className="p-5 flex justify-center">
