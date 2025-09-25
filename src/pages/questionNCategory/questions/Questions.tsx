@@ -43,6 +43,7 @@ function Questions() {
         page: 1,
         limit: 10,
         lang: currentLang,
+        status: "Live"
     });
     const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
 

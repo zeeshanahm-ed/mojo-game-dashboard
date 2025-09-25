@@ -16,6 +16,7 @@ const QuestionsReview = () => {
         page: 1,
         limit: 10,
         lang: currentLang,
+        status: "Live"
     });
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);
