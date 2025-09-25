@@ -1,13 +1,13 @@
-import React, { useEffect, useState, Suspense, useCallback } from "react";
-import { Input, Checkbox, Button, Spin, Empty, Tooltip, Pagination } from "antd";
+import React, { useEffect, useState, Suspense } from "react";
+import { Checkbox, Button, Spin, Empty, Tooltip, Pagination } from "antd";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 //utils
 import { useHeaderProps } from "components/core/use-header-props";
 import { IUserModel } from "auth";
 //icons
-import { SearchOutlined } from "@ant-design/icons";
+// import { SearchOutlined } from "@ant-design/icons";
 import ArrowIcon from "assets/icons/arrow-icon.svg?react";
-import { debounce } from "helpers/CustomHelpers";
+// import { debounce } from "helpers/CustomHelpers";
 import ReviewerDetailModal from "components/modals/ReviewerDetailModal";
 import useGetAllReviewers from "./core/hooks/useGetAllReviewers";
 
@@ -28,7 +28,7 @@ const statusColors: Record<IUserModel["status"], string> = {
 
 const Reviewers: React.FC = () => {
     const { setTitle } = useHeaderProps();
-    const [search, setSearch] = useState("");
+    // const [search, setSearch] = useState("");
     const [selectedStatus, setSelectedStatus] = useState<string>("all");
     const [modalData, setModalData] = useState<IUserModel>();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,12 +47,12 @@ const Reviewers: React.FC = () => {
         setParams(prev => ({ ...prev, status: status }))
     };
 
-    const debouncedOnChange = useCallback(
-        debounce((name: string) => {
-            setParams((prev) => ({ ...prev, name }));
-        }, 800),
-        []
-    );
+    // const debouncedOnChange = useCallback(
+    //     debounce((name: string) => {
+    //         setParams((prev) => ({ ...prev, name }));
+    //     }, 800),
+    //     []
+    // );
 
     const handleModalToggle = (data: IUserModel) => {
         setIsModalOpen(true);
@@ -70,14 +70,14 @@ const Reviewers: React.FC = () => {
         <section className="overflow-hidden my-10">
             {/* Search and Filters */}
             <div className="flex flex-col gap-y-5">
-                <Input
+                {/* <Input
                     placeholder="Search by name"
                     prefix={<SearchOutlined className="mr-5" />}
                     variant="underlined"
                     className="w-full"
                     value={search}
                     onChange={(e) => { setSearch(e.target.value); debouncedOnChange(e.target.value) }}
-                />
+                /> */}
 
                 <div className="border border-border-gray p-5 rounded flex items-center gap-4 flex-wrap">
                     <Checkbox
