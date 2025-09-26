@@ -50,7 +50,7 @@ const UserManagement: React.FC = () => {
 
   const debouncedOnChange = useCallback(
     debounce((name: string) => {
-      setParams((prev) => ({ ...prev, name }));
+      setParams((prev) => ({ ...prev, page: 1, name }));
     }, 800),
     []
   );
