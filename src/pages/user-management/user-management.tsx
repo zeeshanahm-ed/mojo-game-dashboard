@@ -168,7 +168,7 @@ const UserManagement: React.FC = () => {
         className="mt-5 justify-center text-white"
         current={params?.page}
         pageSize={pagination?.limit}
-        total={pagination?.total}
+        total={pagination?.total || 0}
         onChange={handlePageChange}
       />
 
