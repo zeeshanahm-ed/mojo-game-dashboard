@@ -41,7 +41,7 @@ export const Subscription: React.FC = () => {
     const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory(params)
 
 
-    useEffect(() => setTitle('Payments & Transactions'), [setTitle]);
+    useEffect(() => setTitle('Subscriptions'), [setTitle]);
 
     const handleSelectChange = (value: string | undefined) => {
         setSelectedStatus(value);
@@ -72,7 +72,7 @@ export const Subscription: React.FC = () => {
             {/* Custom Table */}
             <div className="border border-gray-200  rounded-lg mt-5">
                 <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-                    Showing user’s Transactions <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>
+                    Subscriptions records <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>
                 </div>
 
                 {/* Scroll Wrapper */}
