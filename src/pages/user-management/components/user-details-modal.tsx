@@ -83,11 +83,16 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleCloseModal = () => {
+    onClose();
+    setStatus(undefined);
+  };
+
 
   return (
     <Modal
       open={isOpen}
-      onCancel={onClose}
+      onCancel={handleCloseModal}
       footer={null}
       width={900}
       centered

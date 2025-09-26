@@ -67,7 +67,7 @@ const Dashboard = () => {
   return (
     <section className='my-10'>
       <div className="flex items-center justify-between ">
-        <h1 className="text-2xl font-medium font-poppins">User Monitoring</h1>
+        <h1 className="text-2xl font-medium font-poppins">Statistics</h1>
         <div className="flex items-center justify-end flex-wrap gap-2">
           {/* Tab buttons */}
           {/* <div className="flex border border-gray-300 h-11 rounded overflow-hidden">
@@ -82,6 +82,7 @@ const Dashboard = () => {
               >{tab}</button>
             ))}
           </div> */}
+          <span className='text-lg font-normal'>Date filter</span>
           <RangePicker
             prefix={<DateIcon className="w-6 h-6 mr-2" />}
             suffixIcon={null}
@@ -137,62 +138,68 @@ const Dashboard = () => {
 
       <div className="w-full flex items-center justify-between overflow-hidden">
         {/* Most Used Categories */}
-        <div className="flex-1 flex lg:flex-col 2xl:flex-row justify-center gap-x-20 items-center min-w-[300px] h-auto">
-          <CircleChart
-            data={dashboardData?.popularCategories || []}
-            title="Usage"
-            innerRadius={100}
-            outerRadius={150}
-            minWidth={300}
-            isCategory={true}
-            getColorByStatus={getColorByStatus}
-            direction={direction}
-          />
-          <div className="flex flex-col gap-3">
-            {(dashboardData?.popularCategories || []).map((item: any, index: number) => {
-              const displayName = typeof item.name === 'string' ? item.name : (direction === 'rtl' ? item.name.ar : item.name.en);
-              return (
+        <div className='w-full'>
+          <p className='text-lg w-full text-center font-normal'>Usage of popular categories </p>
+          <div className="flex-1 flex lg:flex-col 2xl:flex-row justify-center gap-x-20 items-center min-w-[300px] h-auto">
+            <CircleChart
+              data={dashboardData?.popularCategories || []}
+              title="Categories"
+              innerRadius={100}
+              outerRadius={150}
+              minWidth={300}
+              isCategory={true}
+              getColorByStatus={getColorByStatus}
+              direction={direction}
+            />
+            <div className="flex flex-col gap-3">
+              {(dashboardData?.popularCategories || []).map((item: any, index: number) => {
+                const displayName = typeof item.name === 'string' ? item.name : (direction === 'rtl' ? item.name.ar : item.name.en);
+                return (
+                  <div key={item.id || index} className="flex items-center gap-2">
+                    {/* Dot */}
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: getColorByStatus(displayName) }}
+                    />
+                    {/* Label */}
+                    <span className="font-medium" style={{ color: getColorByStatus(displayName) }}>
+                      {displayName}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="w-[2px] h-72 bg-border-gray"></div>
+        <div className='w-full'>
+          <p className='text-lg w-full text-center font-normal'>Usage of lifelines </p>
+          <div className="flex-1 flex justify-center lg:flex-col 2xl:flex-row gap-x-20 items-center min-w-[300px] h-auto">
+            <CircleChart
+              data={dashboardData?.lifelines || []}
+              title="Lifelines"
+              innerRadius={100}
+              outerRadius={150}
+              minWidth={300}
+              getColorByStatus={getColorByStatus}
+              isCategory={false}
+              direction={direction}
+            />
+            <div className="flex flex-col gap-3">
+              {(dashboardData?.lifelines || []).map((item: any, index: number) => (
                 <div key={item.id || index} className="flex items-center gap-2">
                   {/* Dot */}
                   <span
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: getColorByStatus(displayName) }}
+                    style={{ backgroundColor: getColorByStatus(item.name) }}
                   />
                   {/* Label */}
-                  <span className="font-medium" style={{ color: getColorByStatus(displayName) }}>
-                    {displayName}
+                  <span className="font-medium" style={{ color: getColorByStatus(item.name) }}>
+                    {item.name}
                   </span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="w-[2px] h-72 bg-border-gray"></div>
-        <div className="flex-1 flex justify-center lg:flex-col 2xl:flex-row gap-x-20 items-center min-w-[300px] h-auto">
-          <CircleChart
-            data={dashboardData?.lifelines || []}
-            title="Usage"
-            innerRadius={100}
-            outerRadius={150}
-            minWidth={300}
-            getColorByStatus={getColorByStatus}
-            isCategory={false}
-            direction={direction}
-          />
-          <div className="flex flex-col gap-3">
-            {(dashboardData?.lifelines || []).map((item: any, index: number) => (
-              <div key={item.id || index} className="flex items-center gap-2">
-                {/* Dot */}
-                <span
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: getColorByStatus(item.name) }}
-                />
-                {/* Label */}
-                <span className="font-medium" style={{ color: getColorByStatus(item.name) }}>
-                  {item.name}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
