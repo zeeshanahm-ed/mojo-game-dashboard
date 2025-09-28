@@ -4,6 +4,8 @@ import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import useDeleteSingleUser from 'pages/rolesNPermissions/core/hooks/useDeleteSingleUser';
 import useChangeUserStatus from 'pages/user-management/core/hooks/useChangeUserStatus';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
+import { getUser } from 'auth';
+import { hasPermission } from 'helpers/CustomHelpers';
 
 interface UserDetailsModalProps {
     isOpen: boolean;
@@ -18,6 +20,7 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
     userData,
     refetchReviewerData,
 }) => {
+    const CURRENT_USER = getUser();
     const { deleteSingleUser, isLoading: isDeletingUser } = useDeleteSingleUser();
     const { changeStatusMutate, isLoading: isChangingStatus } = useChangeUserStatus();
 
@@ -103,12 +106,15 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
                     onConfirm={() => handleDeleteClick()}
                     okText="Yes"
                     cancelText="No"
+                    disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                 >
-                    <Button danger className='bg-danger text-white py-5'>Delete User</Button>
+                    <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")}
+                        className='bg-danger text-white py-5'>Delete User</Button>
                 </Popconfirm>
                 <Button
                     type="primary"
                     className='py-5'
+                    disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     onClick={() => handleActiveNInactive(userData?.status === 'Active' ? 'Suspended' : 'Active')}
                 >
                     {userData?.status === 'Active' ? 'Suspend' : 'Active'}

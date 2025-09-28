@@ -111,7 +111,7 @@ const UserManagement: React.FC = () => {
         </div>
 
         {/* Scroll Wrapper */}
-        <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+        <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
           {isLoading ?
             <div className='flex justify-center items-center h-32'>
               <Spin size="large" />
@@ -164,13 +164,13 @@ const UserManagement: React.FC = () => {
       </div>
       {/* Pagination */}
 
-      <Pagination
+      {userData?.length > 0 && <Pagination
         className="mt-5 justify-center text-white"
         current={params?.page}
         pageSize={pagination?.limit}
         total={pagination?.total || 0}
         onChange={handlePageChange}
-      />
+      />}
 
 
 

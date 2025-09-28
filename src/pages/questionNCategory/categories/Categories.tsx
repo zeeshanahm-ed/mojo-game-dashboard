@@ -5,15 +5,18 @@ import useCategoriesData from "./core/hooks/useCategoriesData";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 import useDeleteCategory from "./core/hooks/useDeleteCategory";
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
+import { getUser } from "auth";
 
 //icons
 import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
+import { hasPermission } from "helpers/CustomHelpers";
 
 
 function Categories() {
+    const CURRENT_USER = getUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalEditData, setModalEditData] = useState<any>(null);
     const [params, setParams] = useState({
@@ -54,6 +57,7 @@ function Categories() {
         <section className="overflow-hidden mb-10">
             <div className="mt-10">
                 <Button
+                    disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     variant='text'
                     onClick={handleAddNewCat}
                     className='border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit'>
@@ -70,7 +74,7 @@ function Categories() {
                     </div>
                 </div>
 
-                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <FallbackLoader />
                         :
@@ -104,7 +108,7 @@ function Categories() {
                                                 <td className="p-5">{row?.name}</td>
                                                 <td className="p-5 flex justify-end">
                                                     <div className="flex justify-center items-center gap-4">
-                                                        <Button variant="text" onClick={() => handleEditClick(row)} className="border-none shadow-none">
+                                                        <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" onClick={() => handleEditClick(row)} className="border-none shadow-none">
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
@@ -112,8 +116,9 @@ function Categories() {
                                                             onConfirm={() => handleDeleteClick(row)}
                                                             okText="Yes"
                                                             cancelText="No"
+                                                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                                         >
-                                                            <Button variant="text" className="border-none shadow-none">
+                                                            <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" className="border-none shadow-none">
                                                                 <DeleteIcon className="text-error-500" />
                                                             </Button>
                                                         </Popconfirm>
@@ -130,14 +135,15 @@ function Categories() {
 
             {/* Pagination */}
 
-            <Pagination
+            {categoriesData?.length > 0 && <Pagination
                 className="mt-5 justify-center text-white"
                 current={params?.page}
                 pageSize={pagination?.limit}
                 total={pagination?.total}
                 onChange={handlePageChange}
                 showSizeChanger={false}
-            />
+            />}
+
             <AddNEditCategoryModal
                 open={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setModalEditData(null) }}

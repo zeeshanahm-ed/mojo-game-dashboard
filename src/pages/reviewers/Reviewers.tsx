@@ -110,7 +110,7 @@ const Reviewers: React.FC = () => {
                 </div>
 
                 {/* Scroll Wrapper */}
-                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-hiddenh-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <div className='flex justify-center items-center h-32'>
                             <Spin size="large" />
@@ -163,13 +163,13 @@ const Reviewers: React.FC = () => {
             </div>
             {/* Pagination */}
 
-            <Pagination
+            {reviewersData?.length > 0 && <Pagination
                 className="mt-5 justify-center text-white"
                 current={params?.page}
                 pageSize={pagination?.limit}
                 total={pagination?.total}
                 onChange={handlePageChange}
-            />
+            />}
 
 
 

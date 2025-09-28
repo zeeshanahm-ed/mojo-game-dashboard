@@ -13,6 +13,8 @@ import useMoveQuestionToPandingPool from 'pages/reviewed-questions/core/hooks/us
 import usePublishQuestion from 'pages/reviewed-questions/core/hooks/usePublishQuestion';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
 import useChangeReviewedQuestionStatus from 'pages/reviewed-questions/core/hooks/useChangeReviewedQuestionStatus';
+import { getUser } from 'auth';
+import { hasPermission } from 'helpers/CustomHelpers';
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -25,6 +27,7 @@ interface QuestionReviewModalProps {
 
 
 const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, getReviewQuestionData, open, onClose, questionData, currentLanguage }) => {
+    const CURRENT_USER = getUser();
     const { publishQuestionMutate, isLoading } = usePublishQuestion();
     const { isLoading: pandingPoolLoading, moveQuestionToPandingPoolMutate } = useMoveQuestionToPandingPool();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
@@ -269,6 +272,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                 <div className='mb-3 flex items-center gap-x-10'>
                     <h3 className="text-sm text-gray-700 mb-2">Status</h3>
                     <Select
+                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         className="w-full h-10"
                         options={QuestionStatusOptions}
                         value={selectedStatus}
@@ -324,6 +328,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                         type="primary"
                         onClick={handlePublishQuestion}
                         className="h-12 font-normal"
+                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     >
                         Publish Question
                     </Button>
@@ -332,6 +337,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                             <Button
                                 type="primary"
                                 onClick={handleMoveToPanding}
+                                disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                 className="h-12 font-normal"
                             >
                                 Move to pending
@@ -343,9 +349,11 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                             onConfirm={handleDeleteClick}
                             okText="Yes"
                             cancelText="No"
+                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         >
                             <Button
                                 type="default"
+                                disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                 className="h-12 font-normal bg-[#434547] text-white border-[#434547]"
                             >
                                 Discard

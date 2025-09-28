@@ -8,7 +8,7 @@ import DownloadIcon from 'assets/icons/download-icon.svg?react';
 import useDeleteQuestion from './hooks/useDeleteQuestion';
 import useGetAllQuestionsData from './hooks/useGetAllQuestionsData';
 import { AllQuestionParams } from './core/_modals';
-import { getCurrentLanguage } from 'helpers/CustomHelpers';
+import { getCurrentLanguage, hasPermission } from 'helpers/CustomHelpers';
 import { useGetAllCategoriesDataForDropDownFromStore } from 'store/AllCategoriesData';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 //Components
@@ -16,6 +16,7 @@ import { Button, Empty, Pagination, Popconfirm, Select } from "antd";
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import AddNEditQuestionModal from 'components/modals/AddNEditQuestionModal';
 import { getDownloadAllQuestions } from './core/_request';
+import { getUser } from 'auth';
 
 interface StateType {
     selectedCategory: string | null;
@@ -38,6 +39,7 @@ const DifficultyOptions = [
 ];
 
 function Questions() {
+    const CURRENT_USER = getUser();
     const currentLang = getCurrentLanguage();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [params, setParams] = useState<AllQuestionParams>({
@@ -138,6 +140,7 @@ function Questions() {
             <div className="flex items-center mt-10 flex-wrap gap-6">
                 <div>
                     <Button
+                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         variant='text'
                         onClick={handleAddNewQuestion}
                         className='border border-primary bg-primary text-white font-normal shadow-none h-12 px-5 gap-6 text-sm w-fit'>
@@ -187,7 +190,7 @@ function Questions() {
                     {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
                 </div>
 
-                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <FallbackLoader />
                         :
@@ -223,16 +226,17 @@ function Questions() {
                                                 <td className="p-5 text-center capitalize">{question?.difficulty || '-'}</td>
                                                 <td className="p-5 flex justify-center">
                                                     <div className="flex justify-center items-center gap-4">
-                                                        <Button variant="text" onClick={() => handleEditClick(question?._id)} className="border-none shadow-none">
+                                                        <Button variant="text" disabled={hasPermission(CURRENT_USER?.role, "read_only")} onClick={() => handleEditClick(question?._id)} className="border-none shadow-none">
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
+                                                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                                             title="Are you sure to delete this question?"
                                                             onConfirm={() => handleDeleteClick(question)}
                                                             okText="Yes"
                                                             cancelText="No"
                                                         >
-                                                            <Button variant="text" className="border-none shadow-none">
+                                                            <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" className="border-none shadow-none">
                                                                 <DeleteIcon className="text-error-500" />
                                                             </Button>
                                                         </Popconfirm>
@@ -249,14 +253,14 @@ function Questions() {
             </div>
             {/* Pagination */}
 
-            <Pagination
+            {questionsData?.length > 0 && <Pagination
                 className="mt-5 justify-center text-white"
                 current={params?.page}
                 pageSize={pagination?.limit}
                 total={pagination?.total}
                 onChange={handlePageChange}
                 showSizeChanger={false}
-            />
+            />}
 
             {isModalOpen && <AddNEditQuestionModal
                 open={isModalOpen}

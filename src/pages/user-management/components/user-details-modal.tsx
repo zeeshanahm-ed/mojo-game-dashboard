@@ -12,6 +12,8 @@ import useChangeUserStatus from '../core/hooks/useChangeUserStatus';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import useDeleteSingleUser from 'pages/rolesNPermissions/core/hooks/useDeleteSingleUser';
+import { hasPermission } from 'helpers/CustomHelpers';
+import { getUser } from 'auth';
 
 interface UserDetailsModalProps {
   isOpen: boolean;
@@ -26,6 +28,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   modalData,
   refetchAllUserData
 }) => {
+  const CURRENT_USER = getUser();
   const { userData, isLoading } = useGetSingleUserData(modalData?._id);
   const [status, setStatus] = useState<'Active' | 'Suspended'>();
   const { changeStatusMutate, isLoading: isChangingStatus } = useChangeUserStatus();
@@ -162,6 +165,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <label className="text-base text-medium-gray block">Status :</label>
               <div className="flex items-center gap-6 flex-wrap">
                 <Radio.Group
+                  disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                   value={status}
                   onChange={(e) => handleStatusChange(e.target.value)}
                   className="flex items-center gap-2"
@@ -225,8 +229,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               onConfirm={() => handleDeleteClick()}
               okText="Yes"
               cancelText="No"
+              disabled={hasPermission(CURRENT_USER?.role, "read_only")}
             >
-              <Button danger className='bg-danger text-white py-5'>Delete User</Button>
+              <Button variant='text' disabled={hasPermission(CURRENT_USER?.role, "read_only")} className='bg-danger text-white py-5'>Delete User</Button>
             </Popconfirm>
             <Button
               type="primary"

@@ -3,7 +3,7 @@ import { Button, Empty, Pagination, Popconfirm, Select, Spin, Tooltip } from "an
 import MemberAddModal from "./components/MemberAddModal";
 //Enums & Interface
 import { ROLES } from "utils/Enums";
-import { IUserModel } from "auth";
+import { getUser, IUserModel } from "auth";
 //Hooks & Utils
 import useGetAllUserData from "./core/hooks/useGetAllUserData";
 import { useHeaderProps } from "components/core/use-header-props";
@@ -17,6 +17,7 @@ import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import useHandelChangeRole from "./core/hooks/useChangeRole";
 import { ChangeRoleParams } from "./core/_models";
+import { hasPermission } from "helpers/CustomHelpers";
 
 
 
@@ -38,6 +39,7 @@ const Table_Header = [
 ];
 
 export const RolesNPermissions: React.FC = () => {
+    const CURRENT_USER = getUser();
     const { setTitle } = useHeaderProps();
     const [memberModal, setMemberModal] = useState(false);
     const [memberModalEditData, setMemberModalEditData] = useState<IUserModel | null>(null);
@@ -95,6 +97,7 @@ export const RolesNPermissions: React.FC = () => {
             <div className="flex justify-between items-center flex-wrap gap-6">
                 <div>
                     <Button
+                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         variant='text'
                         onClick={() => handleAddMemberModal(null, 'add')}
                         className='border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit'>
@@ -108,7 +111,7 @@ export const RolesNPermissions: React.FC = () => {
                     User Accounts {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
                 </div>
                 {/* Scroll Wrapper */}
-                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <div className='flex justify-center items-center h-32'>
                             <Spin size="large" />
@@ -142,10 +145,10 @@ export const RolesNPermissions: React.FC = () => {
                                                 <td className="p-5">{user?.firstName} {user?.lastName}</td>
                                                 <td className="p-5">{user?.email}</td>
                                                 <td className="p-5">{user?.phoneNumber}</td>
-                                                <RoleCell user={user} onChangeRole={handleChangeRole} />
+                                                <RoleCell user={user} onChangeRole={handleChangeRole} disabled={hasPermission(CURRENT_USER?.role, "read_only")} />
                                                 <td className="p-5 text-xl space-x-2">
                                                     <div className="flex items-center gap-2">
-                                                        <Button variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none px-2">
+                                                        <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none px-2">
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
@@ -153,8 +156,9 @@ export const RolesNPermissions: React.FC = () => {
                                                             onConfirm={() => handleDeleteClick(user)}
                                                             okText="Yes"
                                                             cancelText="No"
+                                                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                                         >
-                                                            <Button className="border-none shadow-none px-2"><DeleteIcon /></Button>
+                                                            <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} className="border-none shadow-none px-2"><DeleteIcon /></Button>
                                                         </Popconfirm>
                                                     </div>
                                                 </td>
@@ -170,13 +174,13 @@ export const RolesNPermissions: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            <Pagination
+            {userData?.length > 0 && <Pagination
                 className="mt-5 justify-center text-white"
                 current={params?.page}
                 pageSize={pagination?.limit}
                 total={pagination?.total}
                 onChange={handlePageChange}
-            />
+            />}
             <MemberAddModal
                 open={memberModal}
                 onCancel={() => setMemberModal(false)}
@@ -191,13 +195,15 @@ export default RolesNPermissions;
 
 interface Props {
     user: any;
+    disabled: boolean;
     onChangeRole: (userId: string, newRole: ChangeRoleParams) => void;
 }
 
-export const RoleCell: React.FC<Props> = ({ user, onChangeRole }) => {
+export const RoleCell: React.FC<Props> = ({ disabled, user, onChangeRole }) => {
     return (
         <td className="p-5">
             <Select
+                disabled={disabled}
                 variant="borderless"
                 value={user.role}
                 className="w-48"

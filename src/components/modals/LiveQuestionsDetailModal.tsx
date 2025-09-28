@@ -6,6 +6,8 @@ import QuestionIcon from "../../assets/icons/question-icon.svg?react"
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
+import { hasPermission } from 'helpers/CustomHelpers';
+import { getUser } from 'auth';
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -20,6 +22,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
     questionData,
     currentLanguage
 }) => {
+    const CURRENT_USER = getUser();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
 
 
@@ -241,6 +244,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                         cancelText="No"
                     >
                         <Button
+                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                             type="primary"
                             className="h-12 font-normal"
                         >
