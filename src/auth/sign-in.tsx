@@ -58,7 +58,7 @@ function SignIn() {
     <div className="min-h-screen flex flex-col items-center bg-white relative justify-center font-urbanist">
       {/* Logo and title */}
       <div className="mb-10 text-center">
-        <h1 className="text-8xl font-bold tracking-widest font-secondary">MOJO</h1>
+        <h1 className="text-[80px] font-bold tracking-widest font-secondary">MOJO</h1>
         <h2 className="text-2xl font-medium -mt-2">Admin Portal</h2>
       </div>
 
@@ -72,14 +72,14 @@ function SignIn() {
           layout="vertical"
         >
           <Form.Item
-            label="Email Address"
+            // label="Email Address"
             name="email"
             rules={[
               { required: true, message: 'Please input your email!' }
             ]}
           >
             <Input
-              prefix={<MailIcon />}
+              prefix={<MailIcon className='mr-3' />}
               type="email"
               placeholder="Email Address"
               className="h-12 py-0"
@@ -87,14 +87,14 @@ function SignIn() {
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            // label="Password"
             name="password"
             rules={[
               { required: true, message: 'Please input your password!' }
             ]}
           >
             <Input.Password
-              prefix={<LockIcon />}
+              prefix={<LockIcon className='mr-3' />}
               placeholder="Password"
               className="h-12 py-0"
             />

@@ -42,7 +42,7 @@ function ResetPassword() {
         <div className='w-full flex flex-col max-w-md p-8 space-y-6'>
           {/* Logo and title */}
           <div className="mb-10 text-center">
-            <h1 className="text-8xl font-bold tracking-widest font-secondary">MOJO</h1>
+            <h1 className="text-[80px] font-bold tracking-widest font-secondary">MOJO</h1>
             <h2 className="text-2xl font-medium -mt-2">Set New Password</h2>
           </div>
           <Form name='reset-password' autoComplete='off' onFinish={handleResetPassword}>
@@ -59,8 +59,8 @@ function ResetPassword() {
               ]}
             >
               <Input.Password
-                prefix={<LockIcon />}
-                className='gap-2 py-3'
+                prefix={<LockIcon className='mr-3' />}
+                className='h-12'
                 placeholder='New Password'
               />
             </Form.Item>
@@ -84,8 +84,8 @@ function ResetPassword() {
               ]}
             >
               <Input.Password
-                prefix={<LockIcon />}
-                className='gap-2 py-3'
+                prefix={<LockIcon className='mr-3' />}
+                className='h-12'
                 placeholder='Confirm New Password'
               />
             </Form.Item>
@@ -95,13 +95,13 @@ function ResetPassword() {
                 loading={isLoading}
                 type='primary'
                 htmlType='submit' // This makes the button submit the form
-                className='h-16 w-full bg-button-blue mt-2'
+                className='h-12 w-full bg-button-blue mt-2'
               >
                 Submit
               </Button>
             </Form.Item>
             <Form.Item>
-              <Button onClick={handleBack} className='h-16 w-full'>
+              <Button onClick={handleBack} className='h-12 w-full'>
                 Cancel
               </Button>
             </Form.Item>

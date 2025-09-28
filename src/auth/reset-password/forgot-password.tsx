@@ -35,7 +35,7 @@ function ForgotPassword() {
         <div className="w-full max-w-md p-8 space-y-6">
           {/* Logo and title */}
           <div className="mb-10 text-center">
-            <h1 className="text-8xl font-bold tracking-widest font-secondary">MOJO</h1>
+            <h1 className="text-[80px] font-bold tracking-widest font-secondary">MOJO</h1>
             <h2 className="text-2xl font-medium -mt-2"> Forgot Password</h2>
             <h2 className="text-center text-gray-500 text-base mt-2">
               Enter your email to reset password
@@ -57,8 +57,9 @@ function ForgotPassword() {
               ]}
             >
               <Input
-                prefix={<MailIcon />}
+                prefix={<MailIcon className='mr-3' />}
                 size="large"
+                className="h-12"
                 placeholder="Email Address"
               />
             </Form.Item>
