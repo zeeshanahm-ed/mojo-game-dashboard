@@ -11,6 +11,7 @@ import UserIcon from 'assets/icons/user-icon.svg?react';
 import * as authHelper from '../../../auth/core/auth-helpers';
 import LogoutModal from 'auth/logout-modal';
 import { useState } from 'react';
+import LanguageSwitch from 'components/core-ui/language-switch/language-switch';
 
 
 function Header() {
@@ -51,6 +52,7 @@ function Header() {
         <div className='flex place-items-center gap-7 notification'>
 
           <div className='flex gap-8 items-center'>
+            <LanguageSwitch />
             <div className='flex items-center gap-3'>
               <Dropdown overlay={menu} trigger={['click']} placement='bottomRight'>
                 <div className='bg-gray-200 font-semibold text-3xl rounded-full w-10 h-10 flex flex-centered cursor-pointer'>

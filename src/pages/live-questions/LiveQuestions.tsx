@@ -9,8 +9,12 @@ import { useHeaderProps } from 'components/core/use-header-props';
 import useGetAllQuestionsData from 'pages/questionNCategory/questions/hooks/useGetAllQuestionsData';
 import { AllQuestionParams } from 'pages/questionNCategory/questions/core/_modals';
 import LiveQuestionsDetailModal from 'components/modals/LiveQuestionsDetailModal';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 const QuestionsReview = () => {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const currentLang = getCurrentLanguage();
     const [params, setParams] = useState<AllQuestionParams>({
         page: 1,
@@ -57,7 +61,7 @@ const QuestionsReview = () => {
                     <tr className="bg-gray-50 border-b">
                         {tableHeaders.map((header) => (
                             <th key={header.key} className={`p-4 font-medium text-gray-700 ${header.className || 'text-left'}`}>
-                                {header.title}
+                                {t(header.title)}
                             </th>
                         ))}
                     </tr>
@@ -84,9 +88,9 @@ const QuestionsReview = () => {
                                 <Button
                                     type="primary"
                                     onClick={() => handleReviewQuestion(record)}
-                                    className='h-10'
+                                    className={`h-10 `}
                                 >
-                                    See Details
+                                    {t('See Details')}
                                 </Button>
                             </td>
                         </tr>
@@ -108,7 +112,7 @@ const QuestionsReview = () => {
                             {questionsData?.length > 0 ?
                                 <CustomTable />
                                 :
-                                <Empty description="Data Not Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t('Data Not Found')} />
                             }
                         </>
                     }

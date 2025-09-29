@@ -13,9 +13,13 @@ import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
 import { hasPermission } from "helpers/CustomHelpers";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "hooks/useGetDirection";
 
 
 function Categories() {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const CURRENT_USER = getUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalEditData, setModalEditData] = useState<any>(null);
@@ -43,7 +47,7 @@ function Categories() {
         let id = data?._id;
         deleteCategoryMutate(id, {
             onSuccess: () => {
-                showSuccessMessage('Category deleted successfully!');
+                showSuccessMessage(t('Category deleted successfully'));
                 refetch();
             },
             onError: (error: any) => {
@@ -60,8 +64,8 @@ function Categories() {
                     disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     variant='text'
                     onClick={handleAddNewCat}
-                    className='border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit'>
-                    <AddRoundedIcon className="fill-white text-white" />  Add New
+                    className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'} border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit`}>
+                    <AddRoundedIcon className="fill-white text-white" />  {t("Add New")}
                 </Button>
             </div>
 
@@ -69,8 +73,8 @@ function Categories() {
                 {/* Table Title */}
                 <div className="flex justify-between text-xl bg-black text-white px-4 py-4 rounded-ss-xl rounded-se-xl">
                     <div>
-                        Showing all Categories
-                        {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+                        {t("Showing all Categories")}
+                        {pagination?.total > 0 && <span className="text-border-gray text-sm me-2">{pagination?.total} {t("Results")}</span>}
                     </div>
                 </div>
 
@@ -80,19 +84,19 @@ function Categories() {
                         :
                         <>
                             {categoriesData?.length === 0 ?
-                                <Empty className="my-12" description="Categories not Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t("Categories not Found")} />
                                 : <table className="min-w-[1092px] w-full">
                                     {/* Table Header */}
                                     <thead className="bg-light-gray text-white">
                                         <tr className='border-b hover:bg-gray-50'>
                                             <th className={`p-5 font-normal text-start text-medium-gray whitespace-nowrap`}>
-                                                Category Picture
+                                                {t("Category Picture")}
                                             </th>
                                             <th className={`p-5 font-normal text-center text-medium-gray whitespace-nowrap`}>
-                                                Category
+                                                {t("Category")}
                                             </th>
                                             <th className={`p-5 font-normal text-end text-medium-gray whitespace-nowrap`}>
-                                                Action
+                                                {t("Action")}
                                             </th>
                                         </tr>
                                     </thead>
@@ -112,10 +116,10 @@ function Categories() {
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
-                                                            title="Are you sure to delete this category?"
+                                                            title={t("Are you sure to delete this category?")}
                                                             onConfirm={() => handleDeleteClick(row)}
-                                                            okText="Yes"
-                                                            cancelText="No"
+                                                            okText={t("Yes")}
+                                                            cancelText={t("No")}
                                                             disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                                         >
                                                             <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" className="border-none shadow-none">

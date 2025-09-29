@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, Input, Upload, Button, Divider, Select } from "antd";
+import { Modal, Input, Upload, Button, Divider, Select, Tooltip } from "antd";
 import useAddCategory from "pages/questionNCategory/categories/core/hooks/useAddCategory";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
@@ -10,6 +10,9 @@ import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import { QUERIES_KEYS } from "helpers/crud-helper/consts";
 import { useQueryClient } from "react-query";
 import useChangeCategoryStatus from "pages/questionNCategory/categories/core/hooks/useChangeCategoryStatuc";
+import { useDirection } from "hooks/useGetDirection";
+import { useTranslation } from "react-i18next";
+import { getFileName } from "helpers/CustomHelpers";
 
 
 interface AddCategoryModalProps {
@@ -29,6 +32,8 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
     refatchCategoriesData,
     editData
 }) => {
+    const direction = useDirection();
+    const { t } = useTranslation();
     const [categoryName, setCategoryName] = useState("");
     const { addCategoryMutate, isAddCategoryLoading } = useAddCategory();
     const { updateCategoryMutate, isUpdateCategoryLoading } = useUpdateCategory();
@@ -60,7 +65,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
 
     const fileValidation = (file: File | undefined) => {
         if (!file) {
-            return { error: true, message: "Please select a file" };
+            return { error: true, message: t("Please select a file") };
         }
 
         // Only allow image files
@@ -75,7 +80,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
         if (!IMAGE_FILE_TYPES.includes(`.${fileExt?.toLowerCase()}`)) {
             return {
                 error: true,
-                message: `${typeName} file type must be valid format: ${IMAGE_FILE_TYPES.join(", ")}`
+                message: t("typeLimit", { typeName, formats: IMAGE_FILE_TYPES.join(", ") })
             };
         }
 
@@ -83,7 +88,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
         if (fileSizeMB > maxSize) {
             return {
                 error: true,
-                message: `${typeName} file size must be less than ${maxSize}MB`
+                message: t("sizeLimit", { typeName, maxSize })
             };
         }
 
@@ -140,7 +145,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
 
         updateCategoryMutate({ body: formData, id: editData?._id }, {
             onSuccess: () => {
-                showSuccessMessage("Category updated successfully.");
+                showSuccessMessage(t("Category updated successfully"));
                 refatchCategoriesData();
                 queryClient.invalidateQueries(QUERIES_KEYS.GET_ALL_CATEGORIES);
                 setFile(null);
@@ -163,7 +168,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
 
         addCategoryMutate(formData, {
             onSuccess: () => {
-                showSuccessMessage("Category added successfully.");
+                showSuccessMessage(t("Category added successfully"));
                 queryClient.invalidateQueries(QUERIES_KEYS.GET_ALL_CATEGORIES);
                 refatchCategoriesData();
                 setFile(null);
@@ -191,13 +196,12 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
             { id: editData._id, params: { status: value } },
             {
                 onSuccess: () => {
-                    showSuccessMessage("Status updated successfully.");
+                    showSuccessMessage(t("Status updated successfully"));
                     queryClient.invalidateQueries(QUERIES_KEYS.GET_ALL_CATEGORIES);
                     refatchCategoriesData();
                 },
                 onError: (error: any) => {
                     showErrorMessage(error?.response?.data?.message);
-                    // revert UI to previous value if API fails
                     setSelectedStatus(editData?.status || "Pending");
                 },
             }
@@ -221,7 +225,8 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
             centered
             maskClosable={false}
             width={700}
-            title={<p className='font-normal text-2xl'>{editData ? 'Edit category' : 'Add new category'}</p>}
+            className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
+            title={<p className='font-normal text-2xl'>{editData ? t('Edit Category') : t('Add New Category')}</p>}
         >
             {isAddCategoryLoading || isUpdateCategoryLoading ? <FallbackLoader isModal={true} /> : null}
             <Divider />
@@ -229,19 +234,20 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                 <div className="flex gap-6 py-5">
                     {/* Category Name */}
                     <div className="flex w-1/2 flex-col gap-4">
-                        <p className="w-fit text-base">Category Name</p>
+                        <p className="w-fit text-base">{t('Category Name')}</p>
                         <Input
-                            placeholder="Enter category name"
+                            placeholder={t('Enter Category Name')}
                             value={categoryName}
+                            dir={direction}
                             onChange={(e) => setCategoryName(e.target.value)}
-                            className="w-full h-12"
+                            className={`w-full h-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                         />
                     </div>
 
                     {/* Upload Photo */}
-                    <div className="flex w-3/4 flex-col gap-4">
-                        <span className="w-fit text-base">Upload category photo</span>
-                        <div className="flex items-center gap-3 h-12 border rounded-lg px-3 py-2 flex-1">
+                    <div className="flex w-1/2 flex-col gap-4">
+                        <span className="w-fit text-base">{t('Upload Category Photo')}</span>
+                        <div className="flex items-center gap-3 h-12 border rounded-lg px-3 py-2 full">
                             {fileUrl ? (
                                 <>
                                     <img
@@ -249,7 +255,9 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                                         alt="preview"
                                         className="w-8 h-8 object-contain"
                                     />
-                                    <span className="truncate">{file?.name}</span>
+                                    <Tooltip title={getFileName(fileUrl)}>
+                                        <span className="truncate">{file?.name || getFileName(fileUrl)}</span>
+                                    </Tooltip>
                                     <Button
                                         type="text"
                                         className="ml-auto"
@@ -263,7 +271,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                                     onChange={handleUpload}
                                     showUploadList={false}
                                 >
-                                    <Button icon={<UploadOutlined />}>Upload</Button>
+                                    <Button icon={<UploadOutlined />}>{t('Upload')}</Button>
                                 </Upload>
                             )}
                         </div>
@@ -271,9 +279,9 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                     </div>
                 </div>
                 <div>
-                    <p className="w-fit text-base mb-2">Status</p>
+                    <p className="w-fit text-base mb-2">{t('Status')}</p>
                     <Select
-                        className="w-full"
+                        className={`w-full ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                         value={selectedStatus}
                         onChange={handleStatusChange}
                         options={Options.map((opt) => ({ value: opt.value, label: opt.name }))}
@@ -285,8 +293,8 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
             <Divider />
             {/* Submit Button */}
             <div className="flex justify-end">
-                <Button type="primary" disabled={!isChanged} className="h-12" onClick={handleSubmit}>
-                    {editData ? 'Update category' : 'Add category'}
+                <Button type="primary" disabled={!isChanged} className={`h-12`} onClick={handleSubmit}>
+                    {editData ? t('Update Category') : t('Add Category')}
                 </Button>
             </div>
         </Modal>

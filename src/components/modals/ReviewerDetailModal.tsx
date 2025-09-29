@@ -6,6 +6,8 @@ import useChangeUserStatus from 'pages/user-management/core/hooks/useChangeUserS
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import { getUser } from 'auth';
 import { hasPermission } from 'helpers/CustomHelpers';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 interface UserDetailsModalProps {
     isOpen: boolean;
@@ -21,6 +23,8 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
     refetchReviewerData,
 }) => {
     const CURRENT_USER = getUser();
+    const { t } = useTranslation();
+    const direction = useDirection();
     const { deleteSingleUser, isLoading: isDeletingUser } = useDeleteSingleUser();
     const { changeStatusMutate, isLoading: isChangingStatus } = useChangeUserStatus();
 
@@ -28,7 +32,7 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
     const handleDeleteClick = () => {
         deleteSingleUser({ userId: userData?._id }, {
             onSuccess: () => {
-                showSuccessMessage('User deleted successfully!');
+                showSuccessMessage(t('User deleted successfully'));
                 refetchReviewerData();
                 onClose();
             },
@@ -47,7 +51,7 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
         }
         changeStatusMutate(payload, {
             onSuccess: () => {
-                showSuccessMessage('User status changed successfully!');
+                showSuccessMessage(t('User status changed successfully'));
                 onClose();
                 refetchReviewerData();
             },
@@ -67,34 +71,35 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
             width={600}
             centered
             closeIcon={true}
-            title={<p className='font-normal text-2xl'>Reviewer Profile</p>}
+            className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
+            title={<p className='font-normal text-2xl'>{t("Reviewer Profile")}</p>}
             maskClosable={false}
         >
             {isDeletingUser || isChangingStatus ? <FallbackLoader isModal={true} /> : null}
             <Divider />
             {/* Details */}
-            <div className="space-y-8">
+            <div dir={direction} className={`space-y-8`}>
                 {/* Row 2 */}
                 <div className="flex gap-5 items-center flex-wrap">
                     <div className="flex gap-2 items-center">
-                        <label className="text-base text-medium-gray text-nowrap">User ID :</label>
+                        <label className="text-base text-medium-gray text-nowrap">{t("User ID")} :</label>
                         <p className="text-base font-medium  truncate max-w-[95%]">{userData?._id}</p>
                     </div>
                     <div className="flex gap-2 items-center">
-                        <label className="text-base text-medium-gray text-nowrap">Full Name :</label>
+                        <label className="text-base text-medium-gray text-nowrap">{t("Full Name")} :</label>
                         <p className="text-base font-medium  truncate max-w-[95%]">{userData?.firstName} {userData?.lastName}</p>
                     </div>
                     <div className='flex gap-2  items-center'>
-                        <label className="text-base text-medium-gray text-nowrap">Email Address :</label>
+                        <label className="text-base text-medium-gray text-nowrap">{t("Email Address")} :</label>
                         <p className="text-base font-medium  truncate max-w-[95%]">{userData?.email}</p>
                     </div>
                     <div className={"flex gap-2 items-center"}>
-                        <label className="text-base text-medium-gray">Status :</label>
-                        <p className="text-base font-medium ">{userData?.status}</p>
+                        <label className="text-base text-medium-gray">{t("Status")} :</label>
+                        <p className="text-base font-medium ">{t(userData?.status)}</p>
                     </div>
                     <div className={"flex gap-2 items-center"}>
-                        <label className="text-base text-medium-gray">Questions Reviewed :</label>
-                        <p className="text-base font-medium ">{10}</p>
+                        <label className="text-base text-medium-gray">{t("Questions Reviewed")} :</label>
+                        <p className="text-base font-medium ">{userData?.totalReviews || "0"}</p>
                     </div>
                 </div>
             </div>
@@ -102,22 +107,23 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
             <div className="flex items-center justify-end gap-3 mt-8">
 
                 <Popconfirm
-                    title="Are you sure to delete this user?"
+                    title={t("Are you sure to delete this user?")}
                     onConfirm={() => handleDeleteClick()}
-                    okText="Yes"
-                    cancelText="No"
+                    okText={t("Yes")}
+                    cancelText={t("No")}
                     disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                 >
-                    <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")}
-                        className='bg-danger text-white py-5'>Delete User</Button>
+                    <Button
+                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
+                        className={`bg-danger text-white py-5 `}>{t("Delete User")}</Button>
                 </Popconfirm>
                 <Button
                     type="primary"
-                    className='py-5'
+                    className={`py-5 `}
                     disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     onClick={() => handleActiveNInactive(userData?.status === 'Active' ? 'Suspended' : 'Active')}
                 >
-                    {userData?.status === 'Active' ? 'Suspend' : 'Active'}
+                    {userData?.status === 'Active' ? t("Suspended") : t("Active")}
                 </Button>
             </div>
         </Modal>

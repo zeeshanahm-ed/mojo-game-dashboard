@@ -7,6 +7,7 @@ import {
     ResponsiveContainer,
     Cell,
 } from "recharts";
+import { useTranslation } from 'react-i18next';
 
 interface BackendData {
     totalAmount: number;
@@ -22,6 +23,42 @@ interface BackendData {
 }
 
 const RevenueChart = ({ data }: { data: BackendData }) => {
+    const { t } = useTranslation();
+
+    // Function to translate month names
+    const translateMonth = (monthName: string) => {
+        // Map English month names to translation keys
+        const monthMap: { [key: string]: string } = {
+            'January': 'January',
+            'February': 'February',
+            'March': 'March',
+            'April': 'April',
+            'May': 'May',
+            'June': 'June',
+            'July': 'July',
+            'August': 'August',
+            'September': 'September',
+            'October': 'October',
+            'November': 'November',
+            'December': 'December',
+            // Short forms
+            'Jan': 'January',
+            'Feb': 'February',
+            'Mar': 'March',
+            'Apr': 'April',
+            'Jun': 'June',
+            'Jul': 'July',
+            'Aug': 'August',
+            'Sep': 'September',
+            'Oct': 'October',
+            'Nov': 'November',
+            'Dec': 'December'
+        };
+
+        const translationKey = monthMap[monthName];
+        return translationKey ? t(translationKey) : monthName;
+    };
+
     // Transform backend data to chart format
     const chartData = data?.byMonth?.map((item) => {
         // Calculate percentages based on total amount
@@ -32,7 +69,7 @@ const RevenueChart = ({ data }: { data: BackendData }) => {
         const displayPercentage = item.totalAmount === 0 ? 2 : percentage;
 
         return {
-            month: item.label,
+            month: translateMonth(item.label),
             target: displayPercentage,
             aboveTarget: 0, // Not used in your data structure
             belowTarget: 0, // Not used in your data structure

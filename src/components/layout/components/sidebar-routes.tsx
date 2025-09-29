@@ -12,13 +12,16 @@ import LogoutModal from 'auth/logout-modal';
 import useGetAllUsersDataForDropDown from 'pages/user-management/core/hooks/useGetAllUsersDataForDropDown';
 import { useGetAllUsersDataForDropDownFromStore } from 'store/AllUsersData';
 import { ROLES } from 'utils/Enums';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 
 
 function SidebarRoutes() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-
+  const { t } = useTranslation();
+  const direction = useDirection();
 
   const { allCategoriesData } = useGetCategoriesForDropDown();
   const { allUsersData } = useGetAllUsersDataForDropDown();
@@ -105,7 +108,7 @@ function SidebarRoutes() {
   };
 
   return (
-    <section className='fixed top-0 font-primary z-[999] font-medium flex flex-col h-screen border-r w-72'>
+    <section className='fixed top-0 z-[999] font-medium flex flex-col h-screen border-r w-72'>
       <div className='flex flex-col h-screen'>
         <div className='flex items-center justify-center'>
           <Button
@@ -113,14 +116,14 @@ function SidebarRoutes() {
             variant='text'
             onClick={navigateToDashboard}
           >
-            <div className="flex">
-              <h1 className="text-5xl font-bold font-secondary">MOJO</h1>
-              <h2 className="text-base font-medium mt-5 ml-2">Admin Portal</h2>
+            <div className="flex" dir={direction}>
+              <h1 className={`font-bold font-secondary ${direction === 'ltr' ? 'text-5xl' : 'text-6xl'}`}>{t("MOJO")}</h1>
+              <h2 className={` font-medium mt-5 ms-2 ${direction === 'ltr' ? 'text-base' : 'text-xl'}`}>{t("Admin Portal")}</h2>
             </div>
           </Button>
         </div>
         <div className='overflow-auto h-screen'>
-          <div className='flex flex-col text-start'>
+          <div className='flex flex-col text-start' dir={direction}>
             <ul>
               {filteredRoutes.map(({ key, label, path }) => (
                 <li key={key}>
@@ -137,7 +140,7 @@ function SidebarRoutes() {
                   >
                     <span className='inline-block bg-primary w-3 h-3 rounded-full' />
                     <div className={twc('relative w-[100%] flex items-center my-3 justify-start gap-4  font-normal text-lg')} >
-                      <span>{label}</span>
+                      <span>{t(label)}</span>
                     </div>
                   </NavLink>
                 </li>
@@ -149,7 +152,7 @@ function SidebarRoutes() {
           <span className='w-8'>
             <Logout className='mx-auto' />
           </span>
-          <span>Logout</span>
+          <span>{t("Logout")}</span>
         </button>
       </div>
       <LogoutModal open={logoutModalOpen} onClose={() => setLogoutModalOpen(false)} />

@@ -11,3 +11,10 @@
     font-weight: normal;
     font-style: normal;
 }
+
+@font-face {
+    font-family: 'NotoSansArabic';
+    src: url('../assets//fonts/NotoSansArabic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

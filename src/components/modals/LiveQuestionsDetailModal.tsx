@@ -8,6 +8,8 @@ import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
 import { hasPermission } from 'helpers/CustomHelpers';
 import { getUser } from 'auth';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -23,6 +25,8 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
     currentLanguage
 }) => {
     const CURRENT_USER = getUser();
+    const { t } = useTranslation();
+    const direction = useDirection();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
 
 
@@ -144,7 +148,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 <div className="flex max-w-[95%] items-center justify-between gap-2">
                     <div className='flex items-center gap-x-5'>
                         <QuestionIcon />
-                        <p className='font-normal text-2xl'>Question</p>
+                        <p className='font-normal text-2xl'>{t("Question")}</p>
                     </div>
                     <div className='flex items-center gap-x-2 font-normal'>
                         <Tooltip title={questionData?.suggestedById}>
@@ -158,7 +162,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
             footer={null}
             centered
             maskClosable={false}
-            className="question-review-modal"
+            className={`question-review-modal ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
         >
             {isQuestionLoading ? <FallbackLoader isModal={true} /> : <></>}
@@ -194,16 +198,14 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 <Divider />
                 {/* Question Section */}
                 <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">Question</h3>
+                    <h3 className="text-sm text-gray-700 mb-2">{t("Question")}</h3>
                     <p className="text-base font-normal text-gray-900 mb-3">{getQuestionText()}</p>
-
-                    {/* Question Media - Replace with actual media data when available */}
                     {questionData?.mediaUrl && renderMedia(questionData.mediaUrl)}
                 </div>
 
                 {/* Answer Options */}
                 {options.length > 0 && <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">Answer Options</h3>
+                    <h3 className="text-sm text-gray-700 mb-2">{t("Answer Options")}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {options.map((option: string, index: number) => {
                             const isCorrect = option === correctAnswer;
@@ -227,10 +229,8 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 {/* Answer Explanation */}
                 {questionData?.answerExplanation && (
                     <div className="mb-6">
-                        <h3 className="text-sm text-gray-700 mb-2">Answer Explanation</h3>
+                        <h3 className="text-sm text-gray-700 mb-2">{t("Answer Explanation")}</h3>
                         <p className="text-base font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
-
-                        {/* Answer Explanation Media - Replace with actual media data when available */}
                         {questionData?.answerMediaUrl && renderMedia(questionData.answerMediaUrl)}
                     </div>
                 )}
@@ -238,17 +238,17 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 {/* Submit Review Section */}
                 <div className='flex justify-end'>
                     <Popconfirm
-                        title="Are you sure to delete this question?"
+                        title={t("Are you sure to delete this question?")}
                         onConfirm={handleDeleteClick}
-                        okText="Yes"
-                        cancelText="No"
+                        okText={t("Yes")}
+                        cancelText={t("No")}
                     >
                         <Button
                             disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                             type="primary"
-                            className="h-12 font-normal"
+                            className={`h-12 font-normal`}
                         >
-                            Delete Question
+                            {t("Delete Question")}
                         </Button>
                     </Popconfirm>
                 </div>

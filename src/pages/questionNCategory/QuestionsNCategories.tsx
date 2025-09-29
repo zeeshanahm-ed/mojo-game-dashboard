@@ -3,21 +3,23 @@ import TabSwitcher from "components/core-ui/tab-switcher/TabSwitcher";
 import Categories from "./categories/Categories";
 import Questions from "./questions/Questions";
 import { useHeaderProps } from "components/core/use-header-props";
+import { useTranslation } from "react-i18next";
 
 function QuestionsNCategories() {
     const [selectedTab, setSelectedTab] = useState(0);
     const { setTitle } = useHeaderProps();
+    const { t } = useTranslation();
 
     useEffect(() => {
-        setTitle('Question & Category Management');
+        setTitle(t('Question & Category Management'));
     }, []);
 
     const tabsLabel = [
         {
-            label: "Categories"
+            label: t("Categories")
         },
         {
-            label: "Questions"
+            label: t("Questions")
         }
     ]
 

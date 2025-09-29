@@ -10,6 +10,8 @@ import { IUserModel } from "auth";
 import { SearchOutlined } from "@ant-design/icons";
 import ArrowIcon from "assets/icons/arrow-icon.svg?react";
 import { debounce } from "helpers/CustomHelpers";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "hooks/useGetDirection";
 
 const Table_Header = [
   "User ID",
@@ -28,6 +30,8 @@ const statusColors: Record<IUserModel["status"], string> = {
 
 const UserManagement: React.FC = () => {
   const { setTitle } = useHeaderProps();
+  const direction = useDirection();
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [modalData, setModalData] = useState<IUserModel>();
@@ -41,7 +45,7 @@ const UserManagement: React.FC = () => {
 
   const { userData, isLoading, refetch, pagination } = useUserData(params);
 
-  useEffect(() => setTitle('User Management'), [setTitle]);
+  useEffect(() => setTitle(t('User Management')), [setTitle]);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);
@@ -72,7 +76,7 @@ const UserManagement: React.FC = () => {
       {/* Search and Filters */}
       <div className="flex flex-col gap-y-5">
         <Input
-          placeholder="Search by name"
+          placeholder={t('Search by name')}
           prefix={<SearchOutlined className="mr-5" />}
           variant="underlined"
           className="w-full"
@@ -85,19 +89,19 @@ const UserManagement: React.FC = () => {
             checked={selectedStatus === "all"}
             onChange={() => handleStatusChange("all")}
           >
-            All Accounts
+            {t('All Accounts')}
           </Checkbox>
           <Checkbox
             checked={selectedStatus === "Active"}
             onChange={() => handleStatusChange("Active")}
           >
-            Active
+            {t('Active')}
           </Checkbox>
           <Checkbox
             checked={selectedStatus === "Suspended"}
             onChange={() => handleStatusChange("Suspended")}
           >
-            Suspended
+            {t('Suspended')}
           </Checkbox>
         </div>
       </div>
@@ -107,7 +111,7 @@ const UserManagement: React.FC = () => {
       {/* Custom Table */}
       <div className="border border-gray-200  rounded-lg mt-5">
         <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-          Showing all Users {pagination?.total && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+          {t('Showing all Users')} {pagination?.total && <span className="text-border-gray text-sm me-2">{pagination?.total} {t('Results')}</span>}
         </div>
 
         {/* Scroll Wrapper */}
@@ -119,7 +123,7 @@ const UserManagement: React.FC = () => {
             :
             <>
               {userData?.length === 0 ?
-                <Empty className="my-12" description="No Users Found" />
+                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t('No Users Found')} />
                 :
                 <table className="min-w-[1092px] w-full">
                   <thead className="bg-light-gray text-white">
@@ -129,7 +133,7 @@ const UserManagement: React.FC = () => {
                           key={index}
                           className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
                         >
-                          {header}
+                          {t(header)}
                         </th>
                       ))}
                     </tr>
@@ -146,7 +150,7 @@ const UserManagement: React.FC = () => {
                         <td className="p-5">{user.email}</td>
                         <td className="p-5">{user.phoneNumber}</td>
                         <td className={`p-5 ${statusColors[user.status]}`}>
-                          {user.status}
+                          {t(user.status)}
                         </td>
                         <td className="p-5 text-xl cursor-pointer">
                           <Button onClick={() => handleModalToggle(user)} className="border-none shadow-none">

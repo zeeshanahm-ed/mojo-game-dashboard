@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 //components
-import { Divider, Form, Modal, Select, Input, Radio } from 'antd';
-import Button from 'components/core-ui/button/button';
+import { Divider, Form, Modal, Select, Input, Radio, Button } from 'antd';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 //hooks & Utils
 import { ROLES_OPTIONS } from 'constants/global';
@@ -10,8 +9,9 @@ import { AddUserParams } from '../core/_models';
 import useAddMember from '../core/hooks/useAddMember';
 import useUpdateMember from '../core/hooks/useUpdateMember';
 //icons
-import LockIcon from '../../../assets/icons/lock.svg?react';
 import { CloseOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 interface MemberAddModalProps {
     onCancel: () => void;
@@ -22,6 +22,8 @@ interface MemberAddModalProps {
 
 function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: MemberAddModalProps) {
     const [form] = Form.useForm();
+    const { t } = useTranslation();
+    const direction = useDirection();
     const { addMemberMutate, isAddMemberLoading } = useAddMember();
     const { updateMemberMutate, isUpdateMemberLoading } = useUpdateMember();
 
@@ -89,12 +91,12 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
 
     return (
         <Modal
-            style={{ textAlign: 'center' }}
             centered
             footer={null}
-            title={<p className='font-normal text-2xl'>{EditUserData ? 'Edit member' : 'Add new member'}</p>}
+            title={<p className='font-normal text-2xl'>{EditUserData ? t('Edit Member') : t('Add New Member')}</p>}
             onCancel={onCancel}
             open={open}
+            className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
 
         >
@@ -110,92 +112,92 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
 
                 <Form.Item
                     name='firstName'
-                    label='First Name'
-                    rules={[{ required: true, message: 'Please input your first name!' }]}
+                    label={t('First Name')}
+                    rules={[{ required: true, message: t('Please input your first name') }]}
                 >
-                    <Input className='gap-2 h-12 ' type='text' placeholder='First Name' />
+                    <Input className={`gap-2 h-12 `} type='text' placeholder={t('First Name')} />
                 </Form.Item>
 
                 <Form.Item
                     name='lastName'
-                    label='Last Name'
-                    rules={[{ required: true, message: 'Please input your last name!' }]}
+                    label={t('Last Name')}
+                    rules={[{ required: true, message: t('Please input your last name') }]}
                 >
-                    <Input className='gap-2 h-12 ' type='text' placeholder='Last Name' />
+                    <Input className={`gap-2 h-12 `} type='text' placeholder={t('Last Name')} />
                 </Form.Item>
 
-                <div className='flex justify-between items-center'>
+                <div className='flex justify-between items-center gap-x-5'>
                     <Form.Item
                         name='age'
-                        label='Age'
-                        rules={[{ required: true, message: 'Please input your age!' }]}
+                        label={t('Age')}
+                        rules={[{ required: true, message: t('Please input your age') }]}
                     >
-                        <Input className='gap-2 h-12 ' type='number' placeholder='Age' />
+                        <Input className={`gap-2 h-12 `} type='number' placeholder={t('Age')} />
                     </Form.Item>
                     <Form.Item
                         name="gender"
-                        label="Gender"
+                        label={t('Gender')}
                     >
-                        <Radio.Group>
-                            <Radio value='male'>Male</Radio>
-                            <Radio value='female'>Female</Radio>
+                        <Radio.Group className='flex items-center gap-x-2'>
+                            <Radio value='male'>{t('Male')}</Radio>
+                            <Radio value='female'>{t('Female')}</Radio>
                         </Radio.Group>
                     </Form.Item>
                 </div>
 
                 <Form.Item
                     name='email'
-                    label='Email Address'
-                    rules={[{ required: true, message: 'Please input your email!' }]}
+                    label={t('Email Address')}
+                    rules={[{ required: true, message: t('Please input your email') }]}
                 >
-                    <Input className='gap-2 h-12 ' type='email' placeholder='Email Address' disabled={!!EditUserData} />
+                    <Input className={`gap-2 h-12 `} type='email' placeholder={t('Email Address')} disabled={!!EditUserData} />
                 </Form.Item>
 
                 <Form.Item
                     name='phoneNumber'
-                    label='Phone Number'
-                    rules={[{ required: true, message: 'Please input your phone number!' }]}
+                    label={t('Phone Number')}
+                    rules={[{ required: true, message: t('Please input your phone number') }]}
                 >
-                    <Input className='gap-2 h-12 ' type='text' placeholder='Phone Number' />
+                    <Input className={`gap-2 h-12 `} type='text' placeholder={t('Phone Number')} />
                 </Form.Item>
 
                 <Form.Item
                     name='role'
-                    label='User Role'
-                    rules={[{ required: true, message: 'Please select User Role!' }]}
+                    label={t('User Role')}
+                    rules={[{ required: true, message: t('Please select User Role') }]}
                 >
                     <Select
                         allowClear={false}
-                        className='h-12 text-left'
+                        className={`h-12 text-left `}
                         style={{ width: '100%' }}
                         size='large'
-                        placeholder='Select Role'
+                        placeholder={t('Select User Role')}
                         options={ROLES_OPTIONS}
                     />
                 </Form.Item>
 
                 {!EditUserData &&
                     <Form.Item
-                        label='Password'
+                        label={t('Password')}
                         name='password'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your password!',
+                                message: t('Please input your password'),
                             },
                             {
                                 pattern: /^(.{8,})$/,
-                                message: 'Password must be at least 8 characters long!',
+                                message: t('Password must be at least 8 characters long'),
                             },
                         ]}
                         hasFeedback
                     >
-                        <Input.Password prefix={<LockIcon />} className='gap-2 h-12 ' placeholder='Password' type='password' />
+                        <Input.Password className={`h-12 `} placeholder={t('Password')} type='password' />
                     </Form.Item>}
 
                 <div className='flex justify-end'>
-                    <Button variant='primary' type='submit' className='text-base px-14 h-12 '>
-                        {EditUserData ? 'Save Changes' : 'Add Member'}
+                    <Button type='primary' className={`text-base px-14 h-12 `}>
+                        {EditUserData ? t('Save Changes') : t('Add Member')}
                     </Button>
                 </div>
 

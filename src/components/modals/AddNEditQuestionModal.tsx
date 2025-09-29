@@ -20,6 +20,8 @@ import { LuCirclePlus } from "react-icons/lu";
 import ShuffleIcon from "assets/icons/shuffle-icon.svg?react";
 import { MdArrowBack } from 'react-icons/md';
 import { getDownloadBulkUploadTemplate, updateBulkQuestionData } from "pages/questionNCategory/questions/core/_request";
+import { useDirection } from "hooks/useGetDirection";
+import { useTranslation } from "react-i18next";
 
 type Mode = "online" | "offline";
 
@@ -77,6 +79,8 @@ const QuestionTypeOptions = [
 ];
 
 const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId = null }: QuestionNAnswerProps) => {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const { addQuestionMutate, isLoading } = useAddQuestion();
     const [uploadedFileLoading, setUploadedFileLoading] = useState<boolean>(false);
     const { questionData, isLoading: isQuestionLoading } = questionId ? useGetSingleQuestion(questionId) : { questionData: null, isLoading: false };
@@ -622,6 +626,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 centered
                 width={800}
                 maskClosable={false}
+                className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                 title={
                     <div className="flex items-center gap-2">
                         {state.step === 2 &&
@@ -634,7 +639,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                 <MdArrowBack className='text-base md:text-2xl' />
                             </button>
                         }
-                        <p className='font-normal text-2xl'>Add New Question</p>
+                        <p className='font-normal text-2xl'>{t('Add New Question')}</p>
                     </div>
                 }
             >
@@ -645,14 +650,14 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                         <>
                             <div className="flex items-baseline justify-between gap-x-5">
                                 <div className="flex flex-col gap-y-2">
-                                    <label className="text-base">Assign Category</label>
+                                    <label className="text-base">{t('Assign Category')}</label>
                                     <Select
                                         allowClear={false}
                                         options={state.categoriesOptions}
                                         onChange={(value) => handleSelectChange(value, "selectedCategory")}
                                         value={state.selectedCategory || undefined}
-                                        placeholder="Assign Category"
-                                        className="h-12 w-48"
+                                        placeholder={t('Assign Category')}
+                                        className={`h-12 w-48`}
                                         showSearch
                                         filterOption={(input, option) =>
                                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
@@ -665,25 +670,25 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                     />
                                 </div>
                                 <div className="flex flex-col gap-y-2">
-                                    <label className="text-base">Choose Difficulty</label>
+                                    <label className="text-base">{t('Choose Difficulty')}</label>
                                     <Select
                                         allowClear={false}
                                         options={DifficultyOptions}
-                                        placeholder="Choose Difficulty"
-                                        className='h-12 w-48'
+                                        placeholder={t('Choose Difficulty')}
+                                        className={`h-12 w-48`}
                                         onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
                                         value={state.selectedDifficulty || undefined}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-y-2">
-                                    <label className="text-base">Question Type</label>
+                                    <label className="text-base">{t('Question Type')}</label>
                                     <Select
                                         allowClear={false}
                                         options={QuestionTypeOptions}
                                         onChange={(value) => handleSelectChange(value, "selectedQuestionType")}
                                         value={state.selectedQuestionType || undefined}
-                                        placeholder="Question Type"
-                                        className='h-12 w-48'
+                                        placeholder={t('Question Type')}
+                                        className={`h-12 w-48`}
 
                                     />
                                 </div>
@@ -691,25 +696,25 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                             <div className='space-y-5 overflow-y-auto h-auto max-h-[600px]'>
                                 {/* Question */}
                                 <div>
-                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Question <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
+                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>{t('Add Question')} <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
                                     <div className='space-y-5'>
                                         <Input
                                             name='questionEN'
                                             type='text'
-                                            placeholder="Question"
+                                            placeholder={t('Question')}
                                             value={questionState?.questionEN}
                                             onChange={(e) => handleOnChange(e)}
                                             className="w-full px-4"
                                         />
                                         <div className='relative'>
                                             <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                                Translate
+                                                {t('Translate')}
                                             </button>
                                             <Input
                                                 type='text'
                                                 name='questionAR'
                                                 // readOnly
-                                                placeholder="Question Translation"
+                                                placeholder={t('Question Translation')}
                                                 value={questionState?.questionAR}
                                                 onChange={(e) => handleOnChange(e)}
                                                 className="w-full text-end px-4"
@@ -746,19 +751,19 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     :
 
                                                     <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white" >
-                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
+                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
                                                         <div className='flex items-center justify-between flex-1 px-8'>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("image")}>
                                                                 <UploadImageIcon />
-                                                                <span className="text-base ">Image</span>
+                                                                <span className="text-base ">{t('Image')}</span>
                                                             </button>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("video")}>
                                                                 <VideoIcon />
-                                                                <span className="text-base ">Video</span>
+                                                                <span className="text-base ">{t('Video')}</span>
                                                             </button>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("audio")}>
                                                                 <AudioIcon />
-                                                                <span className="text-base ">Audio</span>
+                                                                <span className="text-base ">{t('Audio')}</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -770,25 +775,25 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                 </div>
                                 {/* Answer */}
                                 <div>
-                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>Add Answer <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
+                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>{t('Add Answer Description')} <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
                                     <div className='space-y-5'>
                                         <Input
                                             name='answerEN'
                                             type='text'
-                                            placeholder="Answer"
+                                            placeholder={t('Answer')}
                                             value={questionState?.answerEN}
                                             onChange={(e) => handleOnChange(e)}
                                             className="w-full px-4"
                                         />
                                         <div className='relative'>
                                             <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                                Translate
+                                                {t('Translate')}
                                             </button>
                                             <Input
                                                 type='text'
                                                 name='answerAR'
                                                 // readOnly
-                                                placeholder="Answer Translation"
+                                                placeholder={t('Answer Translation')}
                                                 value={questionState?.answerAR}
                                                 onChange={(e) => handleOnChange(e)}
                                                 className="w-full border text-end px-4"
@@ -826,19 +831,19 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     :
 
                                                     <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white">
-                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">Upload Media</span>
+                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
                                                         <div className='flex items-center justify-between flex-1 px-8'>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
                                                                 <UploadImageIcon />
-                                                                <span className="text-base ">Image</span>
+                                                                <span className="text-base ">{t('Image')}</span>
                                                             </button>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
                                                                 <VideoIcon />
-                                                                <span className="text-base ">Video</span>
+                                                                <span className="text-base ">{t('Video')}</span>
                                                             </button>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("audio")}>
                                                                 <AudioIcon />
-                                                                <span className="text-base ">Audio</span>
+                                                                <span className="text-base ">{t('Audio')}</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -933,20 +938,20 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                     showUploadList={false}
                                 >
                                     <Button variant="text" className="h-12 border-none bg-black text-white">
-                                        Try Bulk Upload <MdOutlineFileUpload size={20} />
+                                        {t('Try Bulk Upload')} <MdOutlineFileUpload size={20} />
                                     </Button>
                                 </Upload>
                                 <Button variant="link" className="h-12" onClick={handleDownloadTemplate}>
-                                    Download Excel Template
+                                    {t('Download Excel Template')}
                                 </Button>
                             </div>
                             <Button disabled={handleDisabled()} variant="text" type="primary" className="h-12" onClick={handleAddQuestion}>
-                                {questionId ? "Update Question" : "Add Question"}
+                                {questionId ? t('Update Question') : t('Add Question')}
                             </Button>
                         </div> :
                         <div className='w-full flex items-center justify-end mt-5'>
                             <Button variant="text" type="primary" className="h-12" onClick={handleAddOptions}>
-                                Add Options
+                                {t('Add Options')}
                             </Button>
                         </div>
                     }

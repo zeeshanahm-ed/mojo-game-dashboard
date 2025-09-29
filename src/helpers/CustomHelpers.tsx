@@ -49,3 +49,13 @@ export const hasPermission = (userRole: string | undefined, permission: 'read_on
     return false;
 };
 
+export const getFileName = (url: string) => {
+    if (!url) return "";
+    try {
+        const parts = url.split('/');
+        return parts[parts.length - 1] || "";
+    } catch {
+        return "";
+    }
+}
+

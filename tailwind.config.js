@@ -54,11 +54,10 @@ export default {
         'black': 'var(--color-black)',
       },
       fontFamily: {
-        poppins: 'Poppins',
         primary: 'Product_sans',
         secondary: 'Bulletproof',
         urbanist: 'Urbanist',
-        inter: 'Inter',
+        arabic: 'NotoSansArabic',
       },
       screens: {
         xsm: '375px',

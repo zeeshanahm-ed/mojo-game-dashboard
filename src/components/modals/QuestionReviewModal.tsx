@@ -15,6 +15,8 @@ import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDelete
 import useChangeReviewedQuestionStatus from 'pages/reviewed-questions/core/hooks/useChangeReviewedQuestionStatus';
 import { getUser } from 'auth';
 import { hasPermission } from 'helpers/CustomHelpers';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -28,6 +30,8 @@ interface QuestionReviewModalProps {
 
 const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, getReviewQuestionData, open, onClose, questionData, currentLanguage }) => {
     const CURRENT_USER = getUser();
+    const direction = useDirection();
+    const { t } = useTranslation();
     const { publishQuestionMutate, isLoading } = usePublishQuestion();
     const { isLoading: pandingPoolLoading, moveQuestionToPandingPoolMutate } = useMoveQuestionToPandingPool();
     const { deleteQuestionMutate, isQuestionLoading } = useDeleteQuestion();
@@ -211,6 +215,17 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
         );
     };
 
+    const statusOptions = () => {
+        return QuestionStatusOptions.map((option: any) => ({
+            value: option.value,
+            label: (
+                <div className="flex items-center gap-2">
+                    <span className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{t(option.label)}</span>
+                </div>
+            ),
+        }));
+    };
+
     return (
         <Modal
             open={open}
@@ -219,7 +234,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                 <div className="flex max-w-[95%] items-center justify-between gap-2">
                     <div className='flex items-center gap-x-5'>
                         <QuestionIcon />
-                        <p className='font-normal text-2xl'>Question</p>
+                        <p className='font-normal text-2xl'>{t("Question")}</p>
                     </div>
                     <div className='flex items-center gap-x-2 font-normal'>
                         <Tooltip title={questionData?.suggestedById}>
@@ -233,7 +248,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
             footer={null}
             centered
             maskClosable={false}
-            className="question-review-modal"
+            className={`question-review-modal ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
             closeIcon={<CloseOutlined className="text-gray-400 hover:text-gray-600" />}
         >
             {isLoading || pandingPoolLoading || isQuestionLoading || isChangeStatusLoading ? <FallbackLoader isModal={true} /> : <></>}
@@ -264,33 +279,31 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                                 </div>
                             ))
                         ) : (
-                            <span className="text-sm text-gray-400">No reviews yet</span>
+                            <span className="text-sm text-gray-400">{t("No reviews yet")}</span>
                         )}
                     </div>
                 </div>
                 <Divider />
                 <div className='mb-3 flex items-center gap-x-10'>
-                    <h3 className="text-sm text-gray-700 mb-2">Status</h3>
+                    <h3 className="text-sm text-gray-700 mb-2">{t("Status")}</h3>
                     <Select
                         disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         className="w-full h-10"
-                        options={QuestionStatusOptions}
+                        options={statusOptions()}
                         value={selectedStatus}
                         onChange={handleStatusChange}
                     />
                 </div>
                 {/* Question Section */}
                 <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">Question</h3>
+                    <h3 className="text-sm text-gray-700 mb-2">{t("Question")}</h3>
                     <p className="text-base font-normal text-gray-900 mb-3">{getQuestionText()}</p>
-
-                    {/* Question Media - Replace with actual media data when available */}
                     {questionData?.mediaUrl && renderMedia(questionData.mediaUrl)}
                 </div>
 
                 {/* Answer Options */}
                 {options.length > 0 && <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">Answer Options</h3>
+                    <h3 className="text-sm text-gray-700 mb-2">{t("Answer Options")}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {options.map((option: string, index: number) => {
                             const isCorrect = option === correctAnswer;
@@ -314,10 +327,8 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                 {/* Answer Explanation */}
                 {questionData?.answerExplanation && (
                     <div className="mb-6">
-                        <h3 className="text-sm text-gray-700 mb-2">Answer Explanation</h3>
+                        <h3 className="text-sm text-gray-700 mb-2">{t("Answer Explanation")}</h3>
                         <p className="text-base font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
-
-                        {/* Answer Explanation Media - Replace with actual media data when available */}
                         {questionData?.answerMediaUrl && renderMedia(questionData.answerMediaUrl)}
                     </div>
                 )}
@@ -327,10 +338,10 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                     <Button
                         type="primary"
                         onClick={handlePublishQuestion}
-                        className="h-12 font-normal"
+                        className={`h-12 font-normal `}
                         disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     >
-                        Publish Question
+                        {t("Publish Question")}
                     </Button>
                     <div className='flex gap-x-2'>
                         {activeTab !== "Approved" && activeTab !== "Live" ?
@@ -338,25 +349,25 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                                 type="primary"
                                 onClick={handleMoveToPanding}
                                 disabled={hasPermission(CURRENT_USER?.role, "read_only")}
-                                className="h-12 font-normal"
+                                className={`h-12 font-normal `}
                             >
-                                Move to pending
+                                {t("Move to pending")}
                             </Button>
                             : null
                         }
                         <Popconfirm
-                            title="Are you sure to delete this question?"
+                            title={t("Are you sure to delete this question?")}
                             onConfirm={handleDeleteClick}
-                            okText="Yes"
-                            cancelText="No"
+                            okText={t("Yes")}
+                            cancelText={t("No")}
                             disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         >
                             <Button
                                 type="default"
                                 disabled={hasPermission(CURRENT_USER?.role, "read_only")}
-                                className="h-12 font-normal bg-[#434547] text-white border-[#434547]"
+                                className={`h-12 font-normal bg-[#434547] text-white border-[#434547] `}
                             >
-                                Discard
+                                {t("Discard")}
                             </Button>
                         </Popconfirm>
                     </div>

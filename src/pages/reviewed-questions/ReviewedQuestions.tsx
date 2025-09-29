@@ -3,14 +3,17 @@ import { Button, Empty, Pagination, Tooltip } from 'antd';
 //Hooks
 
 import { getCurrentLanguage } from 'helpers/CustomHelpers';
-//icons
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import QuestionReviewModal from 'components/modals/QuestionReviewModal';
 import TabSwitcher from 'components/core-ui/tab-switcher/TabSwitcher';
 import useGetReviewedQuestions from './core/hooks/useGetReviewedQuestions';
 import { useHeaderProps } from 'components/core/use-header-props';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 const QuestionsReview = ({ title, subTitle, status }: any) => {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const currentLang = getCurrentLanguage();
     const [params, setParams] = useState({
         page: 1,
@@ -58,7 +61,7 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                     <tr className="bg-gray-50 border-b">
                         {tableHeaders.map((header) => (
                             <th key={header.key} className={`p-4 font-medium text-gray-700 ${header.className || 'text-left'}`}>
-                                {header.title}
+                                {t(header.title)}
                             </th>
                         ))}
                     </tr>
@@ -73,7 +76,6 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                             </Tooltip>
                             <td className="p-4">
                                 <span className="text-gray-700">{record?.suggestedByName}</span>
-
                             </td>
                             <td className="p-4">
                                 <span className="text-gray-700">{record.questionText?.en || record.questionText?.ar}</span>
@@ -85,9 +87,9 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                                 <Button
                                     type="primary"
                                     onClick={() => handleReviewQuestion(record)}
-                                    className='h-10'
+                                    className={`h-10`}
                                 >
-                                    See Details
+                                    {t('See Details')}
                                 </Button>
                             </td>
                         </tr>
@@ -119,7 +121,7 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                             {allReviewedsQuestionsData?.length > 0 ?
                                 <CustomTable />
                                 :
-                                <Empty description="Data Not Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t('Data Not Found')} />
                             }
                         </>
                     }
@@ -152,24 +154,25 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
 };
 
 function ReviewedQuestions() {
+    const { t } = useTranslation();
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const { setTitle } = useHeaderProps();
     const tabs = [
-        { label: "Right" },
-        { label: "Wrong" },
-        { label: "Ambiguous" },
+        { label: t('Right') },
+        { label: t('Wrong') },
+        { label: t('Ambiguous') },
     ];
 
-    useEffect(() => setTitle('Reviewed Questions'), [setTitle]);
+    useEffect(() => setTitle(t('Reviewed Questions')), [setTitle]);
 
     const getUiContent = (currentTab: number) => {
         switch (currentTab) {
             case 0:
-                return <QuestionsReview title="Approved Questions" status="Approved" subTitle="Questions that received 3 'Right' votes from reviewers." />
+                return <QuestionsReview title={t("Approved Questions")} status="Approved" subTitle={t("Questions that received 3 'Right' votes from reviewers")} />
             case 1:
-                return <QuestionsReview title={"Rejected Questions"} status="Rejected" subTitle="Questions marked as 'Wrong' by reviewers." />
+                return <QuestionsReview title={t("Rejected Questions")} status="Rejected" subTitle={t("Questions marked as 'Wrong' by reviewers")} />
             case 2:
-                return <QuestionsReview title={"Ambiguous Questions"} status="Ambiguous" subTitle="Questions marked as 'Ambiguity' by reviewers, requiring clarification." />
+                return <QuestionsReview title={t("Ambiguous Questions")} status="Ambiguous" subTitle={t("Questions marked as 'Ambiguity' by reviewers, requiring clarification")} />
             default:
                 break;
         }

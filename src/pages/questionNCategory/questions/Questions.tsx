@@ -17,6 +17,8 @@ import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import AddNEditQuestionModal from 'components/modals/AddNEditQuestionModal';
 import { getDownloadAllQuestions } from './core/_request';
 import { getUser } from 'auth';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 interface StateType {
     selectedCategory: string | null;
@@ -39,6 +41,8 @@ const DifficultyOptions = [
 ];
 
 function Questions() {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const CURRENT_USER = getUser();
     const currentLang = getCurrentLanguage();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,7 +97,7 @@ function Questions() {
         let id = data?._id;
         deleteQuestionMutate(id, {
             onSuccess: () => {
-                showSuccessMessage('Question deleted successfully.');
+                showSuccessMessage(t('Question deleted successfully'));
                 refetch();
             },
             onError: (error: any) => {
@@ -143,24 +147,24 @@ function Questions() {
                         disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         variant='text'
                         onClick={handleAddNewQuestion}
-                        className='border border-primary bg-primary text-white font-normal shadow-none h-12 px-5 gap-6 text-sm w-fit'>
-                        <AddRoundedIcon className="fill-white text-white" />  Add New
+                        className={`border border-primary bg-primary text-white font-normal shadow-none h-12 px-5 gap-6 text-sm w-fit`}>
+                        <AddRoundedIcon className="fill-white text-white" />  {t("Add New")}
                     </Button>
                 </div>
                 <Select
                     allowClear
                     options={DifficultyOptions}
                     value={state.selectedDifficulty || undefined}
-                    placeholder="Difficulty"
-                    className='h-12 w-48'
+                    placeholder={t("Difficulty")}
+                    className={`h-12 w-48`}
                     onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
                 />
                 <Select
                     allowClear
                     options={state.categoriesOptions}
                     value={state.selectedCategory || undefined}
-                    placeholder="Category"
-                    className="h-12 w-48"
+                    placeholder={t("Category")}
+                    className={`h-12 w-48`}
                     onChange={(value) => handleSelectChange(value, "selectedCategory")}
                     showSearch
                     filterOption={(input, option) =>
@@ -174,20 +178,20 @@ function Questions() {
                     )}
                 />
                 <Button
-                    type="text"
-                    className="bg-black text-white h-12 w-fit ml-auto"
+                    variant='text'
+                    className={`bg-black text-white h-12 w-fit ml-auto`}
                     onClick={() => handleDownloadAllQuestions()}
                     icon={<DownloadIcon className="w-5 h-5 mr-2" />}
                 >
-                    Download all questions
+                    {t("Download all questions")}
                 </Button>
             </div>
 
             <div className="border border-gray-200 rounded-lg mt-5">
                 {/* Table Title */}
                 <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-                    Showing all Questions
-                    {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+                    {t("Showing all Questions")}
+                    {pagination?.total > 0 && <span className="text-border-gray text-sm me-2">{pagination?.total} {t("Results")}</span>}
                 </div>
 
                 <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
@@ -196,7 +200,7 @@ function Questions() {
                         :
                         <>
                             {questionsData?.length === 0 ?
-                                <Empty className="my-12" description="Questions not Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t("Questions not Found")} />
                                 :
                                 <table className="min-w-[1092px] w-full">
                                     {/* Table Header */}
@@ -207,7 +211,7 @@ function Questions() {
                                                     key={header.key}
                                                     className={`${header?.className} p-5 font-normal text-center text-medium-gray whitespace-nowrap`}
                                                 >
-                                                    {header.title}
+                                                    {t(header.title)}
                                                 </th>
                                             ))}
                                         </tr>
@@ -231,10 +235,10 @@ function Questions() {
                                                         </Button>
                                                         <Popconfirm
                                                             disabled={hasPermission(CURRENT_USER?.role, "read_only")}
-                                                            title="Are you sure to delete this question?"
+                                                            title={t("Are you sure to delete this question?")}
                                                             onConfirm={() => handleDeleteClick(question)}
-                                                            okText="Yes"
-                                                            cancelText="No"
+                                                            okText={t("Yes")}
+                                                            cancelText={t("No")}
                                                         >
                                                             <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" className="border-none shadow-none">
                                                                 <DeleteIcon className="text-error-500" />

@@ -18,6 +18,8 @@ import EditIcon from 'assets/icons/edit-icon.svg?react';
 import useHandelChangeRole from "./core/hooks/useChangeRole";
 import { ChangeRoleParams } from "./core/_models";
 import { hasPermission } from "helpers/CustomHelpers";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "hooks/useGetDirection";
 
 
 
@@ -39,6 +41,8 @@ const Table_Header = [
 ];
 
 export const RolesNPermissions: React.FC = () => {
+    const { t } = useTranslation();
+    const direction = useDirection();
     const CURRENT_USER = getUser();
     const { setTitle } = useHeaderProps();
     const [memberModal, setMemberModal] = useState(false);
@@ -53,13 +57,13 @@ export const RolesNPermissions: React.FC = () => {
     const { deleteSingleUser } = useDeleteSingleUser();
     const { changeRoleMutate } = useHandelChangeRole();
 
-    useEffect(() => setTitle('Roles & Permissions'), []);
+    useEffect(() => setTitle(t('Roles & Permissions')), []);
 
 
     const handleDeleteClick = (user: IUserModel) => {
         deleteSingleUser({ userId: user._id }, {
             onSuccess: () => {
-                showSuccessMessage('User deleted successfully!');
+                showSuccessMessage(t('User deleted successfully'));
                 refetch();
             },
             onError: (error: any) => {
@@ -72,7 +76,7 @@ export const RolesNPermissions: React.FC = () => {
     const handleChangeRole = (userId: string, newRole: ChangeRoleParams) => {
         changeRoleMutate({ role: newRole, id: userId }, {
             onSuccess: () => {
-                showSuccessMessage('User role changed successfully!');
+                showSuccessMessage(t('User role changed successfully'));
                 refetch();
             },
             onError: (error: any) => {
@@ -100,15 +104,15 @@ export const RolesNPermissions: React.FC = () => {
                         disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         variant='text'
                         onClick={() => handleAddMemberModal(null, 'add')}
-                        className='border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit'>
-                        <AddRoundedIcon className="fill-white text-white" />  Add New Member
+                        className={` border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit`}>
+                        <AddRoundedIcon className="fill-white text-white" />  {t("Add New Member")}
                     </Button>
                 </div>
             </div>
             <div className="border border-gray-200 rounded-xl mt-5">
                 {/* Custom Table */}
                 <div className="text-xl bg-medium-gray text-white px-4 py-4 rounded-ss-lg rounded-se-lg ">
-                    User Accounts {pagination?.total > 0 && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+                    {t("User Accounts")} {pagination?.total > 0 && <span className="text-border-gray text-sm me-2">{pagination?.total} {t("Results")}</span>}
                 </div>
                 {/* Scroll Wrapper */}
                 <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
@@ -119,7 +123,7 @@ export const RolesNPermissions: React.FC = () => {
                         :
                         <>
                             {userData?.length === 0 ?
-                                <Empty className="my-12" description="No Users Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t("No Users Found")} />
                                 :
                                 <table className="min-w-[1092px] w-full">
                                     <thead className="bg-light-gray text-white">
@@ -129,7 +133,7 @@ export const RolesNPermissions: React.FC = () => {
                                                     key={index}
                                                     className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
                                                 >
-                                                    {header.label}
+                                                    {t(header.label)}
                                                 </th>
                                             ))}
                                         </tr>
@@ -152,10 +156,10 @@ export const RolesNPermissions: React.FC = () => {
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
-                                                            title="Are you sure to delete this user?"
+                                                            title={t("Are you sure to delete this user?")}
                                                             onConfirm={() => handleDeleteClick(user)}
-                                                            okText="Yes"
-                                                            cancelText="No"
+                                                            okText={t("Yes")}
+                                                            cancelText={t("No")}
                                                             disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                                                         >
                                                             <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} className="border-none shadow-none px-2"><DeleteIcon /></Button>

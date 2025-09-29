@@ -10,6 +10,8 @@ import ArrowIcon from "assets/icons/arrow-icon.svg?react";
 // import { debounce } from "helpers/CustomHelpers";
 import ReviewerDetailModal from "components/modals/ReviewerDetailModal";
 import useGetAllReviewers from "./core/hooks/useGetAllReviewers";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "hooks/useGetDirection";
 
 const Table_Header = [
     "User ID",
@@ -28,6 +30,8 @@ const statusColors: Record<IUserModel["status"], string> = {
 
 const Reviewers: React.FC = () => {
     const { setTitle } = useHeaderProps();
+    const { t } = useTranslation();
+    const direction = useDirection();
     // const [search, setSearch] = useState("");
     const [selectedStatus, setSelectedStatus] = useState<string>("all");
     const [modalData, setModalData] = useState<IUserModel>();
@@ -40,7 +44,7 @@ const Reviewers: React.FC = () => {
     // const { userData, isLoading, pagination, refetch } = useUserData(params);
     const { reviewersData, isLoading, pagination, refetch } = useGetAllReviewers(params);
 
-    useEffect(() => setTitle('Reviewers'), [setTitle]);
+    useEffect(() => setTitle(t('Reviewers')), [setTitle]);
 
     const handleStatusChange = (status: string) => {
         setSelectedStatus(status);
@@ -84,19 +88,19 @@ const Reviewers: React.FC = () => {
                         checked={selectedStatus === "all"}
                         onChange={() => handleStatusChange("all")}
                     >
-                        All Accounts
+                        {t('All Accounts')}
                     </Checkbox>
                     <Checkbox
                         checked={selectedStatus === "Active"}
                         onChange={() => handleStatusChange("Active")}
                     >
-                        Active
+                        {t('Active')}
                     </Checkbox>
                     <Checkbox
                         checked={selectedStatus === "Suspended"}
                         onChange={() => handleStatusChange("Suspended")}
                     >
-                        Suspended
+                        {t('Suspended')}
                     </Checkbox>
                 </div>
             </div>
@@ -106,11 +110,11 @@ const Reviewers: React.FC = () => {
             {/* Custom Table */}
             <div className="border border-gray-200  rounded-lg mt-5">
                 <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-                    Showing all Reviewers {pagination?.total && <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>}
+                    {t('Showing all Reviewers')} {pagination?.total && <span className="text-border-gray text-sm ml-2">{pagination?.total} {t('Results')}</span>}
                 </div>
 
                 {/* Scroll Wrapper */}
-                <div className="w-full overflow-x-auto overflow-hiddenh-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <div className='flex justify-center items-center h-32'>
                             <Spin size="large" />
@@ -118,7 +122,7 @@ const Reviewers: React.FC = () => {
                         :
                         <>
                             {reviewersData?.length === 0 ?
-                                <Empty className="my-12" description="No Users Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t('No Users Found')} />
                                 :
                                 <table className="min-w-[1092px] w-full">
                                     <thead className="bg-light-gray text-white">
@@ -128,7 +132,7 @@ const Reviewers: React.FC = () => {
                                                     key={index}
                                                     className={`${header === "Total Reviews" ? "text-center" : "text-start"} p-5 font-normal text-left text-medium-gray whitespace-nowrap`}
                                                 >
-                                                    {header}
+                                                    {t(header)}
                                                 </th>
                                             ))}
                                         </tr>
@@ -145,7 +149,7 @@ const Reviewers: React.FC = () => {
                                                 <td className="p-5">{user?.email}</td>
                                                 <td className="p-5 text-center">{user?.totalReviews || "0"}</td>
                                                 <td className={`p-5 ${statusColors[user?.status]}`}>
-                                                    {user?.status}
+                                                    {t(user?.status)}
                                                 </td>
                                                 <td className="p-5 text-xl cursor-pointer">
                                                     <Button onClick={() => handleModalToggle(user)} className="border-none shadow-none">

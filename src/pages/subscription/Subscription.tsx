@@ -4,12 +4,14 @@ import dayjs from "dayjs"
 //utils
 import { useHeaderProps } from "components/core/use-header-props";
 import useGetAllSubscriptionHistory from "./core/hooks/useGetAllSubscriptionHistory";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "hooks/useGetDirection";
 
 const Table_Header = [
     "User ID",
     "Full Name",
     "Status",
-    "Email",
+    "Email Address",
     "Amount",
     "Initial Order",
     "Renewal Date",
@@ -24,15 +26,11 @@ const StatusColorClass: Record<StatusType, string> = {
 
 type StatusType = "active" | "pending" | "completed" | "cancelled";
 
-const statusOptions = [
-    { value: 'active', label: 'Active' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'canceled', label: 'Cancelled' },
-    { value: 'completed', label: 'Completed' },
-];
 
 export const Subscription: React.FC = () => {
+    const { t } = useTranslation();
     const { setTitle } = useHeaderProps();
+    const direction = useDirection();
     const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
     const [params, setParams] = useState({
         page: 1,
@@ -40,8 +38,14 @@ export const Subscription: React.FC = () => {
     })
     const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory(params)
 
+    const statusOptions = [
+        { value: 'active', label: t('active') },
+        { value: 'pending', label: t('pending') },
+        { value: 'canceled', label: t('cancelled') },
+        { value: 'completed', label: t('completed') },
+    ];
 
-    useEffect(() => setTitle('Subscriptions'), [setTitle]);
+    useEffect(() => setTitle(t('Subscriptions')), [setTitle]);
 
     const handleSelectChange = (value: string | undefined) => {
         setSelectedStatus(value);
@@ -52,6 +56,16 @@ export const Subscription: React.FC = () => {
         setParams(prev => ({ ...prev, page }));
     };
 
+    const getOptions = () => {
+        return statusOptions.map((option: any) => ({
+            value: option.value,
+            label: (
+                <div className="flex items-center gap-2">
+                    <span className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{t(option.label)}</span>
+                </div>
+            ),
+        }));
+    };
 
     return (
         <section className="overflow-hidden my-10">
@@ -59,9 +73,10 @@ export const Subscription: React.FC = () => {
             <div className="flex items-center gap-5 flex-wrap">
                 <Select
                     allowClear
-                    options={statusOptions}
-                    placeholder="Choose Status"
-                    className='h-12 w-48'
+                    options={getOptions()}
+                    placeholder={t('Choose Status')}
+                    className={`h-12 w-48`}
+                    direction={direction}
                     onChange={(value) => handleSelectChange(value)}
                     value={selectedStatus || undefined}
                 />
@@ -72,7 +87,7 @@ export const Subscription: React.FC = () => {
             {/* Custom Table */}
             <div className="border border-gray-200  rounded-lg mt-5">
                 <div className="text-xl bg-black text-white px-4 py-4 rounded-ss-lg rounded-se-lg">
-                    Subscriptions records <span className="text-border-gray text-sm ml-2">{pagination?.total} Results</span>
+                    {t('Subscriptions records')} <span className="text-border-gray text-sm me-2">{pagination?.total} {t('Results')}</span>
                 </div>
 
                 {/* Scroll Wrapper */}
@@ -84,7 +99,7 @@ export const Subscription: React.FC = () => {
                         :
                         <>
                             {subscriptionData?.length === 0 ?
-                                <Empty className="my-12" description="No Users Found" />
+                                <Empty className={`my-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`} description={t('No Users Found')} />
                                 :
                                 <table className="min-w-[1092px] w-full">
                                     <thead className="bg-light-gray text-white">
@@ -94,7 +109,7 @@ export const Subscription: React.FC = () => {
                                                     key={index}
                                                     className="p-5 font-normal text-left text-medium-gray whitespace-nowrap"
                                                 >
-                                                    {header}
+                                                    {t(header)}
                                                 </th>
                                             ))}
                                         </tr>
@@ -107,7 +122,7 @@ export const Subscription: React.FC = () => {
                                                 </Tooltip>
                                                 <td className="p-5"> {subscription?.user?.name || "-"}</td>
                                                 <td className="">
-                                                    <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status as StatusType]}`}>{subscription?.status}</div>
+                                                    <div className={`flex-centered rounded-lg w-30 h-10 capitalize ${StatusColorClass[subscription?.status as StatusType]}`}>{t(subscription?.status as string)}</div>
                                                 </td>
                                                 <td className="p-5">{subscription?.user?.email || "-"}</td>
                                                 <td className="p-5 capitalize">{`${subscription?.amount} ${subscription?.currency || "SAR"}` || "-"}</td>
