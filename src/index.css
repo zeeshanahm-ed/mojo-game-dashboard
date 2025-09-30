@@ -49,6 +49,10 @@ body.font-arabic .ant-form-item-explain-error {
   font-family: var(--family-arabic);
 }
 
+body.font-arabic .ant-form-item-explain {
+  font-family: var(--family-arabic);
+}
+
 body.font-arabic .ant-popconfirm-title {
   font-family: var(--family-arabic);
 }

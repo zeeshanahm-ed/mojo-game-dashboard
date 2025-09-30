@@ -856,7 +856,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                 {/* MCQs */}
                                 {state.selectedQuestionType === "MCQs" &&
                                     <div className="w-full">
-                                        <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">Add MCQ’S <span className="text-sm text-gray-500">Select anyone with right answer</span></h2>
+                                        <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">{t("Add MCQ'S")} <span className="text-sm text-gray-500">{t("Select anyone with right answer")}</span></h2>
 
                                         <Radio.Group
                                             onChange={handleSelectCorrectOption}
@@ -889,18 +889,18 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                             <div className="space-y-6">
                                 {options.map((opt, index) => (
                                     <div key={index} className="space-y-1">
-                                        <p className="font-medium">Option {index + 1}</p>
+                                        <p className="font-medium">{t("Option")} {index + 1}</p>
 
                                         <div className="flex items-center gap-3">
                                             {/* English Input */}
                                             <div className="flex flex-col flex-1">
                                                 <Input
-                                                    placeholder="Type option"
+                                                    placeholder={t("Type option")}
                                                     value={opt.english}
                                                     onChange={(e) => handleChange(index, "english", e.target.value)}
                                                     className="flex-1 h-14"
                                                 />
-                                                <span className="text-xs text-gray-500 mt-1">English</span>
+                                                <span className="text-xs text-gray-500 mt-1">{t("English")}</span>
                                             </div>
 
                                             {/* Shuffle Icon */}
@@ -914,9 +914,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     onClick={() => handleTranslate(index)}
                                                     className="w-full h-12 rounded-lg border underline font-medium hover:no-underline"
                                                 >
-                                                    {opt.arabic ? opt.arabic : "Translate"}
+                                                    {opt.arabic ? opt.arabic : t("Translate")}
                                                 </button>
-                                                <span className="text-xs text-gray-500 mt-1">Arabic</span>
+                                                <span className="text-xs text-gray-500 mt-1">{t("Arabic")}</span>
                                             </div>
                                         </div>
                                     </div>

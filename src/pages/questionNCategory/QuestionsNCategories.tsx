@@ -11,8 +11,8 @@ function QuestionsNCategories() {
     const { t } = useTranslation();
 
     useEffect(() => {
-        setTitle(t('Question & Category Management'));
-    }, []);
+        setTitle(t('Question & Category Management')), [setTitle, t];
+    }, [setTitle, t]);
 
     const tabsLabel = [
         {

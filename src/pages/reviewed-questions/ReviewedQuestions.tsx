@@ -163,7 +163,7 @@ function ReviewedQuestions() {
         { label: t('Ambiguous') },
     ];
 
-    useEffect(() => setTitle(t('Reviewed Questions')), [setTitle]);
+    useEffect(() => setTitle(t('Reviewed Questions')), [setTitle, t]);
 
     const getUiContent = (currentTab: number) => {
         switch (currentTab) {

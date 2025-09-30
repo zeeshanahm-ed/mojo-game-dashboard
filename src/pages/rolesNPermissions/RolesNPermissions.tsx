@@ -57,7 +57,7 @@ export const RolesNPermissions: React.FC = () => {
     const { deleteSingleUser } = useDeleteSingleUser();
     const { changeRoleMutate } = useHandelChangeRole();
 
-    useEffect(() => setTitle(t('Roles & Permissions')), []);
+    useEffect(() => setTitle(t('Roles & Permissions')), [setTitle, t]);
 
 
     const handleDeleteClick = (user: IUserModel) => {

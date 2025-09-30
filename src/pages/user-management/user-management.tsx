@@ -45,7 +45,7 @@ const UserManagement: React.FC = () => {
 
   const { userData, isLoading, refetch, pagination } = useUserData(params);
 
-  useEffect(() => setTitle(t('User Management')), [setTitle]);
+  useEffect(() => setTitle(t('User Management')), [setTitle, t]);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);

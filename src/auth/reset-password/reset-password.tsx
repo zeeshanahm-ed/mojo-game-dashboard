@@ -6,8 +6,12 @@ import { resetPassword } from 'auth/core/_requests';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 function ResetPassword() {
+  const { t } = useTranslation();
+  const direction = useDirection();
   const { handleBack } = useBack();
   const [isLoading, setIsLoading] = useState(false);
   const forgotEmail = localStorage.getItem('forgotEmail');
@@ -24,7 +28,7 @@ function ResetPassword() {
     try {
       setIsLoading(true);
       await resetPassword(body);
-      showSuccessMessage('Successfully updated!');
+      showSuccessMessage(t('Successfully updated'));
       navigate('/auth/sign-in');
       localStorage.removeItem('forgotEmail');
       localStorage.removeItem('verifiedOtp');
@@ -38,12 +42,12 @@ function ResetPassword() {
 
   return (
     <Container>
-      <section className='flex justify-center  w-full h-screen  bg-white relative items-center font-urbanist'>
+      <section className={`flex justify-center  w-full h-screen  bg-white relative items-center ${direction === 'ltr' ? 'font-urbanist ' : 'font-arabic'}`}>
         <div className='w-full flex flex-col max-w-md p-8 space-y-6'>
           {/* Logo and title */}
           <div className="mb-10 text-center">
-            <h1 className="text-[80px] font-bold tracking-widest font-secondary">MOJO</h1>
-            <h2 className="text-2xl font-medium -mt-2">Set New Password</h2>
+            <h1 className="text-[80px] font-bold tracking-widest font-secondary">{t("MOJO")}</h1>
+            <h2 className="text-xl font-medium -mt-2">{t("Set New Password")}</h2>
           </div>
           <Form name='reset-password' autoComplete='off' onFinish={handleResetPassword}>
             <Form.Item
@@ -51,17 +55,17 @@ function ResetPassword() {
               hasFeedback
               rules={[{
                 required: true,
-                message: 'Please input your password!',
+                message: t('Please input your password'),
               }, {
                 pattern: /^(.{8,})$/,
-                message: 'Password must be at least 8 characters long!',
+                message: t('Password must be at least 8 characters long'),
               },
               ]}
             >
               <Input.Password
                 prefix={<LockIcon className='mr-3' />}
                 className='h-12'
-                placeholder='New Password'
+                placeholder={t('New Password')}
               />
             </Form.Item>
             <Form.Item
@@ -71,14 +75,14 @@ function ResetPassword() {
               rules={[
                 {
                   required: true,
-                  message: 'Please confirm your password!',
+                  message: t('Please input your confirm password'),
                 },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The new password that you entered do not match!'));
+                    return Promise.reject(new Error(t('Confirm password does not match')));
                   },
                 }),
               ]}
@@ -86,7 +90,7 @@ function ResetPassword() {
               <Input.Password
                 prefix={<LockIcon className='mr-3' />}
                 className='h-12'
-                placeholder='Confirm New Password'
+                placeholder={t('Confirm New Password')}
               />
             </Form.Item>
 
@@ -94,15 +98,15 @@ function ResetPassword() {
               <Button
                 loading={isLoading}
                 type='primary'
-                htmlType='submit' // This makes the button submit the form
-                className='h-12 w-full bg-button-blue mt-2'
+                htmlType='submit'
+                className={`h-12 w-full bg-button-blue mt-2 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
               >
-                Submit
+                {t('Submit')}
               </Button>
             </Form.Item>
             <Form.Item>
-              <Button onClick={handleBack} className='h-12 w-full'>
-                Cancel
+              <Button onClick={handleBack} className={`h-12 w-full ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>
+                {t('Cancel')}
               </Button>
             </Form.Item>
           </Form>

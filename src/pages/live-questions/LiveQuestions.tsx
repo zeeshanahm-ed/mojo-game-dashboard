@@ -12,7 +12,8 @@ import LiveQuestionsDetailModal from 'components/modals/LiveQuestionsDetailModal
 import { useTranslation } from 'react-i18next';
 import { useDirection } from 'hooks/useGetDirection';
 
-const QuestionsReview = () => {
+function LiveQuestions() {
+    const { setTitle } = useHeaderProps();
     const { t } = useTranslation();
     const direction = useDirection();
     const currentLang = getCurrentLanguage();
@@ -24,6 +25,8 @@ const QuestionsReview = () => {
     });
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);
+
+    useEffect(() => setTitle(t('Live Questions')), [setTitle, t]);
 
 
     const [isQuestionReviewModalOpen, setIsQuestionReviewModalOpen] = useState(false);
@@ -141,19 +144,6 @@ const QuestionsReview = () => {
             )}
         </section>
     );
-};
-
-function LiveQuestions() {
-    const { setTitle } = useHeaderProps();
-
-
-    useEffect(() => setTitle('Live Questions'), [setTitle]);
-
-    return (
-        <section>
-            <QuestionsReview />
-        </section>
-    )
 }
 
 export default LiveQuestions;

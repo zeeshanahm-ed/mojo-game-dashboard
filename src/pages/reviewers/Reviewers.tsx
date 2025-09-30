@@ -44,7 +44,7 @@ const Reviewers: React.FC = () => {
     // const { userData, isLoading, pagination, refetch } = useUserData(params);
     const { reviewersData, isLoading, pagination, refetch } = useGetAllReviewers(params);
 
-    useEffect(() => setTitle(t('Reviewers')), [setTitle]);
+    useEffect(() => setTitle(t('Reviewers')), [setTitle, t]);
 
     const handleStatusChange = (status: string) => {
         setSelectedStatus(status);

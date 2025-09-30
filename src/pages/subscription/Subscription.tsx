@@ -45,7 +45,7 @@ export const Subscription: React.FC = () => {
         { value: 'completed', label: t('completed') },
     ];
 
-    useEffect(() => setTitle(t('Subscriptions')), [setTitle]);
+    useEffect(() => setTitle(t('Subscriptions')), [setTitle, t]);
 
     const handleSelectChange = (value: string | undefined) => {
         setSelectedStatus(value);

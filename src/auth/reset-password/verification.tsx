@@ -5,8 +5,12 @@ import useBack from 'hooks/use-back';
 import { forgotPassCode, verifyOtp } from 'auth/core/_requests';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useDirection } from 'hooks/useGetDirection';
 
 function Verification() {
+  const { t } = useTranslation();
+  const direction = useDirection();
   const navigate = useNavigate();
   const forgotEmail = localStorage.getItem('forgotEmail');
   const { handleBack } = useBack();
@@ -28,7 +32,7 @@ function Verification() {
 
     try {
       await verifyOtp(body);
-      showSuccessMessage('Otp has been varified.');
+      showSuccessMessage(t('Otp has been varified'));
       localStorage.setItem('verifiedOtp', otp);
       navigate('/auth/reset-password');
     } catch (error: any) {
@@ -86,26 +90,26 @@ function Verification() {
 
     try {
       await forgotPassCode({ email: forgotEmail });
-      showSuccessMessage('OTP resent successfully!');
+      showSuccessMessage(t('OTP resent successfully'));
       setResendDisabled(true);
       setCountdown(59);
       localStorage.setItem('resendTimestamp', Date.now().toString());
-    } catch (error) {
-      showErrorMessage('Error while resending OTP!');
+    } catch (error: any) {
+      showErrorMessage(error.response.data.message);
       console.error('Resend OTP Error:', error);
     }
   };
 
   return (
     <Container>
-      <section className='flex justify-center  w-full h-screen  bg-white relative items-center font-urbanist'>
+      <section className={`flex justify-center  w-full h-screen  bg-white relative items-center ${direction === 'ltr' ? 'font-urbanist ' : 'font-arabic'}`}>
         <div className='w-full flex flex-col max-w-md p-8 space-y-6'>
           {/* Logo and title */}
           <div className="mb-10 text-center">
-            <h1 className="text-[80px] font-bold tracking-widest font-secondary">MOJO</h1>
-            <h2 className="text-2xl font-medium -mt-2"> Verify OTP</h2>
+            <h1 className="text-[80px] font-bold tracking-widest font-secondary">{t("MOJO")}</h1>
+            <h2 className="text-xl font-medium -mt-2">{t("Verify OTP")}</h2>
             <h2 className="text-center text-gray-500 text-base mt-2">
-              Enter 6 digit OTP you received on email
+              {t("Enter 6 digit OTP you received on email")}
             </h2>
           </div>
 
@@ -114,7 +118,7 @@ function Verification() {
               rules={[
                 {
                   required: true,
-                  message: 'Please enter the OTP!',
+                  message: t('Please enter the OTP'),
                 },
               ]}
               name='otp'
@@ -132,24 +136,24 @@ function Verification() {
               <Button
                 type='primary'
                 onClick={handleVerifyOTP}
-                className='h-12 w-full bg-button-blue'
+                className={`h-12 w-full bg-button-blue ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                 disabled={otp?.length !== 6}
               >
-                Submit
+                {t("Submit")}
               </Button>
             </Form.Item>
 
             <div className='flex flex-row gap-x-2 justify-center'>
-              <Button onClick={handleBack} className='h-12 w-full'>
-                Cancel
+              <Button onClick={handleBack} className={`h-12 w-full ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>
+                {t("Cancel")}
               </Button>
               <Button
                 type='primary'
                 onClick={handleResendOtp}
-                className='h-12 mb-5 w-full text-white disabled:text-white disabled:scale-100 disabled:bg-secondary'
+                className={`h-12 mb-5 w-full text-white disabled:text-white disabled:scale-100 disabled:bg-secondary ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                 disabled={resendDisabled}
               >
-                {resendDisabled ? `Resend OTP (${countdown})` : 'Resend OTP'}
+                {resendDisabled ? `${t("Resend OTP")} (${countdown})` : t("Resend OTP")}
               </Button>
             </div>
           </Form>

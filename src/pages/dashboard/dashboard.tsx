@@ -38,7 +38,7 @@ const Dashboard = () => {
   const { dashboardData } = useGetDashboardStatistics(params);
   // const [activeTab, setActiveTab] = useState('Monthly')
 
-  useEffect(() => setTitle(t("Dashboard")), [setTitle]);
+  useEffect(() => setTitle(t("Dashboard")), [t]);
 
 
   const handleDateRangeChange = (date: any, setState: any) => {

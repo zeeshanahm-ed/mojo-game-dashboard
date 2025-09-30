@@ -30,7 +30,7 @@ const Profile: React.FC = () => {
         }));
     };
 
-    useEffect(() => setTitle(t('Profile')), []);
+    useEffect(() => setTitle(t('Profile')), [setTitle, t]);
 
 
     const handleChangePassword = () => {
