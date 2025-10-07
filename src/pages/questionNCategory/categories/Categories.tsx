@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Button, Empty, Pagination, Popconfirm, } from "antd";
+import { useEffect, useState } from "react";
+import { Button, Empty, Pagination, Popconfirm, Select, } from "antd";
 import AddNEditCategoryModal from "components/modals/AddNEditCategoryModal";
 import useCategoriesData from "./core/hooks/useCategoriesData";
 import FallbackLoader from "components/core-ui/fallback-loader/FallbackLoader";
@@ -12,23 +12,33 @@ import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
-import { hasPermission } from "helpers/CustomHelpers";
+import { getCurrentLanguage, hasPermission } from "helpers/CustomHelpers";
 import { useTranslation } from "react-i18next";
 import { useDirection } from "hooks/useGetDirection";
+import useChangeCategoryStatus from "./core/hooks/useChangeCategoryStatuc";
 
 
 function Categories() {
     const { t } = useTranslation();
     const direction = useDirection();
+    const currentLang = getCurrentLanguage();
     const CURRENT_USER = getUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalEditData, setModalEditData] = useState<any>(null);
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
+        lang: direction === 'ltr' ? currentLang : 'ar',
+        status: undefined,
     });
     const { categoriesData, isLoading, pagination, refetch } = useCategoriesData(params);
+    const { changeCategoryStatusMutate } = useChangeCategoryStatus();
+
     const { deleteCategoryMutate } = useDeleteCategory();
+
+    useEffect(() => {
+        setParams(prev => ({ ...prev, lang: currentLang }));
+    }, [direction, currentLang]);
 
     const handleAddNewCat = () => {
         setIsModalOpen(true);
@@ -56,17 +66,55 @@ function Categories() {
             },
         });
     };
+    const handleSelectChange = (value: string | undefined, name: string) => {
+        setParams(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleStatusChange = (status: string, category: any) => {
+        changeCategoryStatusMutate(
+            { id: category?._id, params: { status: status } },
+            {
+                onSuccess: (res: any) => {
+                    showSuccessMessage(res?.message);
+                    refetch();
+                },
+                onError: (error: any) => {
+                    showErrorMessage(error?.response?.data?.message);
+                },
+            }
+        );
+    };
+
+    const statusOptions = [
+        { value: "Active", label: t("Active") },
+        { value: "Inactive", label: t("Inactive") },
+        { value: "Pending", label: t("Pending") },
+        { value: "Rejected", label: t("Rejected") },
+    ];
 
     return (
         <section className="overflow-hidden mb-10">
-            <div className="mt-10">
+            <div className="mt-10 flex items-center gap-5 flex-wrap">
                 <Button
                     disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     variant='text'
                     onClick={handleAddNewCat}
-                    className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'} border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit`}>
+                    className={`${direction === 'ltr' ? 'font-primary' : 'font-arabic'} border border-primary bg-primary text-white font-normal shadow-none h-12 px-5 gap-6 text-sm w-fit`}>
                     <AddRoundedIcon className="fill-white text-white" />  {t("Add New")}
                 </Button>
+                <Select
+                    allowClear
+                    options={statusOptions}
+                    value={params.status || undefined}
+                    placeholder={t("Status")}
+                    className={`h-12 w-48 text-xl`}
+                    onChange={(value) => handleSelectChange(value, "status")}
+                    optionRender={(option) => (
+                        <div key={option.value}>
+                            <span className={`text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{option.label}</span>
+                        </div>
+                    )}
+                />
             </div>
 
             <div className="border border-gray-200 rounded-xl mt-5">
@@ -78,7 +126,7 @@ function Categories() {
                     </div>
                 </div>
 
-                <div className="w-full overflow-x-auto overflow-hidden h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto overflow-y-hidden h-[790px] lg:max-h-[790px]">
                     {isLoading ?
                         <FallbackLoader />
                         :
@@ -95,7 +143,10 @@ function Categories() {
                                             <th className={`p-5 font-normal text-center text-medium-gray whitespace-nowrap`}>
                                                 {t("Category")}
                                             </th>
-                                            <th className={`p-5 font-normal text-end text-medium-gray whitespace-nowrap`}>
+                                            <th className={`p-5 font-normal text-center text-medium-gray whitespace-nowrap`}>
+                                                {t("Status")}
+                                            </th>
+                                            <th className={`p-5 font-normal text-center text-medium-gray whitespace-nowrap`}>
                                                 {t("Action")}
                                             </th>
                                         </tr>
@@ -108,9 +159,24 @@ function Categories() {
                                                 key={index}
                                                 className="border-b hover:bg-gray-50 text-center"
                                             >
-                                                <td className="p-5"><img src={row?.photo || GameImage} alt={row?.name} loading="lazy" className="w-10 h-10 object-contain ml-10" /></td>
-                                                <td className="p-5">{row?.name}</td>
-                                                <td className="p-5 flex justify-end">
+                                                <td className="p-4"><img src={row?.photo || GameImage} alt={row?.name} loading="lazy" className="w-10 h-10 object-contain ml-10" /></td>
+                                                <td className="p-4">{row?.name}</td>
+                                                <td className="p-4">
+                                                    <Select
+                                                        className={`w-full ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
+                                                        value={t(row?.status as string)}
+                                                        variant="borderless"
+                                                        onChange={(e) => handleStatusChange(e, row)}
+                                                        options={statusOptions}
+                                                        disabled={!row?._id}
+                                                        optionRender={(option) => (
+                                                            <div key={option.label as string}>
+                                                                <span className={`text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{option.label}</span>
+                                                            </div>
+                                                        )}
+                                                    />
+                                                </td>
+                                                <td className="p-4 flex justify-center">
                                                     <div className="flex justify-center items-center gap-4">
                                                         <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" onClick={() => handleEditClick(row)} className="border-none shadow-none">
                                                             <EditIcon className="text-black" />

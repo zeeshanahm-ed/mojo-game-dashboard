@@ -67,17 +67,6 @@ type ErrorStateType = {
     options: string;
 }
 
-const DifficultyOptions = [
-    { value: 'easy', label: 'Easy', points: 200 },
-    { value: 'medium', label: 'Medium', points: 400 },
-    { value: 'hard', label: 'Hard', points: 600 },
-];
-
-const QuestionTypeOptions = [
-    { value: 'Direct Answer', label: 'Simple Question' },
-    { value: 'MCQs', label: "MCQ's Question" },
-];
-
 const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId = null }: QuestionNAnswerProps) => {
     const { t } = useTranslation();
     const direction = useDirection();
@@ -607,15 +596,16 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
     };
 
 
-    // const getImageUrl = () => {
-    //     const url = URL.createObjectURL(state.questionMediaObj as Blob);
-    //     const extension = getFileExtension(url);
-    //     if (state.questionMediaObj) {
-    //         return url;
-    //     } else {
-    //         return "";
-    //     }
-    // };
+    const DifficultyOptions = [
+        { value: 'easy', label: t('easy'), points: 200 },
+        { value: 'medium', label: t('medium'), points: 400 },
+        { value: 'hard', label: t('hard'), points: 600 },
+    ];
+
+    const QuestionTypeOptions = [
+        { value: 'Direct Answer', label: t('Simple Question') },
+        { value: 'MCQs', label: t("MCQ's Question") },
+    ];
 
     return (
         <>
@@ -652,6 +642,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                 <div className="flex flex-col gap-y-2">
                                     <label className="text-base">{t('Assign Category')}</label>
                                     <Select
+                                        virtual
                                         allowClear={false}
                                         options={state.categoriesOptions}
                                         onChange={(value) => handleSelectChange(value, "selectedCategory")}
@@ -664,7 +655,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                         }
                                         optionRender={(option) => (
                                             <div key={option.data.value}>
-                                                <span>{option.data.label}</span>
+                                                <span className={`truncate text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{option.data.label}</span>
                                             </div>
                                         )}
                                     />
@@ -677,7 +668,12 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                         placeholder={t('Choose Difficulty')}
                                         className={`h-12 w-48`}
                                         onChange={(value) => handleSelectChange(value, "selectedDifficulty")}
-                                        value={state.selectedDifficulty || undefined}
+                                        value={t(state.selectedDifficulty as string) || undefined}
+                                        optionRender={(option) => (
+                                            <div key={option.label as string}>
+                                                <span className={`text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{option.label}</span>
+                                            </div>
+                                        )}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-y-2">
@@ -686,10 +682,14 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                         allowClear={false}
                                         options={QuestionTypeOptions}
                                         onChange={(value) => handleSelectChange(value, "selectedQuestionType")}
-                                        value={state.selectedQuestionType || undefined}
+                                        value={t(state.selectedQuestionType as string) || undefined}
                                         placeholder={t('Question Type')}
                                         className={`h-12 w-48`}
-
+                                        optionRender={(option) => (
+                                            <div key={option.label as string}>
+                                                <span className={`text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{option.label}</span>
+                                            </div>
+                                        )}
                                     />
                                 </div>
                             </div>

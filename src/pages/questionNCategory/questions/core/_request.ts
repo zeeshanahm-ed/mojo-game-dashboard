@@ -50,3 +50,7 @@ export function updateBulkQuestionData(data: FormData) {
         }
     ).then((response) => response.data);
 }
+
+export function changeQuestionStatus(id: string, params: any) {
+    return api.patch(`${QUESTION_URL}/${id}/status`, params).then((response) => response.data);
+}

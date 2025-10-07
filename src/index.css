@@ -255,6 +255,22 @@ circle:focus {
   overflow-y: auto !important;
 }
 
+/* Ellipsis for AntD Select selected value and dropdown items */
+.select-ellipsis .ant-select-selection-item,
+.select-ellipsis .ant-select-selection-placeholder {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-ellipsis .ant-select-item-option-content {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ant-form-item-label label {
   font-size: 16px !important;
 }

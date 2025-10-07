@@ -183,10 +183,10 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
     };
 
     const Options = [
-        { value: "Active", name: "Active" },
-        { value: "Inactive", name: "Inactive" },
-        { value: "Rejected", name: "Rejected" },
-        { value: "Pending", name: "Pending" },
+        { value: "Active", label: "Active" },
+        { value: "Inactive", label: "Inactive" },
+        { value: "Rejected", label: "Rejected" },
+        { value: "Pending", label: "Pending" },
     ];
 
     const handleStatusChange = (value: string) => {
@@ -281,12 +281,17 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                 <div>
                     <p className="w-fit text-base mb-2">{t('Status')}</p>
                     <Select
-                        className={`w-full ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
-                        value={selectedStatus}
+                        className={`w-full h-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
+                        value={t(selectedStatus as string)}
                         onChange={handleStatusChange}
-                        options={Options.map((opt) => ({ value: opt.value, label: opt.name }))}
+                        options={Options}
                         loading={isChangeStatusLoading}
                         disabled={!editData}
+                        optionRender={(option) => (
+                            <div key={option.label as string}>
+                                <span className={`text-base ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>{t(option.label as string)}</span>
+                            </div>
+                        )}
                     />
                 </div>
             </div>

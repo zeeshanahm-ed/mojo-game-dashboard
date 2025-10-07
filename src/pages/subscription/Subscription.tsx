@@ -21,10 +21,10 @@ const StatusColorClass: Record<StatusType, string> = {
     active: "bg-[#CCFFD6] text-[#1C8432]",
     pending: "bg-[#FFF1CC] text-[#75841C]",
     completed: "bg-[#CCFFD6] text-[#1C8432]",
-    cancelled: "bg-[#DADADA] text-[#636363]",
+    canceled: "bg-[#DADADA] text-[#636363]",
 };
 
-type StatusType = "active" | "pending" | "completed" | "cancelled";
+type StatusType = "active" | "pending" | "completed" | "canceled";
 
 
 export const Subscription: React.FC = () => {
@@ -41,7 +41,7 @@ export const Subscription: React.FC = () => {
     const statusOptions = [
         { value: 'active', label: t('active') },
         { value: 'pending', label: t('pending') },
-        { value: 'canceled', label: t('cancelled') },
+        { value: 'canceled', label: t('canceled') },
         { value: 'completed', label: t('completed') },
     ];
 
