@@ -96,12 +96,16 @@ export const RolesNPermissions: React.FC = () => {
         setParams(prev => ({ ...prev, page }));
     };
 
+    const disabled = () => {
+        return hasPermission(CURRENT_USER?.role, "read_only") || hasPermission(CURRENT_USER?.role, "finance_manager");
+    }
+
     return (
         <section className="overflow-hidden my-10">
             <div className="flex justify-between items-center flex-wrap gap-6">
                 <div>
                     <Button
-                        disabled={hasPermission(CURRENT_USER?.role, "read_only")}
+                        disabled={disabled()}
                         variant='text'
                         onClick={() => handleAddMemberModal(null, 'add')}
                         className={` border border-primary bg-primary text-white font-normal shadow-none h-11 px-5 gap-6 text-sm w-fit`}>
@@ -149,10 +153,10 @@ export const RolesNPermissions: React.FC = () => {
                                                 <td className="p-5">{user?.firstName} {user?.lastName}</td>
                                                 <td className="p-5">{user?.email}</td>
                                                 <td className="p-5">{user?.phoneNumber}</td>
-                                                <RoleCell user={user} onChangeRole={handleChangeRole} disabled={hasPermission(CURRENT_USER?.role, "read_only")} />
+                                                <RoleCell user={user} onChangeRole={handleChangeRole} disabled={disabled()} />
                                                 <td className="p-5 text-xl space-x-2">
                                                     <div className="flex items-center gap-2">
-                                                        <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none px-2">
+                                                        <Button disabled={disabled()} variant="text" onClick={() => handleAddMemberModal(user, 'edit')} className="border-none shadow-none px-2">
                                                             <EditIcon className="text-black" />
                                                         </Button>
                                                         <Popconfirm
@@ -160,9 +164,10 @@ export const RolesNPermissions: React.FC = () => {
                                                             onConfirm={() => handleDeleteClick(user)}
                                                             okText={t("Yes")}
                                                             cancelText={t("No")}
-                                                            disabled={hasPermission(CURRENT_USER?.role, "read_only")}
+                                                            disabled={disabled()}
+
                                                         >
-                                                            <Button disabled={hasPermission(CURRENT_USER?.role, "read_only")} className="border-none shadow-none px-2"><DeleteIcon /></Button>
+                                                            <Button disabled={disabled()} className="border-none shadow-none px-2"><DeleteIcon /></Button>
                                                         </Popconfirm>
                                                     </div>
                                                 </td>

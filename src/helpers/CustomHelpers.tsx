@@ -37,13 +37,12 @@ export const formatFileSize = (bytes: number | undefined): number => {
 };
 
 // Permission helper function
-export const hasPermission = (userRole: string | undefined, permission: 'read_only' | 'editor'): boolean => {
+export const hasPermission = (userRole: string | undefined, permission: string): boolean => {
     if (permission === 'read_only') {
         return READ_ONLY_ROLES.includes(userRole as ROLES);
     }
-
-    if (permission === 'editor') {
-        return EDITOR_ONLY_ROLES.includes(userRole as ROLES);
+    if (permission === 'finance_manager') {
+        return ROLES.FINANCE_MANAGER === userRole;
     }
 
     return false;

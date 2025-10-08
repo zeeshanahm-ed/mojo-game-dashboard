@@ -50,7 +50,7 @@ function SidebarRoutes() {
       key: 'user-management',
       label: 'User Management',
       path: '/user-management',
-      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
+      roles: [ROLES.SUPER_ADMIN, ROLES.READ_ONLY],
     },
     {
       key: 'question-category',
@@ -68,13 +68,13 @@ function SidebarRoutes() {
       key: 'roles-permissions',
       label: 'Roles & Permissions',
       path: '/roles-permissions',
-      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY],
     },
     {
       key: 'subscription',
       label: 'Subscription',
       path: '/subscription',
-      roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_MANAGER, ROLES.CONTENT_MANAGER],
+      roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_MANAGER],
     },
     {
       key: 'reviewers',
