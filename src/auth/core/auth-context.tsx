@@ -71,14 +71,23 @@ function AuthInit({ children }: IProps) {
   const { auth, logout, setCurrentUser } = useAuth();
   const didRequest = useRef(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
     const requestUser = async (apiToken: string) => {
       try {
         if (!didRequest.current) {
+          setIsVerifying(true);
           const { data } = await getUserByToken(apiToken);
           if (data) {
             setCurrentUser(data);
+            const authData = {
+              api_token: apiToken,
+              data: data?.data?.data,
+            };
+            authHelper.setUser(authData?.data);
+            authHelper.setAuth(authData);
           }
         }
       } catch (error) {
@@ -86,6 +95,7 @@ function AuthInit({ children }: IProps) {
           logout();
         }
       } finally {
+        setIsVerifying(false);
         setShowSplashScreen(false);
       }
 
@@ -100,7 +110,19 @@ function AuthInit({ children }: IProps) {
     }
   }, [auth, logout, setCurrentUser]);
 
-  return showSplashScreen ? <div>Loading...</div> : children;
+  return showSplashScreen ? (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      flexDirection: 'column',
+      gap: '10px'
+    }}>
+      <div>Loading...</div>
+      {isVerifying && <div style={{ fontSize: '14px', color: '#666' }}>Verifying token...</div>}
+    </div>
+  ) : children;
 }
 
 export { AuthProvider, useAuth, AuthInit };

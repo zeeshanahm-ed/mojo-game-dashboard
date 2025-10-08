@@ -56,7 +56,7 @@ function SidebarRoutes() {
       key: 'question-category',
       label: 'Question/category',
       path: '/question-category',
-      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY, ROLES.FINANCE_MANAGER],
+      roles: [ROLES.CONTENT_MANAGER, ROLES.SUPER_ADMIN, ROLES.READ_ONLY],
     },
     // {
     //   key: 'settings-controls',
