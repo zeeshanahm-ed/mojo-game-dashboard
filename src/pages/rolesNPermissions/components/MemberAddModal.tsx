@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 //components
-import { Divider, Form, Modal, Select, Input, Radio, Button } from 'antd';
+import { Divider, Form, Modal, Select, Input, Radio } from 'antd';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 //hooks & Utils
 import { ROLES_OPTIONS } from 'constants/global';
@@ -196,9 +196,9 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
                     </Form.Item>}
 
                 <div className='flex justify-end'>
-                    <Button type='primary' className={`text-base px-14 h-12 `}>
+                    <button type='submit' className={`text-base px-10 h-12 bg-primary text-white rounded-md w-fit `}>
                         {EditUserData ? t('Save Changes') : t('Add Member')}
-                    </Button>
+                    </button>
                 </div>
 
             </Form>
