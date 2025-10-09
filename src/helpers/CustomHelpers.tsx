@@ -1,4 +1,4 @@
-import { EDITOR_ONLY_ROLES, READ_ONLY_ROLES } from "constants/global";
+import { READ_ONLY_ROLES } from "constants/global";
 import i18n from "../i18n";
 import { ROLES } from "utils/Enums";
 export function debounce<T extends (...args: any[]) => void>(

@@ -72,7 +72,7 @@ function Questions() {
         }
     }, [categoriesData]);
 
-    const handleSelectChange = (value: string | undefined, name: string) => {
+    const handleSelectChange = (value: any, name: string) => {
         setState(prev => ({
             ...prev,
             [name]: value
@@ -251,7 +251,7 @@ function Questions() {
                         value={state.selectedCategory || undefined}
                         placeholder={t("Category")}
                         className={`h-12 w-48 select-ellipsis`}
-                        onChange={(value) => handleSelectChange(value ? String(value) : undefined, "selectedCategory")}
+                        onChange={(value: any) => handleSelectChange(value?.value ? value.value : value, "selectedCategory")}
                         showSearch
                         filterOption={(input, option) =>
                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
