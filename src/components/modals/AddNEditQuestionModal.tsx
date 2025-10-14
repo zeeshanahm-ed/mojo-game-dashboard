@@ -91,7 +91,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         { english: "", arabic: "" },
     ]);
 
-    const [isYoutubeUrl, setIsYoutubeUrl] = useState(false);
+    // const [isYoutubeUrl, setIsYoutubeUrl] = useState(false);
 
     const [linkInput, setLinkInput] = useState({
         question: false,
@@ -627,7 +627,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
     };
 
     const handleCloseLinkInput = (name: "question" | "answer") => {
-        setIsYoutubeUrl(false);
+        // setIsYoutubeUrl(false);
         setLinkInput(prev => ({
             ...prev,
             [name]: false,
@@ -640,7 +640,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             showErrorMessage(t("youtubeUrlIsRequired"));
             return;
         } else if (isYoutubeUrlCorrect(linkInput[`${name}Link`])) {
-            setIsYoutubeUrl(true);
+            // setIsYoutubeUrl(true);
             setQuestionState((prevState) => {
                 return {
                     ...prevState,
