@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Empty, Pagination, Popconfirm, Select, } from "antd";
 import AddNEditCategoryModal from "components/modals/AddNEditCategoryModal";
 import useCategoriesData from "./core/hooks/useCategoriesData";
@@ -12,7 +12,7 @@ import AddRoundedIcon from 'assets/icons/add-rounded-icon.svg?react';
 import DeleteIcon from 'assets/icons/delete-icon.svg?react';
 import EditIcon from 'assets/icons/edit-icon.svg?react';
 import GameImage from 'assets/images/game-image.png';
-import { getCurrentLanguage, hasPermission } from "helpers/CustomHelpers";
+import { hasPermission } from "helpers/CustomHelpers";
 import { useTranslation } from "react-i18next";
 import { useDirection } from "hooks/useGetDirection";
 import useChangeCategoryStatus from "./core/hooks/useChangeCategoryStatuc";
@@ -21,24 +21,18 @@ import useChangeCategoryStatus from "./core/hooks/useChangeCategoryStatuc";
 function Categories() {
     const { t } = useTranslation();
     const direction = useDirection();
-    const currentLang = getCurrentLanguage();
     const CURRENT_USER = getUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalEditData, setModalEditData] = useState<any>(null);
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
-        lang: direction === 'ltr' ? currentLang : 'ar',
         status: undefined,
     });
     const { categoriesData, isLoading, pagination, refetch } = useCategoriesData(params);
     const { changeCategoryStatusMutate } = useChangeCategoryStatus();
 
     const { deleteCategoryMutate } = useDeleteCategory();
-
-    useEffect(() => {
-        setParams(prev => ({ ...prev, lang: currentLang }));
-    }, [direction, currentLang]);
 
     const handleAddNewCat = () => {
         setIsModalOpen(true);

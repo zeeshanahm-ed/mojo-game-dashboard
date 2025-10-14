@@ -52,6 +52,12 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
         setIsQuestionReviewModalOpen(false);
         setSelectedQuestion(null);
     };
+    const getQuestionText = (questionData: any) => {
+        return questionData?.questionText?.[currentLang] || questionData?.questionText?.ar || '';
+    };
+    const getCategoryName = (questionData: any) => {
+        return questionData?.categoryName?.[currentLang] || questionData?.categoryName?.ar || null;
+    };
 
     // Custom table component
     const CustomTable = () => (
@@ -78,10 +84,10 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
                                 <span className="text-gray-700">{record?.suggestedByName}</span>
                             </td>
                             <td className="p-4">
-                                <span className="text-gray-700">{record.questionText?.en || record.questionText?.ar}</span>
+                                <span className="text-gray-700">{getQuestionText(record)}</span>
                             </td>
                             <td className="p-4 text-start">
-                                <span className="text-gray-700">{record.categoryName?.en || record.categoryName?.ar || "-"}</span>
+                                <span className="text-gray-700">{getCategoryName(record)}</span>
                             </td>
                             <td className="p-4">
                                 <Button

@@ -108,6 +108,7 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
                 layout='vertical'
                 autoComplete='off'
                 onFinish={onFinish}
+                dir={direction}
             >
 
                 <Form.Item
@@ -196,7 +197,7 @@ function MemberAddModal({ onCancel, open, EditUserData, refetchAllUserData }: Me
                     </Form.Item>}
 
                 <div className='flex justify-end'>
-                    <button type='submit' className={`text-base px-10 h-12 bg-primary text-white rounded-md w-fit `}>
+                    <button type='submit' className={`text-base px-10 h-12 bg-primary text-white rounded-md w-fit ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>
                         {EditUserData ? t('Save Changes') : t('Add Member')}
                     </button>
                 </div>

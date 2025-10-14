@@ -59,7 +59,7 @@ function SignIn() {
   }, [currentUser, navigate]);
 
   return (
-    <div className={`min-h-screen flex flex-col items-center bg-white relative justify-center ${direction === 'ltr' ? 'font-urbanist ' : 'font-arabic'}`}>
+    <div className={`min-h-screen flex flex-col items-center bg-white relative justify-center ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}>
       {/* Logo and title */}
       <div className="mb-10 text-center">
         <h1 className="text-[80px] font-bold tracking-widest font-secondary">{t('MOJO')}</h1>
@@ -74,6 +74,7 @@ function SignIn() {
           initialValues={{ email: '', password: '' }}
           autoComplete="off"
           layout="vertical"
+          dir={direction}
         >
           <Form.Item
             // label="Email Address"
@@ -83,7 +84,8 @@ function SignIn() {
             ]}
           >
             <Input
-              prefix={<MailIcon className='mr-3' />}
+              dir={direction}
+              prefix={<MailIcon className='me-3' />}
               type="email"
               placeholder={t('Email Address')}
               className="h-12 py-0"
@@ -103,7 +105,8 @@ function SignIn() {
             ]}
           >
             <Input.Password
-              prefix={<LockIcon className='mr-3' />}
+              dir={direction}
+              prefix={<LockIcon className='me-3' />}
               placeholder={t('Password')}
               className="h-12 py-0"
             />

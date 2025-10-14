@@ -41,22 +41,22 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
 
 
     const getQuestionText = () => {
-        return questionData?.questionText?.[currentLanguage] || questionData?.questionText?.en || '';
+        return questionData?.questionText?.[currentLanguage] || questionData?.questionText?.ar || '';
     };
     const getAnswerExplanationText = () => {
-        return questionData?.answerExplanation?.[currentLanguage] || questionData?.answerExplanation?.en || '';
+        return questionData?.answerExplanation?.[currentLanguage] || questionData?.answerExplanation?.ar || '';
     };
 
     const getOptions = () => {
-        return questionData?.options?.[currentLanguage] || questionData?.options?.en || [];
+        return questionData?.options?.[currentLanguage] || questionData?.options?.ar || [];
     };
 
     const getCorrectAnswer = () => {
-        return questionData?.correctAnswer?.[currentLanguage] || questionData?.correctAnswer?.en || '';
+        return questionData?.correctAnswer?.[currentLanguage] || questionData?.correctAnswer?.ar || '';
     };
 
     const getCategoryName = () => {
-        return questionData?.categoryName?.[currentLanguage] || questionData?.categoryName?.en || null;
+        return questionData?.categoryName?.[currentLanguage] || questionData?.categoryName?.ar || null;
     };
 
     const getDifficultyColor = (difficulty: string) => {

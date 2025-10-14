@@ -48,7 +48,7 @@ const Reviewers: React.FC = () => {
 
     const handleStatusChange = (status: string) => {
         setSelectedStatus(status);
-        setParams(prev => ({ ...prev, status: status }))
+        setParams(prev => ({ ...prev, status: status === "all" ? undefined : status }))
     };
 
     // const debouncedOnChange = useCallback(
@@ -170,8 +170,8 @@ const Reviewers: React.FC = () => {
             {reviewersData?.length > 0 && <Pagination
                 className="mt-5 justify-center text-white"
                 current={params?.page}
-                pageSize={pagination?.limit}
-                total={pagination?.total}
+                pageSize={params?.limit}
+                total={pagination?.total || 0}
                 onChange={handlePageChange}
             />}
 

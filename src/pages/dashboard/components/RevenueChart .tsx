@@ -8,6 +8,7 @@ import {
     Cell,
 } from "recharts";
 import { useTranslation } from 'react-i18next';
+import { useDirection } from "hooks/useGetDirection";
 
 interface BackendData {
     totalAmount: number;
@@ -24,6 +25,7 @@ interface BackendData {
 
 const RevenueChart = ({ data }: { data: BackendData }) => {
     const { t } = useTranslation();
+    const direction = useDirection();
 
     // Function to translate month names
     const translateMonth = (monthName: string) => {
@@ -107,11 +109,11 @@ const RevenueChart = ({ data }: { data: BackendData }) => {
                             formatter={(_value, _name, props) => {
                                 const data = props.payload;
                                 if (data.isZeroValue) {
-                                    return ['No Revenue', 'Revenue'];
+                                    return [t('No Revenue'), t('Revenue')];
                                 }
                                 return [
-                                    `${data.totalAmount} ${data.originalData ? data.currency || 'SAR' : 'USD'}`,
-                                    'Revenue'
+                                    `${data.totalAmount} ${t('SAR')}`,
+                                    t('Revenue')
                                 ];
                             }}
                             contentStyle={{

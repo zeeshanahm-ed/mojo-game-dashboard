@@ -12,10 +12,12 @@ import * as authHelper from '../../../auth/core/auth-helpers';
 import LogoutModal from 'auth/logout-modal';
 import { useState } from 'react';
 import LanguageSwitch from 'components/core-ui/language-switch/language-switch';
+import { useTranslation } from 'react-i18next';
 
 
 function Header() {
   const { title, back, editInfo, showUpdateButton } = useHeaderProps();
+  const { t } = useTranslation();
   const currentUser = authHelper.getUser();
   const navigate = useNavigate();
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
@@ -24,11 +26,11 @@ function Header() {
   const menu = (
     <Menu>
       <Menu.Item key='profile' onClick={() => navigate('/profile')}>
-        Profile
+        {t("Profile")}
       </Menu.Item>
       <Menu.Item key='logout'>
         <button onClick={() => setLogoutModalOpen(true)} className='flex items-center gap-2 w-full'>
-          <span>Logout</span>
+          <span>{t("Logout")}</span>
         </button>
       </Menu.Item>
     </Menu>
@@ -46,8 +48,8 @@ function Header() {
             )}
             <h2 className='text-2xl font-medium'>{title}</h2>
           </div>
-          {editInfo && <div>Edit Information: {editInfo}</div>}
-          {showUpdateButton && <Button variant='primary'>Update</Button>}
+          {editInfo && <div>{t("Edit Information")}: {editInfo}</div>}
+          {showUpdateButton && <Button variant='primary'>{t("Update")}</Button>}
         </div>
         <div className='flex place-items-center gap-7 notification'>
 

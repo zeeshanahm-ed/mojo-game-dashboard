@@ -51,6 +51,7 @@ function ForgotPassword() {
             autoComplete="off"
             onFinish={handleSubmit}
             layout="vertical"
+            dir={direction}
           >
             {/* Email input */}
             <Form.Item
@@ -61,7 +62,8 @@ function ForgotPassword() {
               ]}
             >
               <Input
-                prefix={<MailIcon className='mr-3' />}
+                dir={direction}
+                prefix={<MailIcon className='me-3' />}
                 size="large"
                 className="h-12"
                 placeholder={t("Email Address")}

@@ -119,8 +119,8 @@ function AuthInit({ children }: IProps) {
       flexDirection: 'column',
       gap: '10px'
     }}>
-      <div>Loading...</div>
-      {isVerifying && <div style={{ fontSize: '14px', color: '#666' }}>Verifying token...</div>}
+      <div className='font-arabic'>...جاري التحميل</div>
+      {isVerifying && <div style={{ fontSize: '14px', color: '#666' }} className='font-arabic'>...يتم التحقق من رمز التحقق</div>}
     </div>
   ) : children;
 }

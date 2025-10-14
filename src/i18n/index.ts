@@ -9,12 +9,11 @@ i18n
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        fallbackLng: "en",
-        supportedLngs: ["en", "ar"],
+        fallbackLng: ['en', 'ar'],
+        supportedLngs: ['en', 'ar'],
+        lng: 'ar', // Set Arabic as the default language
         debug: false,
-        interpolation: {
-            escapeValue: false,
-        },
+        interpolation: { escapeValue: false },
         backend: {
             loadPath: "/locales/{{lng}}/translation.json",
         },

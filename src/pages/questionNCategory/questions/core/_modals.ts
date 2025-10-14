@@ -3,6 +3,5 @@ export interface AllQuestionParams {
     limit: number;
     categoryId?: string;
     difficulty?: string;
-    lang: string;
     status?: string;
 }

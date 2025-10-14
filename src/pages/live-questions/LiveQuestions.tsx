@@ -20,7 +20,6 @@ function LiveQuestions() {
     const [params, setParams] = useState<AllQuestionParams>({
         page: 1,
         limit: 10,
-        lang: currentLang,
         status: "Live"
     });
 
@@ -34,8 +33,6 @@ function LiveQuestions() {
 
     // Table headers configuration
     const tableHeaders = [
-        // { title: 'User ID', key: 'userId', className: "text-start" },
-        // { title: 'User Name', key: 'userName', className: "text-start" },
         { title: 'Question', key: 'question', className: "text-start" },
         { title: 'Category', key: 'category', className: "text-start" },
         { title: 'Action', key: 'action', className: "text-start" },
@@ -56,6 +53,10 @@ function LiveQuestions() {
         setSelectedQuestion(null);
     };
 
+    const getQuestionText = (questionData: any) => {
+        return questionData?.multilingualData.questionText?.[currentLang] || questionData?.multilingualData.questionText?.ar || '';
+    };
+
     // Custom table component
     const CustomTable = () => (
         <div className="min-w-[1100px]">
@@ -72,17 +73,8 @@ function LiveQuestions() {
                 <tbody>
                     {questionsData?.map((record: any) => (
                         <tr key={record._id} className="border-b hover:bg-gray-50 transition-colors">
-                            {/* <Tooltip title={record?.suggestedById}>
-                                <td className="p-4  truncate max-w-[80px]">
-                                    {record?.suggestedById}
-                                </td>
-                            </Tooltip>
                             <td className="p-4">
-                                <span className="text-gray-700">{record?.suggestedByName}</span>
-
-                            </td> */}
-                            <td className="p-4">
-                                <span className="text-gray-700">{record.questionText || "-"}</span>
+                                <span className="text-gray-700">{getQuestionText(record)}</span>
                             </td>
                             <td className="p-4">
                                 <span className="text-gray-700">{record.category?.name || "-"}</span>

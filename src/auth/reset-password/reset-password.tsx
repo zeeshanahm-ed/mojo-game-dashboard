@@ -49,7 +49,12 @@ function ResetPassword() {
             <h1 className="text-[80px] font-bold tracking-widest font-secondary">{t("MOJO")}</h1>
             <h2 className="text-xl font-medium -mt-2">{t("Set New Password")}</h2>
           </div>
-          <Form name='reset-password' autoComplete='off' onFinish={handleResetPassword}>
+          <Form
+            name='reset-password'
+            autoComplete='off'
+            onFinish={handleResetPassword}
+            dir={direction}
+          >
             <Form.Item
               name='newPassword'
               hasFeedback
@@ -63,7 +68,8 @@ function ResetPassword() {
               ]}
             >
               <Input.Password
-                prefix={<LockIcon className='mr-3' />}
+                prefix={<LockIcon className='me-3' />}
+                dir={direction}
                 className='h-12'
                 placeholder={t('New Password')}
               />
@@ -88,7 +94,8 @@ function ResetPassword() {
               ]}
             >
               <Input.Password
-                prefix={<LockIcon className='mr-3' />}
+                prefix={<LockIcon className='me-3' />}
+                dir={direction}
                 className='h-12'
                 placeholder={t('Confirm New Password')}
               />

@@ -34,7 +34,7 @@ export const Subscription: React.FC = () => {
     const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
     const [params, setParams] = useState({
         page: 1,
-        limit: 10,
+        limit: 15,
     })
     const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory(params)
 
@@ -91,7 +91,7 @@ export const Subscription: React.FC = () => {
                 </div>
 
                 {/* Scroll Wrapper */}
-                <div className="w-full overflow-x-auto overflow-y-auto h-[800px] lg:max-h-[800px]">
+                <div className="w-full overflow-x-auto h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <div className='flex justify-center items-center h-32'>
                             <Spin size="large" />

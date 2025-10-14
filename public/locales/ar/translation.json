@@ -42,7 +42,7 @@
     "Results": "مستخدمون جدد",
     "User ID": "معرف المستخدم",
     "Full Name": "الاسم الكامل",
-    "Email Address": "عنوان البريد الإلكتروني",
+    "Email Address": "البريد الإلكتروني",
     "Phone Number": "رقم الهاتف",
     "Status": "الحالة",
     "Question & Category Management": "إدارة الأسئلة والفئة",
@@ -217,5 +217,12 @@
     "hard": "صعب",
     "Simple Question": "سؤال بسيط",
     "MCQ's Question": "سؤال متعدد الخيارات",
-    "Update Question": "تحديث السؤال"
+    "Update Question": "تحديث السؤال",
+    "Edit Information": "تعديل المعلومات",
+    "Update": "تحديث",
+    "Loading": "جاري التحميل",
+    "Verifying token": "يتم التحقق من رمز التحقق",
+    "Revenue": "الإيرادات",
+    "No Revenue": "لا يوجد إيرادات",
+    "SAR": "ريال"
 }

@@ -238,7 +238,7 @@ const AddNEditCategoryModal: React.FC<AddCategoryModalProps> = ({
                         <Input
                             placeholder={t('Enter Category Name')}
                             value={categoryName}
-                            // dir={direction}
+                            dir={direction}
                             onChange={(e) => setCategoryName(e.target.value)}
                             className={`w-full h-12 ${direction === 'ltr' ? 'font-primary' : 'font-arabic'}`}
                         />

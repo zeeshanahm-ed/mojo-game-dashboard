@@ -31,18 +31,18 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
 
 
     const getQuestionText = () => {
-        return questionData?.multilingualData.questionText?.[currentLanguage] || questionData?.multilingualData.questionText?.en || '';
+        return questionData?.multilingualData.questionText?.[currentLanguage] || questionData?.multilingualData.questionText?.ar || '';
     };
     const getAnswerExplanationText = () => {
-        return questionData?.multilingualData.answerExplanation?.[currentLanguage] || questionData?.multilingualData.answerExplanation?.en || '';
+        return questionData?.multilingualData.answerExplanation?.[currentLanguage] || questionData?.multilingualData.answerExplanation?.ar || '';
     };
 
     const getOptions = () => {
-        return questionData?.multilingualData.options?.[currentLanguage] || questionData?.multilingualData.options?.en || [];
+        return questionData?.multilingualData.options?.[currentLanguage] || questionData?.multilingualData.options?.ar || [];
     };
 
     const getCorrectAnswer = () => {
-        return questionData?.multilingualData.correctAnswer?.[currentLanguage] || questionData?.multilingualData.correctAnswer?.en || '';
+        return questionData?.multilingualData.correctAnswer?.[currentLanguage] || questionData?.multilingualData.correctAnswer?.ar || '';
     };
 
     const getDifficultyColor = (difficulty: string) => {

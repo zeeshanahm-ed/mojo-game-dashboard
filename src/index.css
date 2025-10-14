@@ -81,8 +81,20 @@ body.font-arabic .ant-radio-label {
   font-family: var(--family-arabic);
 }
 
+body.font-arabic .ant-dropdown-menu-title-content {
+  font-family: var(--family-arabic) !important;
+}
+
+body.font-arabic .ant-form-item-explain-error {
+  font-family: var(--family-arabic);
+}
+
+body.font-arabic .ant-form-item-explain {
+  font-family: var(--family-arabic);
+}
+
 /* RTL password visibility icon placement for Ant Design */
-/* body.font-arabic .ant-input-password {
+body.font-arabic .ant-input-password {
   direction: rtl;
 }
 
@@ -92,14 +104,14 @@ body.font-arabic .ant-input-password .ant-input-suffix {
 }
 
 body.font-arabic .ant-input-password .ant-input {
-  padding-right: 12px !important;
-  padding-left: 30px !important;
-} */
+  padding-right: 8px !important;
+  padding-left: 8px !important;
+}
 
 /* Ensure LTR stays with default placement */
-/* body.font-primary .ant-input-password {
+body.font-primary .ant-input-password {
   direction: ltr;
-} */
+}
 
 p {
   font-family: var(--family-secondary);

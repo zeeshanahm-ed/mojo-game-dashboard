@@ -8,7 +8,7 @@ import DownloadIcon from 'assets/icons/download-icon.svg?react';
 import useDeleteQuestion from './hooks/useDeleteQuestion';
 import useGetAllQuestionsData from './hooks/useGetAllQuestionsData';
 import { AllQuestionParams } from './core/_modals';
-import { getCurrentLanguage, hasPermission } from 'helpers/CustomHelpers';
+import { hasPermission } from 'helpers/CustomHelpers';
 import { useGetAllCategoriesDataForDropDownFromStore } from 'store/AllCategoriesData';
 import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 //Components
@@ -21,7 +21,6 @@ import { useTranslation } from 'react-i18next';
 import { useDirection } from 'hooks/useGetDirection';
 import useChangeCategoryStatus from '../categories/core/hooks/useChangeCategoryStatuc';
 import useChangeQuestionStatus from './hooks/useChaneQuestionStatus';
-// Removed custom virtualized select; using AntD Select with built-in virtualization
 
 interface StateType {
     selectedCategory: string | null;
@@ -36,12 +35,10 @@ function Questions() {
     const { t } = useTranslation();
     const direction = useDirection();
     const CURRENT_USER = getUser();
-    const currentLang = getCurrentLanguage();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [params, setParams] = useState<AllQuestionParams>({
         page: 1,
         limit: 10,
-        lang: currentLang,
     });
     const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
 
@@ -58,10 +55,6 @@ function Questions() {
         selectedQuestionStatus: null,
         selectedQuestionType: null,
     });
-
-    useEffect(() => {
-        setParams(prev => ({ ...prev, lang: currentLang }));
-    }, [direction, currentLang]);
 
     useEffect(() => {
         if (categoriesData?.length) {
@@ -311,7 +304,7 @@ function Questions() {
                     {pagination?.total > 0 && <span className="text-border-gray text-sm me-2">{pagination?.total} {t("Results")}</span>}
                 </div>
 
-                <div className="w-full overflow-x-auto overflow-hidden h-[790px] lg:max-h-[790px]">
+                <div className="w-full overflow-x-auto h-[800px] lg:max-h-[800px]">
                     {isLoading ?
                         <FallbackLoader />
                         :

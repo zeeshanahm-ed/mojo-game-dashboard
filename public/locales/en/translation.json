@@ -217,5 +217,12 @@
     "hard": "Hard",
     "Simple Question": "Simple Question",
     "MCQ's Question": "MCQ's Question",
-    "Update Question": "Update Question"
+    "Update Question": "Update Question",
+    "Edit Information": "Edit Information",
+    "Update": "Update",
+    "Loading": "Loading",
+    "Verifying token": "Verifying token",
+    "Revenue": "Revenue",
+    "No Revenue": "No Revenue",
+    "SAR": "SAR"
 }
