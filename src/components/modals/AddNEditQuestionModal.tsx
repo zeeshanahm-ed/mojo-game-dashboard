@@ -9,19 +9,20 @@ import useAddQuestion from "pages/questionNCategory/questions/hooks/useAddQuesti
 import { showErrorMessage, showSuccessMessage } from "utils/messageUtils";
 import useUpdateQuestion from "pages/questionNCategory/questions/hooks/useUpdateQuestion";
 import useGetSingleQuestion from "pages/questionNCategory/questions/hooks/useGetSingleQuestion";
-import { formatFileSize, splitFileName } from "helpers/CustomHelpers";
+import { formatFileSize, isYoutubeUrlCorrect, splitFileName } from "helpers/CustomHelpers";
 import BulkUploadResultModal from 'components/modals/BulkUploadResultModal';
+import { getDownloadBulkUploadTemplate, updateBulkQuestionData } from "pages/questionNCategory/questions/core/_request";
+import { useDirection } from "hooks/useGetDirection";
+import { useTranslation } from "react-i18next";
 //icons
 import UploadImageIcon from "assets/icons/image-icon.svg?react";
 import VideoIcon from "assets/icons/video-icon.svg?react";
 import AudioIcon from "assets/icons/audio-icon.svg?react";
-import { MdDelete, MdOutlineFileUpload } from "react-icons/md";
+import LinkIcon from "assets/icons/link-icon.svg?react";
 import { LuCirclePlus } from "react-icons/lu";
-import ShuffleIcon from "assets/icons/shuffle-icon.svg?react";
-import { MdArrowBack } from 'react-icons/md';
-import { getDownloadBulkUploadTemplate, updateBulkQuestionData } from "pages/questionNCategory/questions/core/_request";
-import { useDirection } from "hooks/useGetDirection";
-import { useTranslation } from "react-i18next";
+// import ShuffleIcon from "assets/icons/shuffle-icon.svg?react";
+import { MdArrowBack, MdDelete, MdDone, MdClose, MdOutlineFileUpload } from "react-icons/md";
+
 
 type Mode = "online" | "offline";
 
@@ -89,6 +90,15 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         { english: "", arabic: "" },
         { english: "", arabic: "" },
     ]);
+
+    const [isYoutubeUrl, setIsYoutubeUrl] = useState(false);
+
+    const [linkInput, setLinkInput] = useState({
+        question: false,
+        answer: false,
+        answerLink: "",
+        questionLink: "",
+    });
 
     const { categoriesData } = useGetAllCategoriesDataForDropDownFromStore();
     const [uploadedFileType, setUploadedFileType] = useState<UploadedFileType | null>(null);
@@ -172,12 +182,12 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 questionAR: questionData?.multilingualData?.questionText.ar,
                 answerEN: questionData?.multilingualData?.answerExplanation.en,
                 answerAR: questionData?.multilingualData?.answerExplanation.ar,
-                questionMedia: questionData?.mediaUrl,
-                answerMedia: questionData?.answerMediaUrl,
+                questionMedia: questionData?.mediaUrl || questionData?.questionYoutubeLink,
+                answerMedia: questionData?.answerMediaUrl || questionData?.answerYoutubeLink,
             }));
 
-            const questionMediaFileName = splitFileName(questionData?.mediaUrl);
-            const answerMediaFileName = splitFileName(questionData?.answerMediaUrl);
+            const questionMediaFileName = questionData?.mediaUrl ? splitFileName(questionData?.mediaUrl) : questionData?.questionYoutubeLink;
+            const answerMediaFileName = questionData?.answerMediaUrl ? splitFileName(questionData?.answerMediaUrl) : questionData?.answerYoutubeLink;
 
             setState(prev => ({
                 ...prev,
@@ -190,8 +200,8 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                 } : null,
                 questionMediaFileName: questionMediaFileName,
                 answerMediaFileName: answerMediaFileName,
-                questionMediaObj: questionData?.mediaUrl,
-                answerMediaObj: questionData?.answerMediaUrl,
+                questionMediaObj: questionData?.mediaUrl || questionData?.questionYoutubeLink,
+                answerMediaObj: questionData?.answerMediaUrl || questionData?.answerYoutubeLink,
                 mode: questionData?.questionType === "MCQs" ? "online" : "offline",
             }));
 
@@ -287,19 +297,13 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             }));
         }
         if (file) {
-            if (name === "questionMedia") {
-                setState(prev => ({
-                    ...prev,
-                    questionMediaObj: file,
-                    questionMediaFileName: file.name
-                }));
-            } else if (name === "answerMedia") {
-                setState(prev => ({
-                    ...prev,
-                    answerMediaObj: file,
-                    answerMediaFileName: file.name
-                }));
-            }
+            setState(prev => ({
+                ...prev,
+                [`${name}Obj`]: file,
+                [`${name}FileName`]: file.name
+            }));
+
+            handleCloseLinkInput(name === "questionMedia" ? "question" : "answer")
 
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -350,9 +354,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         if (options.length === 4) {
             // Check for any empty option
             const emptyENOption = options.find(opt => !opt.english.trim());
-            const emptyAROption = options.find(opt => !opt.arabic.trim());
+            const emptyAROption = options.find(opt => !opt.english.trim());
             if (emptyENOption || emptyAROption) {
-                setErrorState(prev => ({ ...prev, options: "All options must be filled." }));
+                setErrorState(prev => ({ ...prev, options: t("All options must be filled.") }));
                 return;
             }
 
@@ -360,7 +364,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             const englishOptions = options.map(opt => opt.english.trim().toLowerCase());
             const hasDuplicate = englishOptions.some((opt, idx) => englishOptions.indexOf(opt) !== idx);
             if (hasDuplicate) {
-                setErrorState(prev => ({ ...prev, options: "Options must be unique." }));
+                setErrorState(prev => ({ ...prev, options: t("Options must be unique.") }));
                 return;
             }
         }
@@ -383,9 +387,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         safeAppend("questionType", state.selectedQuestionType);
         safeAppend("type", state.mode === "online" ? "text" : "text-and-media");
         safeAppend("categoryId", state.selectedCategory);
-        safeAppend("questionText[en]", questionState?.questionEN);
+        safeAppend("questionText[en]", questionState?.questionAR);
         safeAppend("questionText[ar]", questionState?.questionAR);
-        safeAppend("answerExplanation[en]", questionState?.answerEN);
+        safeAppend("answerExplanation[en]", questionState?.answerAR);
         safeAppend("answerExplanation[ar]", questionState?.answerAR);
         safeAppend("difficulty", state.selectedDifficulty);
 
@@ -394,18 +398,26 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
         if (state.mode === "online") {
             options.forEach((opt) => {
-                safeAppend("options[en][]", opt.english);
+                safeAppend("options[en][]", opt.arabic);
                 safeAppend("options[ar][]", opt.arabic);
             });
 
-            safeAppend("correctAnswer[en]", state.selectedCorrectOption?.english);
+            safeAppend("correctAnswer[en]", state.selectedCorrectOption?.arabic);
             safeAppend("correctAnswer[ar]", state.selectedCorrectOption?.arabic);
         } else {
             if (state.questionMediaObj?.type && state.questionMediaObj?.size) {
                 formData.append("media", state.questionMediaObj);
+            } else {
+                if (linkInput.questionLink) {
+                    formData.append("questionYoutubeLink", linkInput.questionLink);
+                }
             }
             if (state.answerMediaObj?.type && state.answerMediaObj?.size) {
                 formData.append("answerMedia", state.answerMediaObj);
+            } else {
+                if (linkInput.answerLink) {
+                    formData.append("answerYoutubeLink", linkInput.answerLink);
+                }
             }
         }
 
@@ -489,13 +501,12 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         setErrorState(prev => ({ ...prev, options: "" }));
     };
 
-    const handleTranslate = (index: number) => {
-        const updatedOptions = [...options];
-        updatedOptions[index].arabic = "ترجمة: " + updatedOptions[index].english;
-        setOptions(updatedOptions);
-        setErrorState(prev => ({ ...prev, options: "" }));
-
-    };
+    // const handleTranslate = (index: number) => {
+    //     const updatedOptions = [...options];
+    //     updatedOptions[index].arabic = "ترجمة: " + updatedOptions[index].english;
+    //     setOptions(updatedOptions);
+    //     setErrorState(prev => ({ ...prev, options: "" }));
+    // };
 
     const handleSelectChange = (value: string, field: keyof StateType) => {
         setState((prev) => ({
@@ -527,9 +538,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
     const handleDisabled = () => {
         if (state.selectedQuestionType === "MCQs") {
-            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
+            return !questionState?.questionAR || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.selectedCorrectOption;
         } else {
-            return !questionState?.questionEN || !questionState?.questionAR || !questionState?.answerEN || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaFileName || !state.answerMediaFileName;
+            return !questionState?.questionAR || !questionState?.answerAR || !state.selectedCategory || !state.selectedDifficulty || !state.questionMediaFileName || !state.answerMediaFileName;
         }
     };
 
@@ -606,6 +617,48 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         { value: 'Direct Answer', label: t('Simple Question') },
         { value: 'MCQs', label: t("MCQ's Question") },
     ];
+
+    const handleShowLinkInput = (name: "question" | "answer") => {
+        setLinkInput(prev => ({
+            ...prev,
+            [name]: true,
+            [`${name}Link`]: questionState?.[`${name}Media`] || ""
+        }));
+    };
+
+    const handleCloseLinkInput = (name: "question" | "answer") => {
+        setIsYoutubeUrl(false);
+        setLinkInput(prev => ({
+            ...prev,
+            [name]: false,
+            [`${name}Link`]: ""
+        }));
+    };
+
+    const handleDoneLinkInput = (name: "question" | "answer") => {
+        if (linkInput[`${name}Link`] === "") {
+            showErrorMessage(t("youtubeUrlIsRequired"));
+            return;
+        } else if (isYoutubeUrlCorrect(linkInput[`${name}Link`])) {
+            setIsYoutubeUrl(true);
+            setQuestionState((prevState) => {
+                return {
+                    ...prevState,
+                    [`${name}Media`]: linkInput[`${name}Link`],
+                } as any;
+            });
+            setLinkInput(prev => ({
+                ...prev,
+                [name]: false,
+            }));
+            setState(prev => ({
+                ...prev,
+                [`${name}MediaFileName`]: linkInput[`${name}Link`],
+            }));
+        } else {
+            showErrorMessage(t("youtubeUrlNotCorrect"));
+        }
+    };
 
     return (
         <>
@@ -695,31 +748,47 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                             </div>
                             <div className='space-y-5 overflow-y-auto h-auto max-h-[600px]'>
                                 {/* Question */}
-                                <div>
+                                <div dir={direction}>
                                     <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>{t('Add Question')} <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
                                     <div className='space-y-5'>
-                                        <Input
+                                        {/* <Input
                                             name='questionEN'
                                             type='text'
                                             placeholder={t('Question')}
                                             value={questionState?.questionEN}
                                             onChange={(e) => handleOnChange(e)}
                                             className="w-full px-4"
+                                        /> */}
+                                        <Input
+                                            type='text'
+                                            name='questionAR'
+                                            dir={direction}
+                                            placeholder={t('Question')}
+                                            value={questionState?.questionAR}
+                                            onChange={(e) => handleOnChange(e)}
+                                            className="w-full px-4"
                                         />
-                                        <div className='relative'>
-                                            <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                                {t('Translate')}
-                                            </button>
-                                            <Input
-                                                type='text'
-                                                name='questionAR'
-                                                // readOnly
-                                                placeholder={t('Question Translation')}
-                                                value={questionState?.questionAR}
-                                                onChange={(e) => handleOnChange(e)}
-                                                className="w-full text-end px-4"
-                                            />
-                                        </div>
+                                        {linkInput.question && (
+                                            <div className="relative mt-5">
+                                                <div dir={direction} className='text-sm flex items-center gap-x-2 absolute top-[18px] md:end-5 end-2 z-10'>
+                                                    <button onClick={() => handleDoneLinkInput("question")}>
+                                                        <MdDone size={24} />
+                                                    </button>
+                                                    <button onClick={() => handleCloseLinkInput("question")}>
+                                                        <MdClose size={24} />
+                                                    </button>
+                                                </div>
+                                                <Input
+                                                    dir={direction}
+                                                    type='text'
+                                                    name='questionLink'
+                                                    placeholder={t("Youtube Video Link")}
+                                                    value={linkInput.questionLink}
+                                                    onChange={(e) => setLinkInput(prev => ({ ...prev, questionLink: e.target.value }))}
+                                                    className="w-full border pe-20"
+                                                />
+                                            </div>
+                                        )}
                                         <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
                                             <div className="relative w-full h-14 px-4 transform rounded-lg overflow-hidden border border-border-gray flex items-center justify-center">
                                                 {/* Hidden file input */}
@@ -732,17 +801,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                 />
                                                 {questionState?.questionMedia ?
                                                     <>
-                                                        {/* {<img
-                                                        src={getImageUrl()}
-                                                        alt="preview"
-                                                        className="w-8 h-8 object-contain"
-                                                        width={96}
-                                                        loading="lazy"
-                                                        height={96}
-                                                    />} */}
                                                         <span className={`truncate  ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.questionMediaFileName}</span>
                                                         <button
-                                                            className="ml-auto"
+                                                            className="ms-auto"
                                                             onClick={() => handleRemove("questionMedia")}
                                                         >
                                                             <MdDelete className="text-danger" size={24} />
@@ -750,20 +811,27 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     </>
                                                     :
 
-                                                    <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white" >
-                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
+                                                    <div className="w-full h-full flex items-center justify-between gap-x-5 bg-white" >
+                                                        <span className="border-e h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
                                                         <div className='flex items-center justify-between flex-1 px-8'>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("image")}>
                                                                 <UploadImageIcon />
                                                                 <span className="text-base ">{t('Image')}</span>
                                                             </button>
+                                                            <Divider type="vertical" className="h-10" />
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("video")}>
                                                                 <VideoIcon />
                                                                 <span className="text-base ">{t('Video')}</span>
                                                             </button>
+                                                            <Divider type="vertical" className="h-10" />
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerQuestionFileInput("audio")}>
                                                                 <AudioIcon />
                                                                 <span className="text-base ">{t('Audio')}</span>
+                                                            </button>
+                                                            <Divider type="vertical" className="h-10" />
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => handleShowLinkInput("question")}>
+                                                                <LinkIcon />
+                                                                <span className="text-base ">{t('Youtube Video Link')}</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -774,31 +842,47 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                     </div>
                                 </div>
                                 {/* Answer */}
-                                <div>
-                                    <h2 className='w-full  text-lg mb-5 flex items-center gap-x-5'>{t('Add Answer Description')} <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
+                                <div dir={direction}>
+                                    <h2 className='w-full text-lg mb-5 flex items-center gap-x-5'>{t('Add Answer Description')} <span className='h-[2px] flex-1 bg-border-gray'></span></h2>
                                     <div className='space-y-5'>
-                                        <Input
+                                        {/* <Input
                                             name='answerEN'
                                             type='text'
                                             placeholder={t('Answer')}
                                             value={questionState?.answerEN}
                                             onChange={(e) => handleOnChange(e)}
                                             className="w-full px-4"
+                                        /> */}
+                                        <Input
+                                            type='text'
+                                            name='answerAR'
+                                            dir={direction}
+                                            placeholder={t('Answer')}
+                                            value={questionState?.answerAR}
+                                            onChange={(e) => handleOnChange(e)}
+                                            className="w-full border px-4"
                                         />
-                                        <div className='relative'>
-                                            <button className='absolute top-4 left-5 z-10  underline hover:no-underline'>
-                                                {t('Translate')}
-                                            </button>
-                                            <Input
-                                                type='text'
-                                                name='answerAR'
-                                                // readOnly
-                                                placeholder={t('Answer Translation')}
-                                                value={questionState?.answerAR}
-                                                onChange={(e) => handleOnChange(e)}
-                                                className="w-full border text-end px-4"
-                                            />
-                                        </div>
+                                        {linkInput.answer && (
+                                            <div className="relative mt-5">
+                                                <div dir={direction} className='text-sm flex items-center gap-x-2 absolute top-[18px] md:end-5 end-2 z-10'>
+                                                    <button onClick={() => handleDoneLinkInput("answer")}>
+                                                        <MdDone size={24} />
+                                                    </button>
+                                                    <button onClick={() => handleCloseLinkInput("answer")}>
+                                                        <MdClose size={24} />
+                                                    </button>
+                                                </div>
+                                                <Input
+                                                    type='text'
+                                                    dir={direction}
+                                                    name='answerLink'
+                                                    placeholder={t("Youtube Video Link")}
+                                                    value={linkInput.answerLink}
+                                                    onChange={(e) => setLinkInput(prev => ({ ...prev, answerLink: e.target.value }))}
+                                                    className="w-full border pe-20"
+                                                />
+                                            </div>
+                                        )}
                                         <div className={`w-full flex-col gap-4 ${state.mode === 'online' ? 'hidden' : 'flex'}`}>
                                             <div className="relative w-full h-14 px-4 rounded-lg transform overflow-hidden border border-border-gray flex items-center justify-center">
                                                 {/* Hidden file input */}
@@ -811,17 +895,9 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                 />
                                                 {questionState?.answerMedia ?
                                                     <>
-                                                        {/* {<img
-                                                        src={(typeof questionState.answerMedia === 'string' ? questionState.answerMedia : "")}
-                                                        alt="preview"
-                                                        className="w-8 h-8 object-contain"
-                                                        width={96}
-                                                        height={96}
-                                                        loading="lazy"
-                                                    />} */}
                                                         <span className={`truncate ${uploadedFileType === "image" ? "" : ""} mt-1`}>{state.answerMediaFileName}</span>
                                                         <button
-                                                            className="ml-auto"
+                                                            className="ms-auto"
                                                             onClick={() => handleRemove("answerMedia")}
                                                         >
                                                             <MdDelete className="text-danger" size={24} />
@@ -830,20 +906,27 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
 
                                                     :
 
-                                                    <div className="w-full h-full  cursor-pointer flex items-center justify-between gap-x-5 bg-white">
-                                                        <span className="border-r h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
+                                                    <div className="w-full h-full flex items-center justify-between gap-x-5 bg-white">
+                                                        <span className="border-e h-full pe-4 flex-centered border-border-gray text-center ">{t('Upload Media')}</span>
                                                         <div className='flex items-center justify-between flex-1 px-8'>
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("image")}>
                                                                 <UploadImageIcon />
                                                                 <span className="text-base ">{t('Image')}</span>
                                                             </button>
+                                                            <Divider type="vertical" className="h-10" />
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("video")}>
                                                                 <VideoIcon />
                                                                 <span className="text-base ">{t('Video')}</span>
                                                             </button>
+                                                            <Divider type="vertical" className="h-10" />
                                                             <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => triggerAnswerFileInput("audio")}>
                                                                 <AudioIcon />
                                                                 <span className="text-base ">{t('Audio')}</span>
+                                                            </button>
+                                                            <Divider type="vertical" className="h-10" />
+                                                            <button className='flex-centered gap-x-4  hover:text-medium-gray transition-colors duration-300' onClick={() => handleShowLinkInput("answer")}>
+                                                                <LinkIcon />
+                                                                <span className="text-base ">{t('Youtube Video Link')}</span>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -855,7 +938,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                 </div>
                                 {/* MCQs */}
                                 {state.selectedQuestionType === "MCQs" &&
-                                    <div className="w-full">
+                                    <div className="w-full" dir={direction}>
                                         <h2 className="w-full text-lg mb-5 flex items-center gap-x-5">{t("Add MCQ'S")} <span className="text-sm text-gray-500">{t("Select anyone with right answer")}</span></h2>
 
                                         <Radio.Group
@@ -888,28 +971,29 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                         <>
                             <div className="space-y-6">
                                 {options.map((opt, index) => (
-                                    <div key={index} className="space-y-1">
+                                    <div key={index} className="space-y-1" dir={direction}>
                                         <p className="font-medium">{t("Option")} {index + 1}</p>
 
                                         <div className="flex items-center gap-3">
                                             {/* English Input */}
                                             <div className="flex flex-col flex-1">
                                                 <Input
+                                                    dir={direction}
                                                     placeholder={t("Type option")}
                                                     value={opt.english}
                                                     onChange={(e) => handleChange(index, "english", e.target.value)}
                                                     className="flex-1 h-14"
                                                 />
-                                                <span className="text-xs text-gray-500 mt-1">{t("English")}</span>
+                                                {/* <span className="text-xs text-gray-500 mt-1">{t("English")}</span> */}
                                             </div>
 
                                             {/* Shuffle Icon */}
-                                            <span className="flex-shrink-0 -mt-5">
+                                            {/* <span className="flex-shrink-0 -mt-5">
                                                 <ShuffleIcon />
-                                            </span>
+                                            </span> */}
 
                                             {/* Translate Button */}
-                                            <div className="w-2/5 ">
+                                            {/* <div className="w-2/5 ">
                                                 <button
                                                     onClick={() => handleTranslate(index)}
                                                     className="w-full h-12 rounded-lg border underline font-medium hover:no-underline"
@@ -917,7 +1001,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     {opt.arabic ? opt.arabic : t("Translate")}
                                                 </button>
                                                 <span className="text-xs text-gray-500 mt-1">{t("Arabic")}</span>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 ))}

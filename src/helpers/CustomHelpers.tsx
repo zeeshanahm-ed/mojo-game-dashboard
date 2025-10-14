@@ -56,5 +56,25 @@ export const getFileName = (url: string) => {
     } catch {
         return "";
     }
-}
+};
+
+export const getYouTubeEmbedUrl = (url: string | undefined) => {
+    if (!url) return null;
+
+    const regex =
+        /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+
+    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+};
+
+export const isYoutubeUrlCorrect = (url: string | undefined) => {
+    if (!url) return false;
+
+    const regex =
+        /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+
+    return match ? true : false;
+};
 

@@ -224,5 +224,10 @@
     "Verifying token": "يتم التحقق من رمز التحقق",
     "Revenue": "الإيرادات",
     "No Revenue": "لا يوجد إيرادات",
-    "SAR": "ريال"
+    "SAR": "ريال",
+    "Youtube Video Link": "رابط فيديو يوتيوب",
+    "youtubeUrlIsRequired": "رابط فيديو يوتيوب مطلوب.",
+    "youtubeUrlNotCorrect": "رابط فيديو يوتيوب غير صحيح.",
+    "All options must be filled.": "جميع الخيارات مطلوبة.",
+    "Options must be unique.": "الخيارات يجب أن تكون فريدة."
 }
