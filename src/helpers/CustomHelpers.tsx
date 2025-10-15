@@ -79,7 +79,7 @@ export const isYoutubeUrlCorrect = (url: string | undefined) => {
 };
 
 // Supported media types for all browsers
-type SupportedImageTypes = 'jpg' | 'jpeg' | 'png' | 'gif' | 'bmp' | 'webp';
+type SupportedImageTypes = 'jpg' | 'jpeg' | 'png';
 type SupportedAudioTypes = 'mp3' | 'wav' | 'ogg' | 'aac' | 'm4a';
 type SupportedVideoTypes = 'mp4' | 'webm' | 'ogg' | 'wav';
 
@@ -94,7 +94,7 @@ export const getMediaType = (mediaUrl: string): MediaType => {
     const extensionMatch = mediaUrl.split('.').pop()?.toLowerCase().split(/\#|\?/)[0];
     if (!extensionMatch) return 'image';
 
-    const imageTypes: SupportedImageTypes[] = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    const imageTypes: SupportedImageTypes[] = ['jpg', 'jpeg', 'png'];
     const audioTypes: SupportedAudioTypes[] = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
     const videoTypes: SupportedVideoTypes[] = ['mp4', 'webm', 'ogg'];
 
