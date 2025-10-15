@@ -5,7 +5,7 @@ import { getAllReviewers } from "../_requests";
 const useGetAllReviewers = (params: any) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ALL_REVIEWERS, params], () => getAllReviewers(params),
         {
-            cacheTime: 1,
+            cacheTime: 0,
             staleTime: 0,
         }
     );

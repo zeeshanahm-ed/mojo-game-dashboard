@@ -5,7 +5,7 @@ import { getSubscriptionHistory } from '../_requesta';
 const useGetAllSubscriptionHistory = (params: any) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_SUBSCRIPTION_DATA, params], () => getSubscriptionHistory(params),
         {
-            cacheTime: 1,
+            cacheTime: 0,
             staleTime: 0,
         }
     );

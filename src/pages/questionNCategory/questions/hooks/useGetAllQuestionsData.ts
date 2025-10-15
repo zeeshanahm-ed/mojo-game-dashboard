@@ -6,7 +6,7 @@ import { AllQuestionParams } from '../core/_modals';
 const useGetAllQuestionsData = (params: AllQuestionParams) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_QUESTIONS, params], () => getQuestionsData(params),
         {
-            cacheTime: 1,
+            cacheTime: 0,
             staleTime: 0,
         }
     );

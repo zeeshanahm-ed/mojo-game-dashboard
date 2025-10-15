@@ -6,7 +6,7 @@ import { GetUserDataParems } from '../_models';
 const useGetAllUserData = (params: GetUserDataParems) => {
     const { data, error, isLoading, isError, isSuccess, refetch } = useQuery([QUERIES_KEYS.GET_ADMIN_USERS, , params], () => getAllUserData(params),
         {
-            cacheTime: 1,
+            cacheTime: 0,
             staleTime: 0,
         }
     );

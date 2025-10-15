@@ -1,5 +1,5 @@
-const cacheTime = 1000 * 60 * 60; // 1 hour
-const staleTime = 1000 * 60 * 60; // 1 hour
+const cacheTime = 0; // disable cache
+const staleTime = 0; // always stale
 
 export default {
   defaultOptions: {
