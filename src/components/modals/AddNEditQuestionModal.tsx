@@ -354,7 +354,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         if (options.length === 4) {
             // Check for any empty option
             const emptyENOption = options.find(opt => !opt.english.trim());
-            const emptyAROption = options.find(opt => !opt.english.trim());
+            const emptyAROption = options.find(opt => !opt.arabic.trim());
             if (emptyENOption || emptyAROption) {
                 setErrorState(prev => ({ ...prev, options: t("All options must be filled.") }));
                 return;
@@ -494,9 +494,10 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         setUploadedFileType(null);
     };
 
-    const handleChange = (index: number, field: keyof OptionType, value: string) => {
+    const handleChange = (index: number, value: string) => {
         const updatedOptions = [...options];
-        updatedOptions[index][field] = value;
+        updatedOptions[index].english = value;
+        updatedOptions[index].arabic = value;
         setOptions(updatedOptions);
         setErrorState(prev => ({ ...prev, options: "" }));
     };
@@ -981,7 +982,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
                                                     dir={direction}
                                                     placeholder={t("Type option")}
                                                     value={opt.english}
-                                                    onChange={(e) => handleChange(index, "english", e.target.value)}
+                                                    onChange={(e) => handleChange(index, e.target.value)}
                                                     className="flex-1 h-14"
                                                 />
                                                 {/* <span className="text-xs text-gray-500 mt-1">{t("English")}</span> */}

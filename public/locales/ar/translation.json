@@ -229,5 +229,6 @@
     "youtubeUrlIsRequired": "رابط فيديو يوتيوب مطلوب.",
     "youtubeUrlNotCorrect": "رابط فيديو يوتيوب غير صحيح.",
     "All options must be filled.": "جميع الخيارات مطلوبة.",
-    "Options must be unique.": "الخيارات يجب أن تكون فريدة."
+    "Options must be unique.": "الخيارات يجب أن تكون فريدة.",
+    "Suspend": "معلق"
 }

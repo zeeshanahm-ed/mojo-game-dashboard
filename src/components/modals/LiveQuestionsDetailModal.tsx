@@ -1,15 +1,15 @@
 import React from 'react';
 import { Button, Modal, Tooltip, Divider, Popconfirm } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-//icons
-import QuestionIcon from "../../assets/icons/question-icon.svg?react"
-import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
 import FallbackLoader from 'components/core-ui/fallback-loader/FallbackLoader';
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
-import { hasPermission } from 'helpers/CustomHelpers';
+import { getMediaType, getYouTubeEmbedUrl, hasPermission } from 'helpers/CustomHelpers';
 import { getUser } from 'auth';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from 'hooks/useGetDirection';
+import { showErrorMessage, showSuccessMessage } from 'utils/messageUtils';
+//icons
+import QuestionIcon from "../../assets/icons/question-icon.svg?react"
 
 interface QuestionReviewModalProps {
     open: boolean;
@@ -61,12 +61,18 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
         switch (mediaType) {
             case 'image':
                 return (
-                    <div className="mt-2">
+                    <div className="mt-2 w-full h-48 flex-centered">
                         <img
                             loading='lazy'
-                            src={mediaUrl}
+                            src={mediaUrl || "/images/question-mark.png"}
                             alt="Question media"
-                            className="w-full h-48 object-contain rounded-lg border"
+                            className="w-full h-full object-contain rounded-lg border"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== "/images/question-mark.png") {
+                                    target.src = "/images/question-mark.png";
+                                }
+                            }}
                         />
                     </div>
                 );
@@ -81,45 +87,32 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 );
             case 'video':
                 return (
-                    <div className="mt-2">
-                        <video controls className="w-full h-48 rounded-lg border">
+                    <div className="mt-2 w-full h-48 flex-centered">
+                        <video controls className="w-full h-full rounded-lg border">
                             <source src={mediaUrl} type="video/mp4" />
                             Your browser does not support the video element.
                         </video>
                     </div>
                 );
+            case 'youtube':
+                const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl) || "";
+                return (
+                    <div className="w-full h-48 flex-centered">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src={`${youtubeEmbedUrl}?modestbranding=1&rel=0&controls=1&showinfo=0&iv_load_policy=3&fs=1&disablekb=1&playsinline=1`}
+                            title="YouTube video player"
+                            style={{ border: 0 }}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                );
             default:
                 return null;
         }
-    };
-
-    // Supported media types for all browsers
-    type SupportedImageTypes = 'jpg' | 'jpeg' | 'png' | 'gif' | 'bmp' | 'webp';
-    type SupportedAudioTypes = 'mp3' | 'wav' | 'ogg' | 'aac' | 'm4a';
-    type SupportedVideoTypes = 'mp4' | 'webm' | 'ogg' | 'wav';
-
-    type MediaType = 'image' | 'audio' | 'video' | 'unknown';
-
-    // Helper function to extract file extension and determine media type
-    const getMediaType = (mediaUrl: string): MediaType => {
-        if (!mediaUrl) return 'unknown';
-        const extensionMatch = mediaUrl.split('.').pop()?.toLowerCase().split(/\#|\?/)[0];
-        if (!extensionMatch) return 'unknown';
-
-        const imageTypes: SupportedImageTypes[] = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-        const audioTypes: SupportedAudioTypes[] = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
-        const videoTypes: SupportedVideoTypes[] = ['mp4', 'webm', 'ogg'];
-
-        if (imageTypes.includes(extensionMatch as SupportedImageTypes)) {
-            return 'image';
-        }
-        if (audioTypes.includes(extensionMatch as SupportedAudioTypes)) {
-            return 'audio';
-        }
-        if (videoTypes.includes(extensionMatch as SupportedVideoTypes)) {
-            return 'video';
-        }
-        return 'unknown';
     };
 
     const options = getOptions();
@@ -197,15 +190,19 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                 </div>
                 <Divider />
                 {/* Question Section */}
-                <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">{t("Question")}</h3>
-                    <p className="text-base font-normal text-gray-900 mb-3">{getQuestionText()}</p>
-                    {questionData?.mediaUrl && renderMedia(questionData.mediaUrl)}
+                <div className="mb-6" dir={direction}>
+                    <h3 className="text-base text-gray-700 mb-2">{t("Question")}</h3>
+                    <p className="text-lg font-normal text-gray-900 mb-3">{getQuestionText()}</p>
+                    {renderMedia(
+                        questionData?.mediaUrl
+                        || questionData?.questionYoutubeLink
+                        || ""
+                    )}
                 </div>
 
                 {/* Answer Options */}
-                {options.length > 0 && <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">{t("Answer Options")}</h3>
+                {options.length > 0 && <div className="mb-6" dir={direction}>
+                    <h3 className="text-base text-gray-700 mb-2">{t("Answer Options")}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {options.map((option: string, index: number) => {
                             const isCorrect = option === correctAnswer;
@@ -214,7 +211,7 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
                             return (
                                 <button
                                     key={index}
-                                    className={`cursor-default p-4 text-left rounded-lg border-2 transition-all ${isCorrect
+                                    className={`cursor-default p-4 text-start rounded-lg border-2 transition-all ${isCorrect
                                         ? 'bg-green-50 border-green-300 text-green-800'
                                         : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
                                         }`}
@@ -228,10 +225,14 @@ const LiveQuestionsDetailModal: React.FC<QuestionReviewModalProps> = ({ getRevie
 
                 {/* Answer Explanation */}
                 {questionData?.answerExplanation && (
-                    <div className="mb-6">
-                        <h3 className="text-sm text-gray-700 mb-2">{t("Answer Explanation")}</h3>
-                        <p className="text-base font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
-                        {questionData?.answerMediaUrl && renderMedia(questionData.answerMediaUrl)}
+                    <div className="mb-6" dir={direction}>
+                        <h3 className="text-base text-gray-700 mb-2">{t("Answer Explanation")}</h3>
+                        <p className="text-lg font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
+                        {renderMedia(
+                            questionData?.answerMediaUrl
+                            || questionData?.answerYoutubeLink
+                            || ""
+                        )}
                     </div>
                 )}
                 <Divider />

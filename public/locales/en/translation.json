@@ -229,5 +229,6 @@
     "youtubeUrlIsRequired": "Youtube video link is required.",
     "youtubeUrlNotCorrect": "Youtube video link is not correct.",
     "All options must be filled.": "All options must be filled.",
-    "Options must be unique.": "Options must be unique."
+    "Options must be unique.": "Options must be unique.",
+    "Suspend": "Suspend"
 }

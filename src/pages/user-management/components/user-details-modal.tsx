@@ -175,7 +175,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   className="flex items-center gap-2"
                 >
                   <Radio className={`text-base `} value="Active">{t('Active')}</Radio>
-                  <Radio className={`text-base `} value="Suspended">{t('Suspended')}</Radio>
+                  <Radio className={`text-base `} value="Suspended">{t('Suspend')}</Radio>
                 </Radio.Group>
               </div>
             </div>

@@ -78,3 +78,35 @@ export const isYoutubeUrlCorrect = (url: string | undefined) => {
     return match ? true : false;
 };
 
+// Supported media types for all browsers
+type SupportedImageTypes = 'jpg' | 'jpeg' | 'png' | 'gif' | 'bmp' | 'webp';
+type SupportedAudioTypes = 'mp3' | 'wav' | 'ogg' | 'aac' | 'm4a';
+type SupportedVideoTypes = 'mp4' | 'webm' | 'ogg' | 'wav';
+
+type MediaType = 'image' | 'audio' | 'video' | 'youtube';
+
+// Helper function to extract file extension and determine media type
+export const getMediaType = (mediaUrl: string): MediaType => {
+    if (!mediaUrl) return 'image';
+    if (isYoutubeUrlCorrect(mediaUrl)) {
+        return 'youtube';
+    }
+    const extensionMatch = mediaUrl.split('.').pop()?.toLowerCase().split(/\#|\?/)[0];
+    if (!extensionMatch) return 'image';
+
+    const imageTypes: SupportedImageTypes[] = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    const audioTypes: SupportedAudioTypes[] = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+    const videoTypes: SupportedVideoTypes[] = ['mp4', 'webm', 'ogg'];
+
+    if (imageTypes.includes(extensionMatch as SupportedImageTypes)) {
+        return 'image';
+    }
+    if (audioTypes.includes(extensionMatch as SupportedAudioTypes)) {
+        return 'audio';
+    }
+    if (videoTypes.includes(extensionMatch as SupportedVideoTypes)) {
+        return 'video';
+    }
+    return 'image';
+};
+

@@ -123,7 +123,7 @@ const ReviewerDetailModal: React.FC<UserDetailsModalProps> = ({
                     disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                     onClick={() => handleActiveNInactive(userData?.status === 'Active' ? 'Suspended' : 'Active')}
                 >
-                    {userData?.status === 'Active' ? t("Suspended") : t("Active")}
+                    {userData?.status === 'Active' ? t("Suspend") : t("Active")}
                 </Button>
             </div>
         </Modal>

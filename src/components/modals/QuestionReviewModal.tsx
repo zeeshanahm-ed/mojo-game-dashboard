@@ -14,7 +14,7 @@ import usePublishQuestion from 'pages/reviewed-questions/core/hooks/usePublishQu
 import useDeleteQuestion from 'pages/questionNCategory/questions/hooks/useDeleteQuestion';
 import useChangeReviewedQuestionStatus from 'pages/reviewed-questions/core/hooks/useChangeReviewedQuestionStatus';
 import { getUser } from 'auth';
-import { hasPermission } from 'helpers/CustomHelpers';
+import { getMediaType, hasPermission } from 'helpers/CustomHelpers';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from 'hooks/useGetDirection';
 
@@ -75,18 +75,18 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
         switch (mediaType) {
             case 'image':
                 return (
-                    <div className="mt-2">
+                    <div className="mt-2 w-full h-48 flex-centered">
                         <img
                             loading='lazy'
                             src={mediaUrl}
                             alt="Question media"
-                            className="w-full h-48 object-contain rounded-lg border"
+                            className="w-full h-full object-contain rounded-lg border"
                         />
                     </div>
                 );
             case 'audio':
                 return (
-                    <div className="mt-2">
+                    <div className="mt-2 w-full h-48 flex-centered">
                         <audio controls className="w-full">
                             <source src={mediaUrl} type="audio/mpeg" />
                             Your browser does not support the audio element.
@@ -95,7 +95,7 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                 );
             case 'video':
                 return (
-                    <div className="mt-2">
+                    <div className="mt-2 w-full h-48 flex-centered">
                         <video controls className="w-full h-48 rounded-lg border">
                             <source src={mediaUrl} type="video/mp4" />
                             Your browser does not support the video element.
@@ -105,35 +105,6 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
             default:
                 return null;
         }
-    };
-
-    // Supported media types for all browsers
-    type SupportedImageTypes = 'jpg' | 'jpeg' | 'png' | 'gif' | 'bmp' | 'webp';
-    type SupportedAudioTypes = 'mp3' | 'wav' | 'ogg' | 'aac' | 'm4a';
-    type SupportedVideoTypes = 'mp4' | 'webm' | 'ogg' | 'wav';
-
-    type MediaType = 'image' | 'audio' | 'video' | 'unknown';
-
-    // Helper function to extract file extension and determine media type
-    const getMediaType = (mediaUrl: string): MediaType => {
-        if (!mediaUrl) return 'unknown';
-        const extensionMatch = mediaUrl.split('.').pop()?.toLowerCase().split(/\#|\?/)[0];
-        if (!extensionMatch) return 'unknown';
-
-        const imageTypes: SupportedImageTypes[] = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-        const audioTypes: SupportedAudioTypes[] = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
-        const videoTypes: SupportedVideoTypes[] = ['mp4', 'webm', 'ogg'];
-
-        if (imageTypes.includes(extensionMatch as SupportedImageTypes)) {
-            return 'image';
-        }
-        if (audioTypes.includes(extensionMatch as SupportedAudioTypes)) {
-            return 'audio';
-        }
-        if (videoTypes.includes(extensionMatch as SupportedVideoTypes)) {
-            return 'video';
-        }
-        return 'unknown';
     };
 
     const options = getOptions();
@@ -284,26 +255,31 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                     </div>
                 </div>
                 <Divider />
-                <div className='mb-3 flex items-center gap-x-10'>
-                    <h3 className="text-sm text-gray-700 mb-2">{t("Status")}</h3>
+                <div className='mb-3 flex items-center gap-x-10' dir={direction}>
+                    <h3 className="text-base text-gray-700 mb-2">{t("Status")}</h3>
                     <Select
                         disabled={hasPermission(CURRENT_USER?.role, "read_only")}
                         className="w-full h-10"
                         options={statusOptions()}
                         value={selectedStatus}
                         onChange={handleStatusChange}
+                        direction={direction}
                     />
                 </div>
                 {/* Question Section */}
-                <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">{t("Question")}</h3>
-                    <p className="text-base font-normal text-gray-900 mb-3">{getQuestionText()}</p>
-                    {questionData?.mediaUrl && renderMedia(questionData.mediaUrl)}
+                <div className="mb-6" dir={direction}>
+                    <h3 className="text-base text-gray-700 mb-2">{t("Question")}</h3>
+                    <p className="text-lg font-normal text-gray-900 mb-3">{getQuestionText()}</p>
+                    {renderMedia(
+                        questionData?.mediaUrl
+                        || questionData?.questionYoutubeLink
+                        || ""
+                    )}
                 </div>
 
                 {/* Answer Options */}
-                {options.length > 0 && <div className="mb-6">
-                    <h3 className="text-sm text-gray-700 mb-2">{t("Answer Options")}</h3>
+                {options.length > 0 && <div className="mb-6" dir={direction}>
+                    <h3 className="text-base text-gray-700 mb-2">{t("Answer Options")}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {options.map((option: string, index: number) => {
                             const isCorrect = option === correctAnswer;
@@ -312,9 +288,9 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
                             return (
                                 <button
                                     key={index}
-                                    className={`cursor-default p-4 text-left rounded-lg border-2 transition-all ${isCorrect
+                                    className={`cursor-default p-4  text-start rounded-lg border-2 transition-all ${isCorrect
                                         ? 'bg-green-50 border-green-300 text-green-800'
-                                        : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                                        : 'bg-white border-gray-200 text-gray-700'
                                         }`}
                                 >
                                     <span className="font-medium">({optionLetter})</span> {option}
@@ -326,10 +302,14 @@ const QuestionReviewModal: React.FC<QuestionReviewModalProps> = ({ activeTab, ge
 
                 {/* Answer Explanation */}
                 {questionData?.answerExplanation && (
-                    <div className="mb-6">
-                        <h3 className="text-sm text-gray-700 mb-2">{t("Answer Explanation")}</h3>
-                        <p className="text-base font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
-                        {questionData?.answerMediaUrl && renderMedia(questionData.answerMediaUrl)}
+                    <div className="mb-6" dir={direction}>
+                        <h3 className="text-base text-gray-700 mb-2">{t("Answer Explanation")}</h3>
+                        <p className="text-lg font-normal text-gray-900 mb-3">{getAnswerExplanationText()}</p>
+                        {renderMedia(
+                            questionData?.answerMediaUrl
+                            || questionData?.answerYoutubeLink
+                            || ""
+                        )}
                     </div>
                 )}
                 <Divider />
