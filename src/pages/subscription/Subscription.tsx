@@ -35,6 +35,8 @@ export const Subscription: React.FC = () => {
     const [params, setParams] = useState({
         page: 1,
         limit: 15,
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     })
     const { subscriptionData, pagination, isLoading } = useGetAllSubscriptionHistory(params)
 

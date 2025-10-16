@@ -28,6 +28,8 @@ function Categories() {
         limit: 10,
         page: 1,
         status: undefined,
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     });
     const { categoriesData, isLoading, pagination, refetch } = useCategoriesData(params);
     const { changeCategoryStatusMutate } = useChangeCategoryStatus();

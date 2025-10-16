@@ -407,6 +407,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
         } else {
             if (state.questionMediaObj?.type && state.questionMediaObj?.size) {
                 formData.append("media", state.questionMediaObj);
+                formData.append("questionYoutubeLink", "");
             } else {
                 if (linkInput.questionLink) {
                     formData.append("questionYoutubeLink", linkInput.questionLink);
@@ -414,6 +415,7 @@ const AddNEditQuestionModal = ({ open, onClose, getAddedQuestionData, questionId
             }
             if (state.answerMediaObj?.type && state.answerMediaObj?.size) {
                 formData.append("answerMedia", state.answerMediaObj);
+                formData.append("answerYoutubeLink", "");
             } else {
                 if (linkInput.answerLink) {
                     formData.append("answerYoutubeLink", linkInput.answerLink);

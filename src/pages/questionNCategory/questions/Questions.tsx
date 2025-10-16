@@ -39,6 +39,8 @@ function Questions() {
     const [params, setParams] = useState<AllQuestionParams>({
         page: 1,
         limit: 10,
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     });
     const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
 

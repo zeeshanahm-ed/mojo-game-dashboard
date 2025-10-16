@@ -20,7 +20,9 @@ function LiveQuestions() {
     const [params, setParams] = useState<AllQuestionParams>({
         page: 1,
         limit: 10,
-        status: "Live"
+        status: "Live",
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     });
 
     const { questionsData, pagination, isLoading, refetch } = useGetAllQuestionsData(params);

@@ -39,9 +39,10 @@ const Reviewers: React.FC = () => {
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     });
 
-    // const { userData, isLoading, pagination, refetch } = useUserData(params);
     const { reviewersData, isLoading, pagination, refetch } = useGetAllReviewers(params);
 
     useEffect(() => setTitle(t('Reviewers')), [setTitle, t]);

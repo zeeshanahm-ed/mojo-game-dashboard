@@ -18,6 +18,8 @@ const QuestionsReview = ({ title, subTitle, status }: any) => {
     const [params, setParams] = useState({
         page: 1,
         limit: 10,
+        sortBy: "updatedAt",
+        sortOrder: "desc",
     });
     const { allReviewedsQuestionsData, pagination, isLoading, refetch } = useGetReviewedQuestions(params);
 

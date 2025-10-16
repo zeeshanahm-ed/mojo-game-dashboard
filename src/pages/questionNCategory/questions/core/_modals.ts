@@ -4,4 +4,6 @@ export interface AllQuestionParams {
     categoryId?: string;
     difficulty?: string;
     status?: string;
+    sortBy?: string;
+    sortOrder?: string;
 }
