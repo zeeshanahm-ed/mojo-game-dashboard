@@ -39,8 +39,6 @@ const Reviewers: React.FC = () => {
     const [params, setParams] = useState({
         limit: 10,
         page: 1,
-        sortBy: "updatedAt",
-        sortOrder: "desc",
     });
 
     const { reviewersData, isLoading, pagination, refetch } = useGetAllReviewers(params);

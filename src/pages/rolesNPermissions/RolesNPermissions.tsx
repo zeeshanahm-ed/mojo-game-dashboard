@@ -51,8 +51,6 @@ export const RolesNPermissions: React.FC = () => {
         limit: 10,
         page: 1,
         role: "non_user",
-        sortBy: "updatedAt",
-        sortOrder: "desc",
     });
 
     const { userData, pagination, isLoading, refetch } = useGetAllUserData(params);
